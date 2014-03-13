@@ -39,26 +39,28 @@ struct Cast<Value, Target>
     }
 };
 
+template<typename Val>
+struct Cast<Val, Value>
+{
+    static Value cast(Val value)
+    {
+        return Value(value);
+    }
+};
+
+template<>
+struct Cast<Value, Value>
+{
+    static Value cast(Value value)
+    {
+        return value;
+    }
+};
+
 template<typename Target, typename V>
 Target cast(V&& value)
 {
     return Cast<V, Target>::cast(std::forward<V>(value));
 }
-
-/******************************************************************************/
-/* GET REFLECTION                                                             */
-/******************************************************************************/
-
-template<typename T>
-struct GetReflection
-{
-    Reflection* get() const { ReflectionRegistry::get<T>(); }
-};
-
-template<>
-struct GetReflection<Value>
-{
-    Reflection* get() const { return value.reflection(); }
-};
 
 } // reflect

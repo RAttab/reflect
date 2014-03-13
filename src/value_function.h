@@ -32,7 +32,7 @@ struct ValueFunction<void, TypeVector<Args...>, TypeVector<Values...> >
 
     void operator() (Values... values) const
     {
-        fn(cast<Args>(values)...);
+        fn(cast<std::decay<Args>::type>(values)...);
     }
 
 private:
@@ -48,7 +48,7 @@ struct ValueFunction<Ret, TypeVector<Args...>, TypeVector<Values...> >
 
     Value operator() (Values... values) const
     {
-        return Value(fn(cast<Args>(values)...));
+        return Value(fn(cast<std::decay<Args>::type>(values)...));
     }
 
 private:
@@ -69,9 +69,9 @@ struct MakeValueFunctionType
 
 template<typename Ret, typename... Args>
 auto wrapFunction(std::function<Ret(Args...)> fn) ->
-    MakeValueFunctionType<Ret, Args>::type
+    MakeValueFunctionType<Ret, Args...>::type
 {
-    return MakeValueFunctionType<Ret, Args>::type(std::move(fn));
+    return MakeValueFunctionType<Ret, Args...>::type(std::move(fn));
 }
 
 } // reflect

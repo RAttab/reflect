@@ -55,7 +55,9 @@ struct Function
         assert(test<void, Args...>());
 
         typedef std::function<void(Args...)> Fn;
-        *reinterpret_cast<Fn*>(&fn)(std::forward<Args>(args)...);
+        auto typedFn = *reinterpret_cast<Fn*>(&fn);
+
+        typedFn(cast<Value>(std::forward<Args>(args))...);
     }
 
     template<typename Ret, typename... Args>
@@ -64,7 +66,10 @@ struct Function
         assert(test<Ret, Args...>());
 
         typedef std::function<Ret(Args...)> Fn;
-        return *reinterpret_cast<Fn*>(&fn)(std::forward<Args>(args)...);
+        auto typedFn = *reinterpret_cast<Fn*>(&fn);
+
+        Value ret = typedFn(cast<Value>(std::forward<Args>(args))...);
+        return cast<Ret>(ret);
     }
 
     Reflection* returnType() const { return ret; }

@@ -7,15 +7,23 @@
 
 #pragma once
 
+#include "value.h"
+
 namespace reflect {
 
 struct Reflection;
 
+
 /******************************************************************************/
-/* REFLECTION REGISTRY                                                        */
+/* REFLECTION ID                                                              */
 /******************************************************************************/
 
 template<typename T> struct ReflectionId;
+
+
+/******************************************************************************/
+/* REFLECTION REGISTRY                                                        */
+/******************************************************************************/
 
 struct ReflectionRegistry
 {
@@ -27,6 +35,23 @@ struct ReflectionRegistry
     static Reflection* get(const std::string& id);
 
     static void add(Reflection* reflection)
+};
+
+
+/******************************************************************************/
+/* GET REFLECTION                                                             */
+/******************************************************************************/
+
+template<typename T>
+struct GetReflection
+{
+    Reflection* get() const { ReflectionRegistry::get<T>(); }
+};
+
+template<>
+struct GetReflection<Value>
+{
+    Reflection* get() const { return value.reflection(); }
 };
 
 } // reflect
