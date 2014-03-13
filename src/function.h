@@ -7,48 +7,11 @@
 
 #pragma once
 
+#include "utils.h"
+
+#include <function>
+
 namespace reflect {
-
-
-/******************************************************************************/
-/* FUNCTION PROXY                                                             */
-/******************************************************************************/
-
-/** Allows for calls to functions using the generic Value container. It does
-    this by casting the Value arguments to they're appropriate types and
-    wrapping the return value into a Value object. It SHOULD also allow for
-    mixed Value and non-Value.
-
- */
-template<typename Ret, typename... Args>
-struct FunctionProxy
-{
-    FunctionProxy(std::function<Ret(const Args&...)> fn) :
-        fn(std::move(fn))
-    {}
-
-    template<typename... V>
-    void operator() (V... values)
-    {
-        slickStaticAssert(std::is_same<void, Ret>::value);
-        slickStaticAssert(sizeof...(V) == sizeof...(Args));
-
-        fn(cast<Args>(values)...);
-    }
-
-    template<typename... V>
-    Value operator() (V... values)
-    {
-        slickStaticAssert(!std::is_same<void, Ret>::value);
-        slickStaticAssert(sizeof...(V) == sizeof...(Args));
-
-        return Value(fn(cast<Args>(values)...));
-    }
-
-private:
-
-    std::function<Ret(const Args&...)> fn;
-};
 
 
 /******************************************************************************/
