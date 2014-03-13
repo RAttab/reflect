@@ -11,3 +11,19 @@
 *.lai
 *.la
 *.a
+
+# folders
+bin
+
+# cmake
+cmake_install.cmake
+CMakeCache.txt
+CMakeFiles
+Makefile
+Testing
+CTestTestfile.cmake
+
+# Emacs temp files.
+.#*
+\#*#
+~*
