@@ -10,7 +10,7 @@
 #------------------------------------------------------------------------------#
 
 cmake_minimum_required(VERSION 2.6)
-project(mirror)
+project(reflect)
 
 enable_testing()
 
@@ -27,12 +27,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 include(CheckCXXCompilerFlag)
 
-check_cxx_compiler_flag(-std=c++11 MIRROR_FLAG_C11)
-check_cxx_compiler_flag(-std=c++0x MIRROR_FLAG_C0X)
+check_cxx_compiler_flag(-std=c++11 REFLECT_FLAG_C11)
+check_cxx_compiler_flag(-std=c++0x REFLECT_FLAG_C0X)
 
-if (MIRROR_FLAG_C11)
+if (REFLECT_FLAG_C11)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-elseif (MIRROR_FLAG_C0X)
+elseif (REFLECT_FLAG_C0X)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 endif()
 
@@ -76,27 +76,35 @@ include_directories("${PROJECT_SOURCE_DIR}/src")
 
 install(
     FILES
+    src/function.h
+    src/function_traits.h
+    src/macros.h
+    src/reflection.h
+    src/registry.h
+    src/type_vector.h
     src/utils.h
+    src/value_function.h
+    src/value.h
 
     DESTINATION
-    include/mirror)
+    include/reflect)
 
 add_library(
-    mirror
+    reflect
     SHARED
-    src/named_endpoint.cpp)
+    src/registry.cpp)
 
-install(TARGETS mirror DESTINATION lib)
+install(TARGETS reflect DESTINATION lib)
 
 
 #------------------------------------------------------------------------------#
 # TESTS
 #------------------------------------------------------------------------------#
 
-function(mirror_test name)
+function(reflect_test name)
     if(CMAKE_SOURCE_DIR STREQUAL ${PROJECT_SOURCE_DIR})
         add_executable(${name}_test tests/${name}_test.cpp)
-        target_link_libraries(${name}_test mirror boost_unit_test_framework)
+        target_link_libraries(${name}_test reflect boost_unit_test_framework)
         add_test(${name} bin/${name}_test)
     endif()
 endfunction()
