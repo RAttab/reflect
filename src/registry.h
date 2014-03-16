@@ -15,10 +15,10 @@ struct Reflection;
 
 
 /******************************************************************************/
-/* REFLECTION ID                                                              */
+/* REFLECT                                                                    */
 /******************************************************************************/
 
-template<typename T> struct ReflectionId;
+template<typename T> struct Reflect;
 
 
 /******************************************************************************/
@@ -30,11 +30,16 @@ struct ReflectionRegistry
     template<typename T>
     static Reflection* get()
     {
-        return get(ReflectionId<T>::value);
-    }
-    static Reflection* get(const std::string& id);
+        const auto& id = Reflect<T>::id;
 
-    static void add(Reflection* reflection)
+        Reflection* reflect = get();
+        if (!reflect) add(id, reflect = Reflect<T>::create());
+
+        return reflect;
+    }
+
+    static Reflection* get(const std::string& id);
+    static void add(std::string id, Reflection* reflection);
 };
 
 
