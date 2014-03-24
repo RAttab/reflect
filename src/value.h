@@ -16,17 +16,15 @@ namespace reflect {
 
 enum class RefType
 {
-    None,
     LValue,
     RValue,
 };
 
 template<typename T>
-RefType refType()
+RefType refType(T&&)
 {
-    if (std::is_lvalue_reference<T>::value) return RefType::LValue;
-    if (std::is_rvalue_reference<T>::value) return RefType::RValue;
-    return RefType::None;
+    return std::is_lvalue_reference<T>::value ?
+        RefType::LValue : RefType::RValue;
 }
 
 
@@ -36,17 +34,28 @@ RefType refType()
 
 struct Value
 {
-    template<typename T>
-    explicit Value(T& value) :
-        value_(&value), reflection_(ReflectionRegistry::get<T>())
+    Value() :
+        value_(nullptr), reflection_(ReflectionRegistry::get<void>())
     {}
 
     Value(void* value, Reflection* reflection) :
         value_(value), reflection_(reflection)
     {}
 
+    template<typename T>
+    explicit Value(T&& value) :
+        value_(&value), reflection_(ReflectionRegistry::get<T>())
+    {
+        if (refType(std::forward<T>(value)) == RefType::RValue)
+            storage.reset(value_ = new T(std::move(value)));
+    }
+
     void* value() const { return value_; }
     Reflection* reflection() const { return reflection_; }
+    RefType refType() const
+    {
+        return storage ? RefType::RValue : RefType::LValue;
+    }
 
     template<typename T>
     T* cast() const
@@ -56,33 +65,15 @@ struct Value
         return reinterpret_cast<CleanT*>(value);
     }
 
-protected:
-    void* value_;
-    Reflection* reflection_;
-};
-
-
-/******************************************************************************/
-/* RETURN VALUE                                                               */
-/******************************************************************************/
-
-struct ReturnValue : public Value
-{
-    ReturnValue() : Value(nullptr, ReflectionRegistry::get<void>()) {}
-
-    template<typename T, typename Y>
-    ReturnValue(Y&& value) :
-        Value(value), refType_(refType<T>())
+    bool isVoid() const
     {
-        if (refType_ == RefType::LValue) return;
-        storage_.reset(value_ = new Y(std::move(value)));
+        return reflection_ == ReflectionRegistry::get<void>();
     }
 
-    RefType refType() const { return refType_; }
-
 private:
-    RefType refType_;
-    std::shared_ptr<void> storage_;
+    void* value_;
+    Reflection* reflection_;
+    std::shared_ptr<void> storage;
 };
 
 } // reflect
