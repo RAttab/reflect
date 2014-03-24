@@ -8,6 +8,9 @@
 #pragma once
 
 #include "utils.h"
+#include "value.h"
+#include "cast.h"
+#include "value_function.h"
 
 #include <function>
 
@@ -145,20 +148,6 @@ struct Functions
     {
         assert(!test(fn) && "ambiguous overload");
         overloads.push_back(fn);
-    }
-
-
-    template<typename... Args>
-    void call(Args&&... args)
-    {
-        for (const auto& fn : overloads) {
-            if (!fn.test<Ret, Args...>()) continue;
-
-            fn.call(std::forward<Args>(args)...);
-            return;
-        }
-
-        assert(false && "no oveloads available");
     }
 
     template<typename Ret, typename... Args>
