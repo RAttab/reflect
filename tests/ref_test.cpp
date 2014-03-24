@@ -20,13 +20,13 @@ enum RefType
 };
 
 template<typename T>
-RefType refType(T&&)
+constexpr RefType refType(T&&)
 {
     return std::is_lvalue_reference<T>::value ? LValue : RValue;
 }
 
 template<typename T>
-RefType proxyRefType(T&& t)
+constexpr RefType proxyRefType(T&& t)
 {
     return refType(std::forward<T>(t));
 }

@@ -18,49 +18,21 @@ namespace reflect {
 
 
 /******************************************************************************/
-/* CAST                                                                       */
+/* REF TYPE                                                                   */
 /******************************************************************************/
 
-template<typename Val, typename Target>
-struct Cast
+enum class RefType
 {
-    static Target cast(Val value)
-    {
-        return value;
-    }
+    LValue,
+    RValue,
 };
 
-template<typename Target>
-struct Cast<Value, Target>
+template<typename T>
+constexpr RefType refType(T&&)
 {
-    static Target cast(Value value)
-    {
-        return value->cast<Target>();
-    }
-};
-
-template<typename Val>
-struct Cast<Val, Value>
-{
-    static Value cast(Val value)
-    {
-        return Value(value);
-    }
-};
-
-template<>
-struct Cast<Value, Value>
-{
-    static Value cast(Value value)
-    {
-        return value;
-    }
-};
-
-template<typename Target, typename V>
-Target cast(V&& value)
-{
-    return Cast<V, Target>::cast(std::forward<V>(value));
+    return std::is_lvalue_reference<T>::value ?
+        RefType::LValue : RefType::RValue;
 }
+
 
 } // reflect

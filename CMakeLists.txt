@@ -76,6 +76,7 @@ include_directories("${PROJECT_SOURCE_DIR}/src")
 
 install(
     FILES
+    src/cast.h
     src/function.h
     src/function_traits.h
     src/macros.h

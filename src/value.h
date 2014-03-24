@@ -11,24 +11,6 @@ namespace reflect {
 
 
 /******************************************************************************/
-/* REF TYPE                                                                   */
-/******************************************************************************/
-
-enum class RefType
-{
-    LValue,
-    RValue,
-};
-
-template<typename T>
-RefType refType(T&&)
-{
-    return std::is_lvalue_reference<T>::value ?
-        RefType::LValue : RefType::RValue;
-}
-
-
-/******************************************************************************/
 /* VALUE                                                                      */
 /******************************************************************************/
 
@@ -58,11 +40,15 @@ struct Value
     }
 
     template<typename T>
-    T* cast() const
+    T cast()
     {
+        assert(!isVoid());
+
         typedef typename std::decay<T>::type CleanT;
         assert(reflection_->isConvertibleTo<CleanT>());
-        return reinterpret_cast<CleanT*>(value);
+
+        return cast<T>(reinterpret_cast<CleanT*>(value),
+                std::is_lvalue_reference<T>());
     }
 
     bool isVoid() const
@@ -71,6 +57,27 @@ struct Value
     }
 
 private:
+
+    /** Return by lvalue ref or copy. */
+    template<typename T, typename U>
+    T cast(U* value, std::false_type)
+    {
+        return *value;
+    }
+
+    /** Return by rvalue ref so gut our object in the process. */
+    template<typename T, typename U>
+    T cast(U* value, std::true_type)
+    {
+        assert(refType() == RValue);
+        auto toReturn =  std::move(*value);
+
+        storage.release();
+        *this = Value();
+
+        return std::move(toReturn);
+    }
+
     void* value_;
     Reflection* reflection_;
     std::shared_ptr<void> storage;

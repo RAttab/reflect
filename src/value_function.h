@@ -32,7 +32,7 @@ struct ValueFunction<void, TypeVector<Args...>, TypeVector<Values...> >
 
     Value operator() (Values... values) const
     {
-        fn(cast<std::decay<Args>::type>(values)...);
+        fn(cast<Args>(values)...);
         return Value();
     }
 
@@ -49,7 +49,7 @@ struct ValueFunction<Ret, TypeVector<Args...>, TypeVector<Values...> >
 
     Value operator() (Values... values) const
     {
-        return Value(fn(cast<std::decay<Args>::type>(values)...));
+        return Value(fn(cast<Args>(values)...));
     }
 
 private:
