@@ -1,4 +1,4 @@
-mirror
-======
+Reflect
+=======
 
-For fun reflection framework
+For fun C++ reflection framework which uses lambdas to drive the core.
