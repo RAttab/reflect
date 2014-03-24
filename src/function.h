@@ -20,13 +20,33 @@ namespace reflect {
 
 struct Function
 {
+    typedef std::function<void()> VoidFn;
+
+    // \todo I'm not quite sure if the reinterpret cast is really safe here...
     template<typename Ret, typename... Args>
     Function(std::function<Ret(Args...)> fn) :
-        fn(*reinterpret_cast<std::function<void()>*>(&fn)),
+        fn(*reinterpret_cast<VoidFn*>(&wrapFunction(fn))),
         ret(GetReflection<Ret>::get())
     {
+        args.reserve(sizeof...(Args));
         reflectArgs<Args...>();
     }
+
+
+    Reflection* returnType() const { return ret; }
+    size_t size() const { return args.size(); }
+    Reflection* operator[] (size_t i) const { return args[i]; }
+
+    bool isGetter() const
+    {
+        return ret != GetReflection<void>::get() && args.size() == 1;
+    }
+
+    bool isSetter() const
+    {
+        return ret == GetReflection<void>::get() && args.size() == 2;
+    }
+
 
     template<typename Ret, typename... Args>
     bool test() const
@@ -49,55 +69,27 @@ struct Function
         return true;
     }
 
-    template<typename... Args>
-    void call(Args&&... args)
-    {
-        assert(test<void, Args...>());
-
-        typedef std::function<void(Args...)> Fn;
-        auto typedFn = *reinterpret_cast<Fn*>(&fn);
-
-        typedFn(cast<Value>(std::forward<Args>(args))...);
-    }
-
     template<typename Ret, typename... Args>
     Ret call(Args&&... args)
     {
         assert(test<Ret, Args...>());
 
-        typedef std::function<Ret(Args...)> Fn;
-        auto typedFn = *reinterpret_cast<Fn*>(&fn);
+        typedef typename MakeStdFunction<Args...>::type Fn;
+        const auto& typedFn = *reinterpret_cast<Fn*>(&fn);
 
         Value ret = typedFn(cast<Value>(std::forward<Args>(args))...);
         return cast<Ret>(ret);
     }
 
-    Reflection* returnType() const { return ret; }
-    size_t size() const { return args.size(); }
-    Reflection* operator[] (size_t i) const { return args[i]; }
-
-    bool isGetter() const
-    {
-        return ret != GetReflection<void>::get() && args.empty();
-    }
-
-    bool isSetter() const
-    {
-        return ret == GetReflection<void>::get() && args.size() == 1;
-    }
 
 private:
 
-    template<typename Arg>
-    void reflectArgs()
-    {
-        args.push_back(GetReflection<Arg>::get());
-    }
+    template<> void reflectArgs() {}
 
     template<typename Arg, typename... Rest>
     void reflectArgs()
     {
-        reflectArgs<Arg>();
+        args.push_back(GetReflection<Arg>::get());
         reflectArgs<Rest...>();
     }
 
@@ -106,22 +98,16 @@ private:
         return value->isConveritbleTo(target);
     }
 
-    template<size_t Index, typename Arg>
-    void testArgs() const
-    {
-        return test(GetReflection<Arg>::get(), args[Index]);
-    }
+    template<size_t Index> void testArgs() const {}
 
     template<size_t Index, typename Arg, typename... Rest>
     void testArgs() const
     {
-        if (!testArgs<Index, Arg>()) return false;
+        if (!test(GetReflection<Arg>::get(), args[Index])) return false;
         return testArgs<Index + 1, Rest...>();
     }
 
-
-    std::unique_ptr< std::function<void()> > fn;
-
+    VoidFn fn;
     Reflection* ret;
     std::vector<Reflection*> args;
 };

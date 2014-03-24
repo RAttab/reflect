@@ -68,11 +68,27 @@ struct MakeValueFunction
     typedef typename ValueFunction<Ret, TypeVector<Args...>, Values> type;
 };
 
+template<typename... Args>
+struct MakeStdFunction
+{
+    template<typename Values> struct Expand;
+
+    template<typename... Values>
+    struct Expand< TypeVector<Values...> >
+    {
+        typedef typename std::function<Value(Values...)> type;
+    };
+
+    typedef typename RepeatType<Value, sizeof...(Args)>::type Values;
+    typedef typename Expand<Values>::type type;
+};
+
+
 template<typename Ret, typename... Args>
 auto wrapFunction(std::function<Ret(Args...)> fn) ->
-    MakeValueFunction<Ret, Args...>::type
+    MakeStdFunction<Args...>::type
 {
-    return MakeValueFunction<Ret, Args...>::type(std::move(fn));
+    return typename MakeValueFunction<Ret, Args...>::type(std::move(fn));
 }
 
 } // reflect
