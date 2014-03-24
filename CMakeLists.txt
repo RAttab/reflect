@@ -93,7 +93,8 @@ install(
 # add_library(
 #     reflect
 #     SHARED
-#     src/registry.cpp)
+#     src/registry.cpp
+#     src/reflection.cpp)
 
 # install(TARGETS reflect DESTINATION lib)
 

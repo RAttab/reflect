@@ -53,9 +53,7 @@ struct Function
         if (args.size() != other.args.size()) return false;
 
         for (size_t i = 0; i < args.size(); ++i) {
-            if (!args[i].isConvertibleTo(other.args[i]) &&
-                    !other.args[i].isConvertibleTo(args[i]))
-                return false;
+            if (!other.args[i].isConvertibleTo(args[i])) return false;
         }
 
         return true;

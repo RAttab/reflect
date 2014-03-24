@@ -25,6 +25,13 @@ struct Reflection
     Reflection& operator=(const Reflection&) = delete;
 
 
+    template<typename T>
+    bool isConvertibleTo()
+    {
+        return isConvertibleTo(GetReflection<T>::get());
+    }
+    bool isConveritbleTo(Reflection* other);
+
 private:
 
     std::string id;
