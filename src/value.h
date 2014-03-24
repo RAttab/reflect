@@ -60,21 +60,21 @@ struct Value
 
 private:
 
-    /** Return by lvalue ref or copy. */
+    /** Return by lvalue-ref or copy. */
     template<typename T, typename U>
     T cast(U* value, std::false_type)
     {
         return *value;
     }
 
-    /** Return by rvalue ref so gut our object in the process. */
+    /** Return by rvalue-ref so gut our object in the process. */
     template<typename T, typename U>
     T cast(U* value, std::true_type)
     {
         assert(refType() == RValue);
-        auto toReturn =  std::move(*value);
+        assert(storage->unique());
 
-        storage.release();
+        auto toReturn = std::move(*value);
         *this = Value();
 
         return std::move(toReturn);
