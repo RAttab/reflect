@@ -8,7 +8,6 @@
 #pragma once
 
 #include "type_vector.h"
-#include "utils.h"
 #include "value.h"
 
 #include <function>
@@ -85,7 +84,7 @@ struct MakeStdFunction
 
 
 template<typename Ret, typename... Args>
-auto wrapFunction(std::function<Ret(Args...)> fn) ->
+auto makeValueFunction(std::function<Ret(Args...)> fn) ->
     MakeStdFunction<Args...>::type
 {
     return typename MakeValueFunction<Ret, Args...>::type(std::move(fn));

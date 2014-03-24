@@ -28,7 +28,7 @@ struct Function
     // \todo I doubt that the reinterpret cast is safe here...
     template<typename Ret, typename... Args>
     Function(std::function<Ret(Args...)> fn) :
-        fn(*reinterpret_cast<VoidFn*>(&wrapFunction(fn))),
+        fn(*reinterpret_cast<VoidFn*>(&makeValueFunction(fn))),
         ret(GetReflection<Ret>::get())
     {
         args.reserve(sizeof...(Args));
