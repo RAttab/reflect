@@ -89,12 +89,12 @@ install(
     DESTINATION
     include/reflect)
 
-add_library(
-    reflect
-    SHARED
-    src/registry.cpp)
+# add_library(
+#     reflect
+#     SHARED
+#     src/registry.cpp)
 
-install(TARGETS reflect DESTINATION lib)
+# install(TARGETS reflect DESTINATION lib)
 
 
 #------------------------------------------------------------------------------#
@@ -104,7 +104,9 @@ install(TARGETS reflect DESTINATION lib)
 function(reflect_test name)
     if(CMAKE_SOURCE_DIR STREQUAL ${PROJECT_SOURCE_DIR})
         add_executable(${name}_test tests/${name}_test.cpp)
-        target_link_libraries(${name}_test reflect boost_unit_test_framework)
+        target_link_libraries(${name}_test boost_unit_test_framework)
         add_test(${name} bin/${name}_test)
     endif()
 endfunction()
+
+reflect_test(ref)
