@@ -30,9 +30,10 @@ struct ValueFunction<void, TypeVector<Args...>, TypeVector<Values...> >
 
     ValueFunction(Fn fn) : fn(std::move(fn)) {}
 
-    void operator() (Values... values) const
+    ReturnValue operator() (Values... values) const
     {
         fn(cast<std::decay<Args>::type>(values)...);
+        return ReturnValue();
     }
 
 private:
@@ -46,9 +47,9 @@ struct ValueFunction<Ret, TypeVector<Args...>, TypeVector<Values...> >
 
     ValueFunction(Fn fn) : fn(std::move(fn)) {}
 
-    Value operator() (Values... values) const
+    ReturnValue operator() (Values... values) const
     {
-        return Value(fn(cast<std::decay<Args>::type>(values)...));
+        return ReturnValue<Ret>(fn(cast<std::decay<Args>::type>(values)...));
     }
 
 private:
@@ -61,7 +62,7 @@ private:
 /******************************************************************************/
 
 template<typename Ret, typename... Args>
-struct MakeValueFunctionType
+struct MakeValueFunction
 {
     typedef typename RepeatType<Value, sizeof...(Args)>::type Values;
     typedef typename ValueFunction<Ret, TypeVector<Args...>, Values> type;
@@ -69,9 +70,9 @@ struct MakeValueFunctionType
 
 template<typename Ret, typename... Args>
 auto wrapFunction(std::function<Ret(Args...)> fn) ->
-    MakeValueFunctionType<Ret, Args...>::type
+    MakeValueFunction<Ret, Args...>::type
 {
-    return MakeValueFunctionType<Ret, Args...>::type(std::move(fn));
+    return MakeValueFunction<Ret, Args...>::type(std::move(fn));
 }
 
 } // reflect
