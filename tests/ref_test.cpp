@@ -8,22 +8,12 @@
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
 
+#include "utils.h"
+
 #include <boost/test/unit_test.hpp>
 
 using namespace std;
-
-
-enum RefType
-{
-    LValue,
-    RValue,
-};
-
-template<typename T>
-constexpr RefType refType(T&&)
-{
-    return std::is_lvalue_reference<T>::value ? LValue : RValue;
-}
+using namespace reflect;
 
 template<typename T>
 constexpr RefType proxyRefType(T&& t)
@@ -43,21 +33,21 @@ BOOST_AUTO_TEST_CASE(blah)
     auto& lValue = value;
     const auto& constLValue = value;
 
-    BOOST_CHECK_EQUAL(refType(value), LValue);
-    BOOST_CHECK_EQUAL(refType(lValue), LValue);
-    BOOST_CHECK_EQUAL(refType(constLValue), LValue);
-    BOOST_CHECK_EQUAL(refType(std::move(value)), RValue);
+    BOOST_CHECK_EQUAL(refType(value), RefType::LValue);
+    BOOST_CHECK_EQUAL(refType(lValue), RefType::LValue);
+    BOOST_CHECK_EQUAL(refType(constLValue), RefType::LValue);
+    BOOST_CHECK_EQUAL(refType(std::move(value)), RefType::RValue);
 
-    BOOST_CHECK_EQUAL(proxyRefType(value), LValue);
-    BOOST_CHECK_EQUAL(proxyRefType(lValue), LValue);
-    BOOST_CHECK_EQUAL(proxyRefType(constLValue), LValue);
-    BOOST_CHECK_EQUAL(proxyRefType(std::move(value)), RValue);
+    BOOST_CHECK_EQUAL(proxyRefType(value), RefType::LValue);
+    BOOST_CHECK_EQUAL(proxyRefType(lValue), RefType::LValue);
+    BOOST_CHECK_EQUAL(proxyRefType(constLValue), RefType::LValue);
+    BOOST_CHECK_EQUAL(proxyRefType(std::move(value)), RefType::RValue);
 
-    BOOST_CHECK_EQUAL(refType(fValue()), RValue);
-    BOOST_CHECK_EQUAL(refType(fLValue()), LValue);
-    BOOST_CHECK_EQUAL(refType(fConstLValue()), LValue);
+    BOOST_CHECK_EQUAL(refType(fValue()), RefType::RValue);
+    BOOST_CHECK_EQUAL(refType(fLValue()), RefType::LValue);
+    BOOST_CHECK_EQUAL(refType(fConstLValue()), RefType::LValue);
 
-    BOOST_CHECK_EQUAL(proxyRefType(fValue()), RValue);
-    BOOST_CHECK_EQUAL(proxyRefType(fLValue()), LValue);
-    BOOST_CHECK_EQUAL(proxyRefType(fConstLValue()), LValue);
+    BOOST_CHECK_EQUAL(proxyRefType(fValue()), RefType::RValue);
+    BOOST_CHECK_EQUAL(proxyRefType(fLValue()), RefType::LValue);
+    BOOST_CHECK_EQUAL(proxyRefType(fConstLValue()), RefType::LValue);
 }

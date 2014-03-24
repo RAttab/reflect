@@ -7,6 +7,10 @@
 
 #pragma once
 
+#include <type_traits>
+#include <ostream>
+#include <cassert>
+
 namespace reflect {
 
 
@@ -34,5 +38,16 @@ constexpr RefType refType(T&&)
         RefType::LValue : RefType::RValue;
 }
 
+inline std::ostream& operator<<(std::ostream& stream, RefType type)
+{
+    switch(type)
+    {
+    case RefType::LValue: stream << "LValue"; break;
+    case RefType::RValue: stream << "RValue"; break;
+    default: assert(false);
+    };
+
+    return stream;
+}
 
 } // reflect
