@@ -72,7 +72,7 @@ private:
     T cast(U* value, std::true_type)
     {
         assert(refType() == RValue);
-        assert(storage->unique());
+        assert(storage.unique());
 
         auto toReturn = std::move(*value);
         *this = Value();
