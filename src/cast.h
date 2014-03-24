@@ -62,4 +62,33 @@ Target cast(T&& value)
 }
 
 
+/******************************************************************************/
+/* RET CAST                                                                   */
+/******************************************************************************/
+/** Used when returning a Value object which may or may-not be void. Since this
+    is valid c++ (as far as gcc is concerned anyways):
+
+        void bar() {}
+        void foo() { return bar(); }
+
+    which means that if our cast function is able to return void values (doing
+    nothing in the cast), then we can use it to avoid having to define two
+    seperate call functions. Fun.
+ */
+
+template<typename Target, typename T>
+Target retCast(T&& value, std::true_type) {}
+
+template<typename Target, typename T>
+Target retCast(T&& value, std::false_type)
+{
+    return cast<Target>(std::forward<T>(value));
+}
+
+template<typename Target, typename T>
+Target retCast(T&& value)
+{
+    return retCast<Target>(std::forward<T>(value), std::is_same<Target, void>());
+}
+
 } // reflect

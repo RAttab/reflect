@@ -25,7 +25,7 @@ struct Function
 {
     typedef std::function<void()> VoidFn;
 
-    // \todo I'm not quite sure if the reinterpret cast is really safe here...
+    // \todo I doubt that the reinterpret cast is safe here...
     template<typename Ret, typename... Args>
     Function(std::function<Ret(Args...)> fn) :
         fn(*reinterpret_cast<VoidFn*>(&wrapFunction(fn))),
@@ -39,17 +39,6 @@ struct Function
     Reflection* returnType() const { return ret; }
     size_t size() const { return args.size(); }
     Reflection* operator[] (size_t i) const { return args[i]; }
-
-    bool isGetter() const
-    {
-        return ret != GetReflection<void>::get() && args.size() == 1;
-    }
-
-    bool isSetter() const
-    {
-        return ret == GetReflection<void>::get() && args.size() == 2;
-    }
-
 
     template<typename Ret, typename... Args>
     bool test() const
@@ -81,7 +70,18 @@ struct Function
         const auto& typedFn = *reinterpret_cast<Fn*>(&fn);
 
         Value ret = typedFn(cast<Value>(std::forward<Args>(args))...);
-        return cast<Ret>(ret);
+        return retCast<Ret>(ret);
+    }
+
+
+    bool isGetter() const
+    {
+        return ret != GetReflection<void>::get() && args.size() == 1;
+    }
+
+    bool isSetter() const
+    {
+        return ret == GetReflection<void>::get() && args.size() == 2;
     }
 
 
@@ -156,7 +156,7 @@ struct Functions
         for (const auto& fn : overloads) {
             if (!fn.test<Ret, Args...>()) continue;
 
-            return fn.call(std::forward<Args>(args)...);
+            return fn.call<Ret>(std::forward<Args>(args)...);
         }
 
         assert(false && "No oveloads available");

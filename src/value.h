@@ -3,6 +3,8 @@
    FreeBSD-style copyright and disclaimer apply
 
    Value front-end.
+
+   \todo Need to support const-ness somehow.
 */
 
 #pragma once
