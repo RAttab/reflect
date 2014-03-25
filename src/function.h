@@ -5,14 +5,8 @@
    Function reflection.
 */
 
+#include "reflect.h"
 #pragma once
-
-#include "utils.h"
-#include "value.h"
-#include "cast.h"
-#include "value_function.h"
-
-#include <function>
 
 namespace reflect {
 
@@ -29,7 +23,7 @@ struct Function
     template<typename Ret, typename... Args>
     Function(std::function<Ret(Args...)> fn) :
         fn(*reinterpret_cast<VoidFn*>(&makeValueFunction(fn))),
-        ret(GetReflection<Ret>::get())
+        ret(reflect<Ret>())
     {
         args.reserve(sizeof...(Args));
         reflectArgs<Args...>();
@@ -44,25 +38,17 @@ struct Function
     bool test() const
     {
         return
-            test(GetReflection<Ret>::get(), ret) &&
+            test(reflect<Ret>(), ret) &&
             testArgs<0, Args...>();
     }
 
-    bool test(const Function& other) const
-    {
-        if (args.size() != other.args.size()) return false;
-
-        for (size_t i = 0; i < args.size(); ++i) {
-            if (!other.args[i].isConvertibleTo(args[i])) return false;
-        }
-
-        return true;
-    }
+    bool test(const Function& other) const;
 
     template<typename Ret, typename... Args>
     Ret call(Args&&... args)
     {
-        assert(test<Ret, Args...>());
+        bool signatureMatch = test<Ret, Args...>();
+        assert(signatureMatch);
 
         typedef typename MakeStdFunction<Args...>::type Fn;
         const auto& typedFn = *reinterpret_cast<Fn*>(&fn);
@@ -72,39 +58,29 @@ struct Function
     }
 
 
-    bool isGetter() const
-    {
-        return ret != GetReflection<void>::get() && args.size() == 1;
-    }
-
-    bool isSetter() const
-    {
-        return ret == GetReflection<void>::get() && args.size() == 2;
-    }
-
+    bool isGetter() const;
+    bool isSetter() const;
 
 private:
 
-    template<> void reflectArgs() {}
+    void reflectArgs() {}
 
     template<typename Arg, typename... Rest>
     void reflectArgs()
     {
-        args.push_back(GetReflection<Arg>::get());
+        args.push_back(reflect<Arg>());
         reflectArgs<Rest...>();
     }
 
-    bool test(Reflection* value, Reflection* target) const
-    {
-        return value->isConveritbleTo(target);
-    }
+
+    bool test(Reflection* value, Reflection* target) const;
 
     template<size_t Index> void testArgs() const {}
 
     template<size_t Index, typename Arg, typename... Rest>
     void testArgs() const
     {
-        if (!test(GetReflection<Arg>::get(), args[Index])) return false;
+        if (!test(reflect<Arg>(), args[Index])) return false;
         return testArgs<Index + 1, Rest...>();
     }
 
@@ -122,15 +98,12 @@ struct Functions
 {
 
     size_t size() const { return overloads.size(); }
-    Function& operator[] (size_t i) const { return overloads[i]; }
+    Function& operator[] (size_t i) { return overloads[i]; }
+    const Function& operator[] (size_t i) const { return overloads[i]; }
 
-    bool test(Function fn)
-    {
-        for (const auto& other : overloads) {
-            if (fn.test(other)) return true;
-        }
-        return false;
-    }
+    void add(Function fn);
+
+    bool test(Function fn);
 
     template<typename Ret, typename... Args>
     bool test()
@@ -142,11 +115,6 @@ struct Functions
 
     }
 
-    void add(Function fn)
-    {
-        assert(!test(fn) && "ambiguous overload");
-        overloads.push_back(fn);
-    }
 
     template<typename Ret, typename... Args>
     Ret call(Args&&... args)

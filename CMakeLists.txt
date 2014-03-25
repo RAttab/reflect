@@ -1,4 +1,4 @@
-#------------------------------------------------------------------------------#
+ee#------------------------------------------------------------------------------#
 # CMakeLists.txt
 # Rémi Attab (remi.attab@gmail.com), 30 Dec 2012
 # FreeBSD-style copyright and disclaimer apply
@@ -78,25 +78,37 @@ install(
     FILES
     src/cast.h
     src/function.h
-    src/function_traits.h
+    # src/function_traits.h
     src/macros.h
+    src/reflect.h
     src/reflection.h
     src/registry.h
     src/type_vector.h
     src/utils.h
     src/value_function.h
     src/value.h
+    src/value.tcc
 
     DESTINATION
     include/reflect)
 
-# add_library(
-#     reflect
-#     SHARED
-#     src/registry.cpp
-#     src/reflection.cpp)
+install(
+    FILES
+    src/types/void.h
+    src/types/value.h
 
-# install(TARGETS reflect DESTINATION lib)
+    DESTINATION
+    include/reflect/types)
+
+add_library(
+    reflect
+    SHARED
+    src/function.cpp
+    src/reflection.cpp
+    src/registry.cpp
+    src/value.cpp)
+
+install(TARGETS reflect DESTINATION lib)
 
 
 #------------------------------------------------------------------------------#
@@ -106,7 +118,7 @@ install(
 function(reflect_test name)
     if(CMAKE_SOURCE_DIR STREQUAL ${PROJECT_SOURCE_DIR})
         add_executable(${name}_test tests/${name}_test.cpp)
-        target_link_libraries(${name}_test boost_unit_test_framework)
+        target_link_libraries(${name}_test reflect boost_unit_test_framework)
         add_test(${name} bin/${name}_test)
     endif()
 endfunction()

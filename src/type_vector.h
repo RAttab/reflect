@@ -10,7 +10,7 @@
 
 #pragma once
 
-namespace relfect {
+namespace reflect {
 
 
 /******************************************************************************/
@@ -27,7 +27,7 @@ template<typename... T> struct TypeVector {};
 namespace details {
 
 template<typename T, size_t N, typename... Pack>
-struct RepeatType : RepeatType<T, N-1, T, Pack...> {}
+struct RepeatType : RepeatType<T, N-1, T, Pack...> {};
 
 template<typename T, typename... Pack>
 struct RepeatType<T, 0, Pack...>
@@ -40,7 +40,7 @@ struct RepeatType<T, 0, Pack...>
 template<typename T, size_t N>
 struct RepeatType
 {
-    typedef typename details::RepeatType<T, N>::type;
+    typedef typename details::RepeatType<T, N>::type type;
 };
 
 

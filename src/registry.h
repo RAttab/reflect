@@ -5,9 +5,8 @@
    Reflection registry.
 */
 
+#include "reflect.h"
 #pragma once
-
-#include "value.h"
 
 namespace reflect {
 
@@ -32,7 +31,7 @@ struct ReflectionRegistry
     {
         const auto& id = Reflect<T>::id;
 
-        Reflection* reflect = get();
+        Reflection* reflect = get(id);
         if (!reflect) add(id, reflect = Reflect<T>::create());
 
         return reflect;
@@ -44,19 +43,19 @@ struct ReflectionRegistry
 
 
 /******************************************************************************/
-/* GET REFLECTION                                                             */
+/* REFLECT                                                                    */
 /******************************************************************************/
 
 template<typename T>
-struct GetReflection
+Reflection* reflect()
 {
-    Reflection* get() const { ReflectionRegistry::get<T>(); }
-};
+    return ReflectionRegistry::get<T>();
+}
 
-template<>
-struct GetReflection<Value>
+inline Reflection* reflect(const std::string& id)
 {
-    Reflection* get() const { return value.reflection(); }
-};
+    return ReflectionRegistry::get(id);
+}
+
 
 } // reflect

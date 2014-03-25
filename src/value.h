@@ -7,10 +7,12 @@
    \todo Need to support const-ness somehow.
 */
 
+#include "reflect.h"
 #pragma once
 
 namespace reflect {
 
+struct Reflection;
 
 /******************************************************************************/
 /* VALUE                                                                      */
@@ -18,21 +20,11 @@ namespace reflect {
 
 struct Value
 {
-    Value() :
-        value_(nullptr), reflection_(ReflectionRegistry::get<void>())
-    {}
-
-    Value(void* value, Reflection* reflection) :
-        value_(value), reflection_(reflection)
-    {}
+    Value();
+    Value(void* value, Reflection* reflection);
 
     template<typename T>
-    explicit Value(T&& value) :
-        value_(&value), reflection_(ReflectionRegistry::get<T>())
-    {
-        if (refType(std::forward<T>(value)) == RefType::RValue)
-            storage.reset(value_ = new T(std::move(value)));
-    }
+    explicit Value(T&& value);
 
     void* value() const { return value_; }
     Reflection* reflection() const { return reflection_; }
@@ -41,48 +33,22 @@ struct Value
         return storage ? RefType::RValue : RefType::LValue;
     }
 
-    template<typename T>
-    T cast()
-    {
-        assert(!isVoid());
+    template<typename T> T cast();
 
-        typedef typename std::decay<T>::type CleanT;
-        assert(reflection_->isConvertibleTo<CleanT>());
-
-        return cast<T>(reinterpret_cast<CleanT*>(value),
-                std::is_lvalue_reference<T>());
-    }
-
-    bool isVoid() const
-    {
-        return reflection_ == ReflectionRegistry::get<void>();
-    }
+    bool isVoid() const;
 
 private:
 
-    /** Return by lvalue-ref or copy. */
     template<typename T, typename U>
-    T cast(U* value, std::false_type)
-    {
-        return *value;
-    }
+    T cast(U* value, std::false_type);
 
-    /** Return by rvalue-ref so gut our object in the process. */
     template<typename T, typename U>
-    T cast(U* value, std::true_type)
-    {
-        assert(refType() == RValue);
-        assert(storage.unique());
-
-        auto toReturn = std::move(*value);
-        *this = Value();
-
-        return std::move(toReturn);
-    }
+    T cast(U* value, std::true_type);
 
     void* value_;
     Reflection* reflection_;
     std::shared_ptr<void> storage;
 };
+
 
 } // reflect

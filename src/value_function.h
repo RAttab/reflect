@@ -5,12 +5,8 @@
    Functor used to proxy all function calls.
 */
 
+#include "reflect.h"
 #pragma once
-
-#include "type_vector.h"
-#include "value.h"
-
-#include <function>
 
 namespace reflect {
 
@@ -25,7 +21,7 @@ struct ValueFunction;
 template<typename... Args, typename... Values>
 struct ValueFunction<void, TypeVector<Args...>, TypeVector<Values...> >
 {
-    typedef std::function<Ret(Args...)> Fn;
+    typedef std::function<void(Args...)> Fn;
 
     ValueFunction(Fn fn) : fn(std::move(fn)) {}
 
@@ -64,7 +60,7 @@ template<typename Ret, typename... Args>
 struct MakeValueFunction
 {
     typedef typename RepeatType<Value, sizeof...(Args)>::type Values;
-    typedef typename ValueFunction<Ret, TypeVector<Args...>, Values> type;
+    typedef ValueFunction<Ret, TypeVector<Args...>, Values> type;
 };
 
 template<typename... Args>
@@ -85,7 +81,7 @@ struct MakeStdFunction
 
 template<typename Ret, typename... Args>
 auto makeValueFunction(std::function<Ret(Args...)> fn) ->
-    MakeStdFunction<Args...>::type
+    typename MakeStdFunction<Args...>::type
 {
     return typename MakeValueFunction<Ret, Args...>::type(std::move(fn));
 }

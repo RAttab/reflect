@@ -5,7 +5,7 @@
    Reflection implementation.
 */
 
-#include "reflection.h"
+#include "reflect.h"
 
 namespace reflect {
 
@@ -16,7 +16,7 @@ namespace reflect {
 
 bool
 Reflection::
-isConveritbleTo(Reflection* other)
+isConvertibleTo(Reflection* other)
 {
     if (this == other) return true;
     if (!parent) return false;

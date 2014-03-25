@@ -5,13 +5,11 @@
    Casting utility.
 */
 
+#include "reflect.h"
 #pragma once
 
-
-#include "value.h"
-
-
 namespace reflect {
+
 
 /******************************************************************************/
 /* CAST                                                                       */
@@ -20,36 +18,36 @@ namespace reflect {
 template<typename T, typename Target>
 struct Cast
 {
-    template<typename T>
-    static Target cast(T&& value)
+    template<typename U>
+    static Target cast(U&& value)
     {
-        return std::forward<T>(value);
+        return std::forward<U>(value);
     }
 };
 
 template<typename Target>
 struct Cast<Value, Target>
 {
-    static Target cast(Value value)
+    static Target cast(Value& value)
     {
-        return value->cast<Target>();
+        return value.cast<Target>();
     }
 };
 
 template<typename T>
 struct Cast<T, Value>
 {
-    template<typename T>
-    static Value cast(T&& value)
+    template<typename U>
+    static Value cast(U&& value)
     {
-        return Value(std::forward<T>(value));
+        return Value(std::forward<U>(value));
     }
 };
 
 template<>
 struct Cast<Value, Value>
 {
-    static Value cast(Value value)
+    static Value cast(Value& value)
     {
         return value;
     }

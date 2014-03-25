@@ -5,7 +5,9 @@
    Static global state for the reflection registry.
 */
 
-#include "registry.h"
+#include "reflect.h"
+
+#include <mutex>
 
 namespace reflect {
 

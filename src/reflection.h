@@ -5,6 +5,7 @@
    Reflection core.
 */
 
+#include "reflect.h"
 #pragma once
 
 namespace reflect {
@@ -28,9 +29,9 @@ struct Reflection
     template<typename T>
     bool isConvertibleTo()
     {
-        return isConvertibleTo(GetReflection<T>::get());
+        return isConvertibleTo(reflect<T>());
     }
-    bool isConveritbleTo(Reflection* other);
+    bool isConvertibleTo(Reflection* other);
 
 private:
 

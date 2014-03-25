@@ -6,7 +6,7 @@
 */
 
 #pragma once
-
+#include "reflect.h"
 
 /******************************************************************************/
 /* UTILS                                                                      */
@@ -28,10 +28,10 @@
     template<>                                                  \
     struct Reflect<REFLECT_TYPE(_class_,_ns_)>                  \
     {                                                           \
-        static constexpr std::string id =                       \
+        static constexpr const char* id =                       \
             REFLECT_ID(_class_,_ns_);                           \
                                                                 \
-        Reflection* create();                                   \
+        static Reflection* create();                            \
     };
 
 

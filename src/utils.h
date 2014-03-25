@@ -5,11 +5,10 @@
    Random reflection utilities.
 */
 
+#include "reflect.h"
 #pragma once
 
-#include <type_traits>
 #include <ostream>
-#include <cassert>
 
 namespace reflect {
 
