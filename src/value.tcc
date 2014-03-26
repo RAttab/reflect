@@ -5,10 +5,8 @@
    Template implementation for Value.
 */
 
+#include "reflect.h"
 #pragma once
-
-#include "value.h"
-#include "reflection.h"
 
 namespace reflect {
 
