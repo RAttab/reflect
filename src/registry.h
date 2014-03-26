@@ -17,7 +17,8 @@ struct Reflection;
 /* REFLECT                                                                    */
 /******************************************************************************/
 
-template<typename T> struct Reflect;
+template<typename T, typename Enable = void>
+struct Reflect;
 
 
 /******************************************************************************/

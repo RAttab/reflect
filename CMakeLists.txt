@@ -95,6 +95,7 @@ install(
 install(
     FILES
     src/types/void.h
+    src/types/int.h
     src/types/value.h
 
     DESTINATION
