@@ -103,10 +103,7 @@ install(
 add_library(
     reflect
     SHARED
-    src/function.cpp
-    src/reflection.cpp
-    src/registry.cpp
-    src/value.cpp)
+    src/reflect.cpp)
 
 install(TARGETS reflect DESTINATION lib)
 
