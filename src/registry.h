@@ -30,10 +30,12 @@ struct Registry
     template<typename T>
     static Reflection* get()
     {
-        const auto& id = Reflect<T>::id;
+        typedef typename std::decay<T>::type CleanT;
+
+        const auto& id = Reflect<CleanT>::id;
 
         Reflection* reflect = get(id);
-        if (!reflect) add(id, reflect = Reflect<T>::create());
+        if (!reflect) add(id, reflect = Reflect<CleanT>::create());
 
         return reflect;
     }

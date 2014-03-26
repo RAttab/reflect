@@ -122,3 +122,4 @@ function(reflect_test name)
 endfunction()
 
 reflect_test(ref)
+reflect_test(value)

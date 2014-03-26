@@ -20,23 +20,52 @@ Value::
 Value(T&& value) :
     value_(&value), reflection_(reflect<T>())
 {
-    if (refType(std::forward<T>(value)) == RefType::RValue)
-        storage.reset(value_ = new T(std::move(value)));
+    if (reflect::refType(std::forward<T>(value)) != RefType::RValue)
+        return;
+
+    typedef typename std::decay<T>::type CleanT;
+    storage.reset(value_ = new CleanT(std::move(value)));
 }
 
+template<typename T>
+bool
+Value::
+castable() const
+{
+    typedef typename std::decay<T>::type CleanT;
+
+    return !isVoid()
+        && reflection_->isConvertibleTo<CleanT>()
+        && castable<T>(std::is_rvalue_reference<T>());
+}
+
+template<typename T>
+bool
+Value::
+castable(std::false_type) const
+{
+    return true;
+}
+
+template<typename T>
+bool
+Value::
+castable(std::true_type) const
+{
+    return refType() == RefType::RValue && storage.unique();
+}
 
 template<typename T>
 T
 Value::
 cast()
 {
-    assert(!isVoid());
+    assert(castable<T>());
 
     typedef typename std::decay<T>::type CleanT;
-    assert(reflection_->isConvertibleTo<CleanT>());
 
-    return cast<T>(reinterpret_cast<CleanT*>(value),
-            std::is_lvalue_reference<T>());
+    CleanT* ptr = static_cast<CleanT*>(value_);
+    return cast<T>(ptr, std::is_rvalue_reference<T>());
 }
 
 /** Return by lvalue-ref or copy. */
@@ -54,12 +83,8 @@ T
 Value::
 cast(U* value, std::true_type)
 {
-    assert(refType() == RefType::RValue);
-    assert(storage.unique());
-
     auto toReturn = std::move(*value);
     *this = Value();
-
     return std::move(toReturn);
 }
 
