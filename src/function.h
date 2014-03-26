@@ -21,7 +21,8 @@ struct Function
 
     // \todo I doubt that the reinterpret cast is safe here...
     template<typename Ret, typename... Args>
-    Function(std::function<Ret(Args...)> fn) :
+    Function(std::string name, std::function<Ret(Args...)> fn) :
+        name(std::move(name)),
         fn(*reinterpret_cast<VoidFn*>(&makeValueFunction(fn))),
         ret(reflect<Ret>())
     {
@@ -84,6 +85,7 @@ private:
         return testArgs<Index + 1, Rest...>();
     }
 
+    std::string name;
     VoidFn fn;
     Reflection* ret;
     std::vector<Reflection*> args;
