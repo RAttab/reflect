@@ -24,7 +24,7 @@ template<typename T> struct Reflect;
 /* REFLECTION REGISTRY                                                        */
 /******************************************************************************/
 
-struct ReflectionRegistry
+struct Registry
 {
     template<typename T>
     static Reflection* get()
@@ -49,12 +49,12 @@ struct ReflectionRegistry
 template<typename T>
 Reflection* reflect()
 {
-    return ReflectionRegistry::get<T>();
+    return Registry::get<T>();
 }
 
 inline Reflection* reflect(const std::string& id)
 {
-    return ReflectionRegistry::get(id);
+    return Registry::get(id);
 }
 
 

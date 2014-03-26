@@ -17,7 +17,7 @@ namespace reflect {
 
 Value::
 Value() :
-    value_(nullptr), reflection_(ReflectionRegistry::get<void>())
+    value_(nullptr), reflection_(Registry::get<void>())
 {}
 
 Value::
@@ -29,7 +29,7 @@ bool
 Value::
 isVoid() const
 {
-    return reflection_ == ReflectionRegistry::get<void>();
+    return reflection_ == Registry::get<void>();
 }
 
 

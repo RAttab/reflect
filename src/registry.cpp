@@ -13,7 +13,7 @@ namespace reflect {
 
 namespace {
 
-struct Registry
+struct
 {
     std::mutex lock;
     std::unordered_map<std::string, Reflection*> idMap;
@@ -27,7 +27,7 @@ struct Registry
 /******************************************************************************/
 
 Reflection*
-ReflectionRegistry::
+Registry::
 get(const std::string& id)
 {
     std::lock_guard<std::mutex>(registry.lock);
@@ -39,7 +39,7 @@ get(const std::string& id)
 }
 
 void
-ReflectionRegistry::
+Registry::
 add(std::string id, Reflection* reflection)
 {
     std::lock_guard<std::mutex>(registry.lock);
