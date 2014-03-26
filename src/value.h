@@ -33,18 +33,15 @@ struct Value
         return storage ? RefType::RValue : RefType::LValue;
     }
 
-    template<typename T> T cast();
+    template<typename T> T& cast() const;
     template<typename T> bool castable() const;
+
+    template<typename T> T move();
+    template<typename T> bool movable() const;
 
     bool isVoid() const;
 
 private:
-
-    template<typename T, typename U> T cast(U* value, std::false_type);
-    template<typename T, typename U> T cast(U* value, std::true_type);
-
-    template<typename T> bool castable(std::false_type) const;
-    template<typename T> bool castable(std::true_type) const;
 
 
     void* value_;

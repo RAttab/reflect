@@ -30,14 +30,22 @@ BOOST_AUTO_TEST_CASE(lValue)
     Value lValue(u);
     BOOST_CHECK_EQUAL(lValue.refType(), RefType::LValue);
 
-    BOOST_CHECK( lValue.castable<unsigned>());
-    BOOST_CHECK( lValue.castable<unsigned&>());
-    BOOST_CHECK(!lValue.castable<unsigned&&>());
+    BOOST_CHECK(lValue.movable<unsigned>());
+    BOOST_CHECK(lValue.castable<unsigned>());
 
-    BOOST_CHECK_EQUAL(lValue.cast<unsigned>(), u);
+    {
+        auto& value = lValue.cast<unsigned>();
+        BOOST_CHECK_EQUAL(&value, &u);
+    }
 
-    auto& value = lValue.cast<unsigned&>();
-    BOOST_CHECK_EQUAL(&value, &u);
+    {
+        auto value = lValue.move<unsigned>();
+        BOOST_CHECK_EQUAL(value, 10);
+        BOOST_CHECK(lValue.isVoid());
+
+        // \todo primitives don't get wiped. Should use another type;
+        // BOOST_CHECK_NE(u, 10);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(rValue)
@@ -49,24 +57,23 @@ BOOST_AUTO_TEST_CASE(rValue)
     u = 20; // Just to make sure we don't have a ref to u.
 
     BOOST_CHECK(rValue.castable<unsigned>());
-    BOOST_CHECK(rValue.castable<unsigned&>());
-    BOOST_CHECK(rValue.castable<unsigned&&>());
+    BOOST_CHECK(rValue.movable<unsigned>());
 
     // Safety checks against moving out a shared storage.
     {
         Value other = rValue;
-        BOOST_CHECK(!rValue.castable<unsigned&&>());
-        BOOST_CHECK(!other.castable<unsigned&&>());
+        BOOST_CHECK(!rValue.movable<unsigned>());
+        BOOST_CHECK(!other.movable<unsigned>());
     }
-
-    BOOST_CHECK_EQUAL(rValue.cast<unsigned>(), 10);
+    BOOST_CHECK(rValue.castable<unsigned>());
+    BOOST_CHECK(rValue.movable<unsigned>());
 
     {
-        auto& value = rValue.cast<unsigned&>();
+        auto& value = rValue.cast<unsigned>();
         BOOST_CHECK_NE(&value, &u);
         BOOST_CHECK_EQUAL(value, 10);
     }
 
-    BOOST_CHECK_EQUAL(rValue.cast<unsigned&&>(), 10);
+    BOOST_CHECK_EQUAL(rValue.move<unsigned>(), 10);
     BOOST_CHECK(rValue.isVoid());
 }

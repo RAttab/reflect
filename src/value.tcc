@@ -33,59 +33,37 @@ Value::
 castable() const
 {
     typedef typename std::decay<T>::type CleanT;
-
-    return !isVoid()
-        && reflection_->isConvertibleTo<CleanT>()
-        && castable<T>(std::is_rvalue_reference<T>());
+    return !isVoid() && reflection_->isConvertibleTo<CleanT>();
 }
 
 template<typename T>
-bool
+T&
 Value::
-castable(std::false_type) const
-{
-    return true;
-}
-
-template<typename T>
-bool
-Value::
-castable(std::true_type) const
-{
-    return refType() == RefType::RValue && storage.unique();
-}
-
-template<typename T>
-T
-Value::
-cast()
+cast() const
 {
     assert(castable<T>());
-
-    typedef typename std::decay<T>::type CleanT;
-
-    CleanT* ptr = static_cast<CleanT*>(value_);
-    return cast<T>(ptr, std::is_rvalue_reference<T>());
+    return *static_cast<T*>(value_);
 }
 
-/** Return by lvalue-ref or copy. */
-template<typename T, typename U>
+template<typename T>
 T
 Value::
-cast(U* value, std::false_type)
+move()
 {
-    return *value;
-}
+    assert(movable<T>());
 
-/** Return by rvalue-ref so gut our object in the process. */
-template<typename T, typename U>
-T
-Value::
-cast(U* value, std::true_type)
-{
-    auto toReturn = std::move(*value);
+    T value = std::move(*static_cast<T*>(value_));
     *this = Value();
-    return std::move(toReturn);
+    return value;
 }
+
+template<typename T>
+bool
+Value::
+movable() const
+{
+    return castable<T>() && (!storage || storage.unique());
+}
+
 
 } // reflect
