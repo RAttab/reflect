@@ -20,7 +20,7 @@ namespace reflect {
 template<typename T>
 Value::
 Value(T&& value) :
-    value_(&value), reflection_(Registry::get<T>())
+    value_(&value), reflection_(reflect<T>())
 {
     if (refType(std::forward<T>(value)) == RefType::RValue)
         storage.reset(value_ = new T(std::move(value)));
