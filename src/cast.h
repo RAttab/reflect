@@ -30,7 +30,21 @@ struct Cast<Value, Target>
 {
     static Target cast(Value& value)
     {
-        return value.cast<Target>();
+        return cast(value, std::is_rvalue_reference<Target>());
+    }
+
+private:
+
+    typedef typename std::decay<Target>::type CleanTarget;
+
+    static Target cast(Value& value, std::true_type)
+    {
+        return value.move<CleanTarget>();
+    }
+
+    static Target cast(Value& value, std::false_type)
+    {
+        return value.cast<CleanTarget>();
     }
 };
 

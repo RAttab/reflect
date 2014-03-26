@@ -43,7 +43,6 @@ struct Value
 
 private:
 
-
     void* value_;
     Reflection* reflection_;
     std::shared_ptr<void> storage;
