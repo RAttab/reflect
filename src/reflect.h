@@ -36,3 +36,4 @@
 // #include "macros.h"
 
 #include "value.tcc"
+#include "function.tcc"
