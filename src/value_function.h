@@ -64,7 +64,7 @@ struct MakeValueFunction
 };
 
 template<typename... Args>
-struct MakeStdFunction
+struct MakeStdValueFunction
 {
     template<typename Values> struct Expand;
 
@@ -81,9 +81,16 @@ struct MakeStdFunction
 
 template<typename Ret, typename... Args>
 auto makeValueFunction(std::function<Ret(Args...)> fn) ->
-    typename MakeStdFunction<Args...>::type
+    typename MakeStdValueFunction<Args...>::type
 {
     return typename MakeValueFunction<Ret, Args...>::type(std::move(fn));
+}
+
+template<typename Fn>
+auto makeValueFunction(Fn fn) ->
+    decltype(makeValueFunction(makeFunction(std::move(fn))))
+{
+    return makeValueFunction(makeFunction(std::move(fn)));
 }
 
 } // reflect

@@ -24,8 +24,7 @@ void foo(unsigned& value, int other)
 
 BOOST_AUTO_TEST_CASE(fn)
 {
-    std::function<void(unsigned&, int)> fn(&foo);
-    auto valueFn = makeValueFunction(fn);
+    auto valueFn = makeValueFunction(&foo);
 
     unsigned value = 0;
 
@@ -51,13 +50,9 @@ struct Functor
     unsigned value;
 };
 
-
 BOOST_AUTO_TEST_CASE(functor)
 {
-    Functor foo;
-    std::function<unsigned&(unsigned)> fn(foo);
-
-    auto valueFn = makeValueFunction(fn);
+    auto valueFn = makeValueFunction(Functor());
 
     {
         Value ret = valueFn(Value(unsigned(10)));
@@ -80,8 +75,7 @@ BOOST_AUTO_TEST_CASE(lambda)
         return value = x * x + std::move(z);
     };
 
-    std::function<unsigned(unsigned, unsigned&&)> fn(lambda);
-    auto valueFn = makeValueFunction(fn);
+    auto valueFn = makeValueFunction(lambda);
 
     Value ret = valueFn(Value(unsigned(10)), Value(unsigned(10)));
     BOOST_CHECK_EQUAL(value, 110);

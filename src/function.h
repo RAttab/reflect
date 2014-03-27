@@ -51,7 +51,7 @@ struct Function
         bool signatureMatch = test<Ret, Args...>();
         assert(signatureMatch);
 
-        typedef typename MakeStdFunction<Args...>::type Fn;
+        typedef typename MakeStdValueFunction<Args...>::type Fn;
         const auto& typedFn = *reinterpret_cast<Fn*>(&fn);
 
         Value ret = typedFn(cast<Value>(std::forward<Args>(args))...);
