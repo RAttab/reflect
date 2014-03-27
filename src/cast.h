@@ -70,7 +70,8 @@ struct Cast<Value, Value>
 template<typename Target, typename T>
 Target cast(T&& value)
 {
-    return Cast<T, Target>::cast(std::forward<T>(value));
+    typedef typename std::decay<T>::type CleanT;
+    return Cast<CleanT, Target>::cast(std::forward<T>(value));
 }
 
 

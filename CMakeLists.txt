@@ -123,3 +123,4 @@ endfunction()
 
 reflect_test(ref)
 reflect_test(value)
+reflect_test(value_function)

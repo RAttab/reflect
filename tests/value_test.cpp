@@ -77,3 +77,11 @@ BOOST_AUTO_TEST_CASE(rValue)
     BOOST_CHECK_EQUAL(rValue.move<unsigned>(), 10);
     BOOST_CHECK(rValue.isVoid());
 }
+
+BOOST_AUTO_TEST_CASE(uncastable)
+{
+    Value value(unsigned(10));
+    BOOST_CHECK( value.castable<unsigned>());
+    BOOST_CHECK(!value.castable<int>());
+    BOOST_CHECK(!value.castable<long>());
+}
