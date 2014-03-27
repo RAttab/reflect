@@ -5,12 +5,11 @@
    Type introspection utilities
 */
 
+
+#include "reflect.h"
 #pragma once
 
-#include <cstddef>
-
-namespace slick {
-
+namespace reflect {
 
 /******************************************************************************/
 /* GET RETURN VALUE                                                           */
@@ -65,4 +64,4 @@ struct GetArgument<Index, Ret(Args...)>
 };
 
 
-} // slick
+} // namespace reflect
