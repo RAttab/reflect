@@ -61,7 +61,7 @@ struct FunctionType<Ret(Obj::*)(Args...)>
 template<typename Obj, typename Ret, typename... Args>
 struct FunctionType<Ret(Obj::*)(Args...) const>
 {
-    typedef Ret (type)(Obj&, Args...);
+    typedef Ret (type)(const Obj&, Args...);
 };
 
 

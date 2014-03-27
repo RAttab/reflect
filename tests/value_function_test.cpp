@@ -17,6 +17,11 @@ using namespace std;
 using namespace reflect;
 
 
+/******************************************************************************/
+/* FUNCTION                                                                   */
+/******************************************************************************/
+
+
 void foo(unsigned& value, int other)
 {
     value += other;
@@ -37,6 +42,30 @@ BOOST_AUTO_TEST_CASE(fn)
 }
 
 
+/******************************************************************************/
+/* LAMBDA                                                                     */
+/******************************************************************************/
+
+
+BOOST_AUTO_TEST_CASE(lambda)
+{
+    unsigned value = 0;
+    auto lambda = [&](unsigned x, unsigned&& z) {
+        return value = x * x + std::move(z);
+    };
+
+    auto valueFn = makeValueFunction(lambda);
+
+    Value ret = valueFn(Value(unsigned(10)), Value(unsigned(10)));
+    BOOST_CHECK_EQUAL(value, 110);
+    BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 110);
+}
+
+
+/******************************************************************************/
+/* FUNCTOR                                                                    */
+/******************************************************************************/
+
 struct Functor
 {
     Functor() : value(0) {}
@@ -47,8 +76,10 @@ struct Functor
         return value;
     }
 
+private:
     unsigned value;
 };
+
 
 BOOST_AUTO_TEST_CASE(functor)
 {
@@ -68,16 +99,51 @@ BOOST_AUTO_TEST_CASE(functor)
 }
 
 
-BOOST_AUTO_TEST_CASE(lambda)
+/******************************************************************************/
+/* MEMBER FUNCTION                                                            */
+/******************************************************************************/
+
+struct Foo
 {
-    unsigned value = 0;
-    auto lambda = [&](unsigned x, unsigned&& z) {
-        return value = x * x + std::move(z);
-    };
+    Foo() : value(0) {}
 
-    auto valueFn = makeValueFunction(lambda);
+    unsigned& bar(unsigned i)
+    {
+        value += i;
+        return value;
+    }
 
-    Value ret = valueFn(Value(unsigned(10)), Value(unsigned(10)));
-    BOOST_CHECK_EQUAL(value, 110);
-    BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 110);
+    unsigned value;
+};
+
+namespace reflect {
+
+template<>
+struct Reflect<Foo>
+{
+    static constexpr const char* id = "Foo";
+    static Reflection* create() { return new Reflection(id); }
+};
+
+} // namespace reflect
+
+BOOST_AUTO_TEST_CASE(memberFn)
+{
+    Foo foo;
+    auto valueFn = makeValueFunction(&Foo::bar);
+
+    {
+        Value ret = valueFn(Value(foo), Value(unsigned(10)));
+        BOOST_CHECK_EQUAL(ret.refType(), RefType::LValue);
+        BOOST_CHECK(ret.castable<unsigned>());
+        BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 10);
+        BOOST_CHECK_EQUAL(foo.value, 10);
+    }
+
+    {
+        Value ret = valueFn(Value(foo), Value(unsigned(10)));
+        BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 20);
+        BOOST_CHECK_EQUAL(foo.value, 20);
+    }
 }
+
