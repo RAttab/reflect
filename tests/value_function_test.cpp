@@ -16,28 +16,52 @@
 using namespace std;
 using namespace reflect;
 
-struct Foo
-{
-    Foo() : value(0) {}
 
-    unsigned operator() (unsigned i)
+void foo(unsigned& value, int other)
+{
+    value += other;
+}
+
+BOOST_AUTO_TEST_CASE(fn)
+{
+    std::function<void(unsigned&, int)> fn(&foo);
+    auto valueFn = makeValueFunction(fn);
+
+    unsigned value = 0;
+
+    Value ret = valueFn(Value(value), Value(int(10)));
+    BOOST_CHECK(ret.isVoid());
+    BOOST_CHECK_EQUAL(value, 10);
+
+    valueFn(Value(value), Value(int(10)));
+    BOOST_CHECK_EQUAL(value, 20);
+}
+
+
+struct Functor
+{
+    Functor() : value(0) {}
+
+    unsigned& operator() (unsigned i)
     {
-        return value += i;
+        value += i;
+        return value;
     }
 
     unsigned value;
 };
 
 
-BOOST_AUTO_TEST_CASE(basics)
+BOOST_AUTO_TEST_CASE(functor)
 {
-    Foo foo;
-    std::function<unsigned(unsigned)> fn(foo);
+    Functor foo;
+    std::function<unsigned&(unsigned)> fn(foo);
 
     auto valueFn = makeValueFunction(fn);
 
     {
         Value ret = valueFn(Value(unsigned(10)));
+        BOOST_CHECK_EQUAL(ret.refType(), RefType::LValue);
         BOOST_CHECK(ret.castable<unsigned>());
         BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 10);
     }
@@ -46,4 +70,20 @@ BOOST_AUTO_TEST_CASE(basics)
         Value ret = valueFn(Value(unsigned(10)));
         BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 20);
     }
+}
+
+
+BOOST_AUTO_TEST_CASE(lambda)
+{
+    unsigned value = 0;
+    auto lambda = [&](unsigned x, unsigned&& z) {
+        return value = x * x + std::move(z);
+    };
+
+    std::function<unsigned(unsigned, unsigned&&)> fn(lambda);
+    auto valueFn = makeValueFunction(fn);
+
+    Value ret = valueFn(Value(unsigned(10)), Value(unsigned(10)));
+    BOOST_CHECK_EQUAL(value, 110);
+    BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 110);
 }

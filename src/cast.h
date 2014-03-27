@@ -10,6 +10,25 @@
 
 namespace reflect {
 
+/******************************************************************************/
+/* TARGET REF                                                                 */
+/******************************************************************************/
+
+namespace details {
+
+template<typename T>
+struct TargetRef
+{
+    typedef typename std::decay<T>::type CleanT;
+    typedef typename std::add_lvalue_reference<CleanT>::type RefT;
+
+    typedef typename std::conditional<
+        std::is_rvalue_reference<T>::value, CleanT, RefT>::type
+        type;
+};
+
+} // namespace details
+
 
 /******************************************************************************/
 /* CAST                                                                       */
@@ -19,7 +38,7 @@ template<typename T, typename Target>
 struct Cast
 {
     template<typename U>
-    static Target cast(U&& value)
+    static auto cast(U&& value) -> typename details::TargetRef<Target>::type
     {
         return std::forward<U>(value);
     }
@@ -28,21 +47,22 @@ struct Cast
 template<typename Target>
 struct Cast<Value, Target>
 {
-    static Target cast(Value& value)
+    typedef typename std::decay<Target>::type CleanTarget;
+    typedef typename details::TargetRef<Target>::type TargetRef;
+
+    static TargetRef cast(Value& value)
     {
         return cast(value, std::is_rvalue_reference<Target>());
     }
 
 private:
 
-    typedef typename std::decay<Target>::type CleanTarget;
-
-    static Target cast(Value& value, std::true_type)
+    static TargetRef cast(Value& value, std::true_type)
     {
         return value.move<CleanTarget>();
     }
 
-    static Target cast(Value& value, std::false_type)
+    static TargetRef cast(Value& value, std::false_type)
     {
         return value.cast<CleanTarget>();
     }
@@ -68,7 +88,7 @@ struct Cast<Value, Value>
 };
 
 template<typename Target, typename T>
-Target cast(T&& value)
+auto cast(T&& value) -> typename details::TargetRef<Target>::type
 {
     typedef typename std::decay<T>::type CleanT;
     return Cast<CleanT, Target>::cast(std::forward<T>(value));
