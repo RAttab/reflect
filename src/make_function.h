@@ -69,7 +69,7 @@ struct FunctionType<Ret(Obj::*)(Args...) const>
 /* FUNCTOR TYPE                                                               */
 /******************************************************************************/
 
-template<typename Fn> struct FunctorType;
+template<typename Fn, typename Enable = void> struct FunctorType;
 
 template<typename Obj, typename Ret, typename... Args>
 struct FunctorType<Ret(Obj::*)(Args...)>
@@ -83,11 +83,19 @@ struct FunctorType<Ret(Obj::*)(Args...) const>
     typedef Ret (type)(Args...);
 };
 
+// If we got the object itself then extract the operator() and recurse.
+template<typename Fn>
+struct FunctorType<Fn,
+    typename std::enable_if<IsFunctor<Fn>::value>::type> :
+        public FunctorType<decltype(&Fn::operator())>
+{};
+
 
 /******************************************************************************/
 /* MAKE FUNCTION                                                              */
 /******************************************************************************/
 
+// This overlaod handles global functions and member functions.
 template<typename Fn,
     class = typename std::enable_if<
         !IsFunctor<typename std::decay<Fn>::type>::value>::type>
@@ -98,26 +106,16 @@ auto makeFunction(Fn&& fn) ->
     return std::function<FnType>(std::forward<Fn>(fn));
 }
 
-template<typename Obj, typename Fn>
-auto makeFunctorFunction(Obj&& obj, Fn) ->
-    std::function<typename FunctorType<Fn>::type>
-{
-    typedef typename FunctorType<Fn>::type FnType;
-    return std::function<FnType>(std::forward<Obj>(obj));
-}
-
+// This overload handles functors and lambdas.
 // C++14 return type deduction would be handy right about now...
 template<typename Fn,
     class = typename std::enable_if<
         IsFunctor<typename std::decay<Fn>::type>::value>::type>
 auto makeFunction(Fn&& fn) ->
-    decltype(makeFunctorFunction(
-                    std::forward<Fn>(fn),
-                    &std::decay<Fn>::type::operator()))
+    std::function<typename FunctorType<typename std::decay<Fn>::type>::type>
 {
-    return makeFunctorFunction(
-            std::forward<Fn>(fn),
-            &std::decay<Fn>::type::operator());
+    typedef typename FunctorType<typename std::decay<Fn>::type>::type FnType;
+    return std::function<FnType>(std::forward<Fn>(fn));
 }
 
 
