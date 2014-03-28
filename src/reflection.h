@@ -17,7 +17,7 @@ namespace reflect {
 struct Reflection
 {
     explicit Reflection(std::string id, Reflection* parent = nullptr) :
-        id(std::move(id)), parent(parent)
+        id_(std::move(id)), parent_(parent)
     {}
 
     Reflection(Reflection&&) = delete;
@@ -25,6 +25,10 @@ struct Reflection
     Reflection& operator=(Reflection&&) = delete;
     Reflection& operator=(const Reflection&) = delete;
 
+    const std::string& id() const { return id_; }
+
+    Reflection* parent() const { return parent_; }
+    void parent(Reflection* parent) { parent_ = parent; }
 
     template<typename T>
     bool isConvertibleTo()
@@ -35,8 +39,8 @@ struct Reflection
 
 private:
 
-    std::string id;
-    Reflection* parent;
+    std::string id_;
+    Reflection* parent_;
 
     std::unordered_map<std::string, Functions> fields;
 };

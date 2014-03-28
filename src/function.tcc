@@ -126,13 +126,13 @@ call(Args&&... args)
 /* FUNCTIONS                                                                  */
 /******************************************************************************/
 
-template<typename Ret, typename... Args>
+template<typename Fn>
 bool
 Functions::
 test()
 {
     for (const auto& fn : overloads) {
-        if (fn.test<Ret, Args...>()) return true;
+        if (fn.test<Fn>()) return true;
     }
     return false;
 
@@ -144,7 +144,7 @@ Functions::
 call(Args&&... args)
 {
     for (const auto& fn : overloads) {
-        if (!fn.test<Ret, Args...>()) continue;
+        if (!fn.test<Ret(Args...)>()) continue;
 
         return fn.call<Ret>(std::forward<Args>(args)...);
     }

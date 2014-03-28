@@ -18,9 +18,8 @@ bool
 Reflection::
 isConvertibleTo(Reflection* other)
 {
-    if (this == other) return true;
-    if (!parent) return false;
-    return parent->isConvertibleTo(other);
+    return this == other
+        || (parent_ && parent_->isConvertibleTo(other));
 }
 
 

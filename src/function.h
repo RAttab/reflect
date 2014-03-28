@@ -80,7 +80,7 @@ struct Functions
 
     bool test(Function fn);
 
-    template<typename Ret, typename... Args>
+    template<typename Fn>
     bool test();
 
     template<typename Ret, typename... Args>
