@@ -42,6 +42,12 @@ struct Registry
 
     static Reflection* get(const std::string& id);
     static void add(std::string id, Reflection* reflection);
+
+    template<typename T>
+    static void alias(std::string alias)
+    {
+        add(std::move(alias), get<T>());
+    }
 };
 
 

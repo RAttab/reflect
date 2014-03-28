@@ -42,6 +42,7 @@ void
 Registry::
 add(std::string id, Reflection* reflection)
 {
+    assert(reflection);
     std::lock_guard<std::mutex>(registry.lock);
 
     registry.idMap.emplace(std::move(id), reflection);
