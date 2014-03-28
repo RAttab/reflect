@@ -41,31 +41,6 @@ struct IsFunctor
 
 
 /******************************************************************************/
-/* FUNCTION TYPE                                                              */
-/******************************************************************************/
-
-template<typename Fn> struct FunctionType;
-
-template<typename Ret, typename... Args>
-struct FunctionType<Ret(*)(Args...)>
-{
-    typedef Ret (type)(Args...);
-};
-
-template<typename Obj, typename Ret, typename... Args>
-struct FunctionType<Ret(Obj::*)(Args...)>
-{
-    typedef Ret (type)(Obj&, Args...);
-};
-
-template<typename Obj, typename Ret, typename... Args>
-struct FunctionType<Ret(Obj::*)(Args...) const>
-{
-    typedef Ret (type)(const Obj&, Args...);
-};
-
-
-/******************************************************************************/
 /* FUNCTOR TYPE                                                               */
 /******************************************************************************/
 
@@ -92,31 +67,61 @@ struct FunctorType<Fn,
 
 
 /******************************************************************************/
+/* FUNCTION TYPE                                                              */
+/******************************************************************************/
+
+template<typename Fn> struct FunctionType;
+
+template<typename Ret, typename... Args>
+struct FunctionType<Ret(*)(Args...)>
+{
+    typedef Ret (type)(Args...);
+};
+
+template<typename Obj, typename Ret, typename... Args>
+struct FunctionType<Ret(Obj::*)(Args...)>
+{
+    typedef Ret (type)(Obj&, Args...);
+};
+
+template<typename Obj, typename Ret, typename... Args>
+struct FunctionType<Ret(Obj::*)(Args...) const>
+{
+    typedef Ret (type)(const Obj&, Args...);
+};
+
+
+/******************************************************************************/
+/* GET FUNCTION TYPE                                                          */
+/******************************************************************************/
+
+template<typename Fn, typename Enable = void> struct GetFunctionType;
+
+template<typename Fn>
+struct GetFunctionType<Fn,
+    typename std::enable_if<IsFunctor<Fn>::value>::type> :
+        public FunctorType<Fn>
+{};
+
+template<typename Fn>
+struct GetFunctionType<Fn,
+    typename std::enable_if<!IsFunctor<Fn>::value>::type> :
+        public FunctionType<Fn>
+{};
+
+
+/******************************************************************************/
 /* MAKE FUNCTION                                                              */
 /******************************************************************************/
 
-// This overlaod handles global functions and member functions.
-template<typename Fn,
-    class = typename std::enable_if<
-        !IsFunctor<typename std::decay<Fn>::type>::value>::type>
-auto makeFunction(Fn&& fn) ->
-    std::function<typename FunctionType<Fn>::type>
-{
-    typedef typename FunctionType<Fn>::type FnType;
-    return std::function<FnType>(std::forward<Fn>(fn));
-}
-
-// This overload handles functors and lambdas.
 // C++14 return type deduction would be handy right about now...
-template<typename Fn,
-    class = typename std::enable_if<
-        IsFunctor<typename std::decay<Fn>::type>::value>::type>
+template<typename Fn>
 auto makeFunction(Fn&& fn) ->
-    std::function<typename FunctorType<typename std::decay<Fn>::type>::type>
+    std::function<typename GetFunctionType<typename std::decay<Fn>::type>::type>
 {
-    typedef typename FunctorType<typename std::decay<Fn>::type>::type FnType;
+    typedef typename std::decay<Fn>::type CleanFn;
+    typedef typename GetFunctionType<CleanFn>::type FnType;
     return std::function<FnType>(std::forward<Fn>(fn));
 }
-
 
 } // reflect
