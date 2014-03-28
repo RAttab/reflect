@@ -37,6 +37,14 @@ constexpr RefType refType(T&&)
         RefType::LValue : RefType::RValue;
 }
 
+template<typename T>
+constexpr RefType refType()
+{
+    return std::is_lvalue_reference<T>::value ?
+        RefType::LValue : RefType::RValue;
+}
+
+
 inline std::ostream& operator<<(std::ostream& stream, RefType type)
 {
     switch(type)

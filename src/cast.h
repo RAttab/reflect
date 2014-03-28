@@ -81,10 +81,8 @@ struct Cast<T, Value>
 template<>
 struct Cast<Value, Value>
 {
-    static Value cast(Value& value)
-    {
-        return value;
-    }
+    static Value& cast(Value&  value) { return value; }
+    static Value  cast(Value&& value) { return value; }
 };
 
 template<typename Target, typename T>

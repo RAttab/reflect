@@ -22,6 +22,8 @@
 #include <cstddef>
 #include <cassert>
 
+#include <iostream> // debug only
+
 #include "utils.h"
 #include "type_vector.h"
 #include "function_traits.h"
@@ -38,3 +40,5 @@
 
 #include "value.tcc"
 #include "function.tcc"
+
+#include "types/value.h"

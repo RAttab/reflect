@@ -10,6 +10,71 @@
 
 namespace reflect {
 
+/******************************************************************************/
+/* ARGUMENT                                                                   */
+/******************************************************************************/
+
+template<typename T>
+Argument
+Argument::
+make()
+{
+    Argument arg;
+    arg.type_ = reflect<typename std::decay<T>::type>();
+    arg.refType_ = reflect::refType<T>();
+    return arg;
+}
+
+
+/******************************************************************************/
+/* REFLECT FUNCTION                                                           */
+/******************************************************************************/
+
+template<typename Fn>
+Argument reflectReturn()
+{
+    typedef typename GetReturnValue<Fn>::type Ret;
+    return Argument::make<Ret>();
+}
+
+/** Note that we have to use TypeVector otherwise if we're dealing purely with
+    types then we'd need to define the base case like so:
+
+        template<> void reflectArgs() {}
+
+    The compiler will interpret this as a template specialization for function
+    which it will refuse to allow. If we omit then template<> then the compiler
+    doesn't recognize it as a valid overload for a call to:
+
+        reflectArgs<>();
+
+    So we instead have to rely on type deduction using a phony TypeVector
+    parameter which allows us to write the base case as:
+
+        void reflectArgs(TypeVector<>) {}
+
+    C++ uses dark corner case. It's super effective!
+*/
+void reflectArguments(std::vector<Argument>&, TypeVector<>) {}
+
+template<typename Arg, typename... Rest>
+void reflectArguments(std::vector<Argument>& args, TypeVector<Arg, Rest...>)
+{
+    args.push_back(Argument::make<Arg>());
+    reflectArguments(args, TypeVector<Rest...>());
+}
+
+
+template<typename Fn>
+std::vector<Argument> reflectArguments()
+{
+    typedef typename GetArguments<Fn>::type Args;
+
+    std::vector<Argument> args;
+    reflectArguments(args, Args());
+    return args;
+}
+
 
 /******************************************************************************/
 /* FUNCTION                                                                   */
@@ -35,74 +100,21 @@ initFn(std::function<Ret(Args...)> rawFn)
     // back. The original type can always be recovered before we make the calll.
     fn = *reinterpret_cast<VoidFn*>(&typedFn);
 
-    ret = reflect<Ret>();
-
-    args.reserve(sizeof...(Args));
-    reflectArgs(TypeVector<Args...>());
+    ret = reflectReturn<Ret(Args...)>();
+    args = reflectArguments<Ret(Args...)>();
 }
 
-/** Note that we have to use TypeVector otherwise if we're dealing purely with
-    types then we'd need to define the base case like so:
-
-        template<> void reflectArgs() {}
-
-    The compiler will interpret this as a template specialization for function
-    which it will refuse to allow. If we omit then template<> then the compiler
-    doesn't recognize it as a valid overload for a call to:
-
-        reflectArgs<>();
-
-    So we instead have to rely on type deduction using a phony TypeVector
-    parameter which allows us to write the base case as:
-
-        void reflectArgs(TypeVector<>) {}
-
-    C++ uses dark corner case. It's super effective!
-*/
-template<typename Arg, typename... Rest>
-void
-Function::
-reflectArgs(TypeVector<Arg, Rest...>)
-{
-    args.push_back(reflect<Arg>());
-    reflectArgs(TypeVector<Rest...>());
-}
 
 template<typename Fn>
 bool
 Function::
 test() const
 {
-    typedef typename GetReturnValue<Fn>::type Ret;
-    typedef typename GetArguments<Fn>::type Args;
+    auto otherRet = reflectReturn<Fn>();
+    auto otherArgs = reflectArguments<Fn>();
 
-    return test<Ret>(Args());
-}
-
-template<typename Ret, typename... Args>
-bool
-Function::
-test(TypeVector<Args...>) const
-{
-    return testArgs<0, Args...>()
-        && (reflect<Ret>() == reflect<void>() || test(reflect<Ret>(), ret));
-}
-
-template<size_t Index>
-bool
-Function::
-testArgs() const
-{
-    return true;
-}
-
-template<size_t Index, typename Arg, typename... Rest>
-bool
-Function::
-testArgs() const
-{
-    if (!test(reflect<Arg>(), args[Index])) return false;
-    return testArgs<Index + 1, Rest...>();
+    return testReturn(otherRet, ret)
+        && testArguments(otherArgs, args);
 }
 
 
@@ -112,6 +124,12 @@ Function::
 call(Args&&... args)
 {
     bool signatureMatch = test<Ret(Args...)>();
+    if (!signatureMatch) {
+        std::cerr << "signature mismatch: "
+            << "expected=" << signature(*this)
+            << ", got=" << signature<Ret(Args...)>()
+            << std::endl;
+    }
     assert(signatureMatch);
 
     typedef typename MakeStdValueFunction<Args...>::type Fn;

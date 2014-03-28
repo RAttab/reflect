@@ -9,7 +9,21 @@
 #include "types/void.h"
 #include "types/value.h"
 
+#include <sstream>
+
 namespace reflect {
+
+
+/******************************************************************************/
+/* ARGUMENT                                                                   */
+/******************************************************************************/
+
+std::string
+Argument::
+print() const
+{
+    return type_->id() + (refType_ == RefType::LValue ? "&" : "&&");
+}
 
 
 /******************************************************************************/
@@ -18,22 +32,37 @@ namespace reflect {
 
 bool
 Function::
-test(Reflection* value, Reflection* target) const
+test(const Argument& value, const Argument& target) const
 {
     static Reflection* valueType = reflect<Value>();
-    return value == valueType
-        || target == valueType
-        || value->isConvertibleTo(target);
+
+    if (value.type() == valueType || target.type() == valueType)
+        return true;
+
+    if (value.refType() == RefType::LValue && target.refType() == RefType::RValue)
+        return false;
+
+    return value.type()->isConvertibleTo(target.type());
 }
 
 bool
 Function::
-test(const Function& other) const
+testReturn(const Argument& value, const Argument& target) const
 {
-    if (args.size() != other.args.size()) return false;
+    return value.type() == reflect<void>()
+        || test(target, value);
+}
 
-    for (size_t i = 0; i < args.size(); ++i) {
-        if (!other.args[i]->isConvertibleTo(args[i])) return false;
+bool
+Function::
+testArguments(
+        const std::vector<Argument>& value,
+        const std::vector<Argument>& target) const
+{
+    if (value.size() != target.size()) return false;
+
+    for (size_t i = 0; i < target.size(); ++i) {
+        if (!test(value[i], target[i])) return false;
     }
 
     return true;
@@ -41,16 +70,39 @@ test(const Function& other) const
 
 bool
 Function::
-isGetter() const
+test(const Function& other) const
 {
-    return ret != reflect<void>() && args.size() == 1;
+    return testReturn(other.ret, ret)
+        && testArguments(other.args, args);
 }
 
-bool
-Function::
-isSetter() const
+
+/******************************************************************************/
+/* SIGNATURE                                                                  */
+/******************************************************************************/
+
+std::string
+signature(const Function& fn)
 {
-    return ret == reflect<void>() && args.size() == 2;
+    std::vector<Argument> args;
+    for (size_t i = 0; i < fn.arguments(); ++i)
+        args.push_back(fn.argument(i));
+
+    return signature(fn.returnType(), args);
+}
+
+std::string
+signature(const Argument& ret, const std::vector<Argument>& args)
+{
+    std::stringstream ss;
+
+    ss << ret.print() << " (";
+    for (size_t i = 0; i < args.size(); ++i) {
+        ss << (i ? ", " : "") << args[i].print();
+    }
+    ss << ")";
+
+    return ss.str();
 }
 
 

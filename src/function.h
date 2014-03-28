@@ -12,6 +12,34 @@ namespace reflect {
 
 
 /******************************************************************************/
+/* ARGUMENT                                                                   */
+/******************************************************************************/
+
+struct Argument
+{
+    Reflection* type() const { return type_; }
+    RefType refType() const { return refType_; }
+
+    template<typename T>
+    static Argument make();
+
+    std::string print() const;
+
+private:
+    Reflection* type_;
+    RefType refType_;
+};
+
+
+/******************************************************************************/
+/* REFLECT FUNCTION                                                           */
+/******************************************************************************/
+
+template<typename Fn> Argument reflectReturn();
+template<typename Fn> std::vector<Argument> reflectArguments();
+
+
+/******************************************************************************/
 /* FUNCTION                                                                   */
 /******************************************************************************/
 
@@ -20,9 +48,10 @@ struct Function
     template<typename Fn>
     Function(std::string name, Fn fn);
 
-    Reflection* returnType() const { return ret; }
-    size_t size() const { return args.size(); }
-    Reflection* operator[] (size_t i) const { return args[i]; }
+    const Argument& returnType() const { return ret; }
+
+    size_t arguments() const { return args.size(); }
+    const Argument& argument(size_t index) const { return args[index]; }
 
     template<typename Fn>
     bool test() const;
@@ -32,9 +61,6 @@ struct Function
     template<typename Ret, typename... Args>
     Ret call(Args&&... args);
 
-    bool isGetter() const;
-    bool isSetter() const;
-
 private:
 
     typedef std::function<void()> VoidFn;
@@ -42,28 +68,32 @@ private:
     template<typename Ret, typename... Args>
     void initFn(std::function<Ret(Args...)> fn);
 
-    void reflectArgs(TypeVector<>) {}
-
-    template<typename Arg, typename... Rest>
-    void reflectArgs(TypeVector<Arg, Rest...>);
-
-    bool test(Reflection* value, Reflection* target) const;
-
-    template<typename Ret, typename... Args>
-    bool test(TypeVector<Args...>) const;
-
-    template<size_t Index> 
-    bool testArgs() const;
-
-    template<size_t Index, typename Arg, typename... Rest>
-    bool testArgs() const;
+    bool test(const Argument& value, const Argument& target) const;
+    bool testReturn(const Argument& value, const Argument& target) const;
+    bool testArguments(
+            const std::vector<Argument>& value,
+            const std::vector<Argument>& target) const;
 
     VoidFn fn;
     std::string name;
 
-    Reflection* ret;
-    std::vector<Reflection*> args;
+    Argument ret;
+    std::vector<Argument> args;
 };
+
+
+/******************************************************************************/
+/* SIGNATURE                                                                  */
+/******************************************************************************/
+
+std::string signature(const Function& fn);
+std::string signature(const Argument& ret, const std::vector<Argument>& args);
+
+template<typename Fn>
+std::string signature()
+{
+    return signature(reflectReturn<Fn>(), reflectArguments<Fn>());
+}
 
 
 /******************************************************************************/
