@@ -20,11 +20,6 @@ Value() :
     value_(nullptr), reflection_(reflect<void>())
 {}
 
-Value::
-Value(void* value, Reflection* reflection) :
-    value_(value), reflection_(reflection)
-{}
-
 bool
 Value::
 isVoid() const

@@ -7,6 +7,7 @@
 
 #include "reflect.h"
 
+#include "ref_type.cpp"
 #include "registry.cpp"
 #include "value.cpp"
 #include "function.cpp"

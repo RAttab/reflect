@@ -30,8 +30,11 @@ BOOST_AUTO_TEST_CASE(lValue)
     Value lValue(u);
     BOOST_CHECK_EQUAL(lValue.refType(), RefType::LValue);
 
-    BOOST_CHECK(lValue.movable<unsigned>());
     BOOST_CHECK(lValue.castable<unsigned>());
+    BOOST_CHECK(lValue.castable<const unsigned>());
+
+    BOOST_CHECK(lValue.movable<unsigned>());
+    BOOST_CHECK(lValue.movable<const unsigned>());
 
     {
         auto& value = lValue.cast<unsigned>();
@@ -78,9 +81,18 @@ BOOST_AUTO_TEST_CASE(rValue)
     BOOST_CHECK(rValue.isVoid());
 }
 
+BOOST_AUTO_TEST_CASE(constness)
+{
+    const unsigned i = 0;
+
+    Value value(i);
+    BOOST_CHECK(!value.castable<unsigned>());
+    BOOST_CHECK( value.castable<const unsigned>());
+}
+
 BOOST_AUTO_TEST_CASE(uncastable)
 {
-    Value value(unsigned(10));
+    Value value(10u);
     BOOST_CHECK( value.castable<unsigned>());
     BOOST_CHECK(!value.castable<int>());
     BOOST_CHECK(!value.castable<long>());

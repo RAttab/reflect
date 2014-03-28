@@ -39,8 +39,15 @@ test(const Argument& value, const Argument& target) const
     if (value.type() == valueType || target.type() == valueType)
         return true;
 
-    if (value.refType() == RefType::LValue && target.refType() == RefType::RValue)
-        return false;
+    if (target.refType() == RefType::LValue) {
+        if (target.isConst()) {}
+        else if (value.isConst()) return false;
+        else if (value.refType() != RefType::LValue) return false;
+    }
+
+    else if (target.refType() == RefType::RValue) {
+        if (value.refType() != RefType::RValue) return false;
+    }
 
     return value.type()->isConvertibleTo(target.type());
 }

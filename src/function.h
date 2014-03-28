@@ -19,6 +19,7 @@ struct Argument
 {
     Reflection* type() const { return type_; }
     RefType refType() const { return refType_; }
+    bool isConst() const { return isConst_; }
 
     template<typename T>
     static Argument make();
@@ -28,6 +29,7 @@ struct Argument
 private:
     Reflection* type_;
     RefType refType_;
+    bool isConst_;
 };
 
 

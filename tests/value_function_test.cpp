@@ -147,3 +147,26 @@ BOOST_AUTO_TEST_CASE(memberFn)
     }
 }
 
+
+/******************************************************************************/
+/* CONSTNESS                                                                  */
+/******************************************************************************/
+
+BOOST_AUTO_TEST_CASE(constness)
+{
+    auto fn = [] (unsigned& i, const unsigned& j) -> const unsigned& {
+        i += j;
+        return i;
+    };
+    auto valueFn = makeValueFunction(fn);
+
+    {
+        unsigned i = 0;
+        Value ret = valueFn(Value(i), Value(10u));
+        BOOST_CHECK(ret.isConst());
+        BOOST_CHECK_EQUAL(ret.refType(), RefType::LValue);
+
+        BOOST_CHECK_EQUAL(i, 10);
+        BOOST_CHECK_EQUAL(&ret.cast<const unsigned>(), &i);
+    }
+}

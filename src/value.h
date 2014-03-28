@@ -21,17 +21,14 @@ struct Reflection;
 struct Value
 {
     Value();
-    Value(void* value, Reflection* reflection);
 
     template<typename T>
     explicit Value(T&& value);
 
     void* value() const { return value_; }
     Reflection* reflection() const { return reflection_; }
-    RefType refType() const
-    {
-        return storage ? RefType::RValue : RefType::LValue;
-    }
+    RefType refType() const { return refType_; }
+    bool isConst() const { return isConst_; }
 
     template<typename T> T& cast() const;
     template<typename T> bool castable() const;
@@ -45,6 +42,10 @@ private:
 
     void* value_;
     Reflection* reflection_;
+
+    RefType refType_;
+    bool isConst_;
+
     std::shared_ptr<void> storage;
 };
 

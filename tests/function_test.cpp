@@ -27,13 +27,13 @@ BOOST_AUTO_TEST_CASE(basics)
     Function fn("foo", foo);
 
     BOOST_CHECK_EQUAL(fn.returnType().type(), reflect<unsigned>());
-    BOOST_CHECK_EQUAL(fn.returnType().refType(), RefType::RValue);
+    BOOST_CHECK_EQUAL(fn.returnType().refType(), RefType::Value);
 
     BOOST_CHECK_EQUAL(fn.arguments(), 2);
     BOOST_CHECK_EQUAL(fn.argument(0).type(), reflect<unsigned>());
-    BOOST_CHECK_EQUAL(fn.argument(0).refType(), RefType::RValue);
+    BOOST_CHECK_EQUAL(fn.argument(0).refType(), RefType::Value);
     BOOST_CHECK_EQUAL(fn.argument(1).type(), reflect<int>());
-    BOOST_CHECK_EQUAL(fn.argument(1).refType(), RefType::RValue);
+    BOOST_CHECK_EQUAL(fn.argument(1).refType(), RefType::Value);
 
     BOOST_CHECK( fn.test(fn));
     BOOST_CHECK( fn.test<unsigned(unsigned, int)>());

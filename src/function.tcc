@@ -19,9 +19,12 @@ Argument
 Argument::
 make()
 {
+    typedef typename std::decay<T>::type CleanT;
+
     Argument arg;
-    arg.type_ = reflect<typename std::decay<T>::type>();
-    arg.refType_ = reflect::refType<T>();
+    arg.type_ = reflect<CleanT>();
+    arg.refType_ = makeRefType<T>();
+    arg.isConst_ = reflect::isConst<T>();
     return arg;
 }
 

@@ -18,7 +18,7 @@ using namespace reflect;
 template<typename T>
 constexpr RefType proxyRefType(T&& t)
 {
-    return refType(std::forward<T>(t));
+    return makeRefType(std::forward<T>(t));
 }
 
 static size_t staticValue = 0;
@@ -27,27 +27,56 @@ size_t fValue() { return 0; }
 size_t& fLValue() { return staticValue; }
 const size_t& fConstLValue() { return staticValue; }
 
-BOOST_AUTO_TEST_CASE(blah)
+BOOST_AUTO_TEST_CASE(value)
 {
     size_t value;
     auto& lValue = value;
     const auto& constLValue = value;
 
-    BOOST_CHECK_EQUAL(refType(value), RefType::LValue);
-    BOOST_CHECK_EQUAL(refType(lValue), RefType::LValue);
-    BOOST_CHECK_EQUAL(refType(constLValue), RefType::LValue);
-    BOOST_CHECK_EQUAL(refType(std::move(value)), RefType::RValue);
+    BOOST_CHECK_EQUAL(makeRefType(value), RefType::LValue);
+    BOOST_CHECK_EQUAL(makeRefType(lValue), RefType::LValue);
+    BOOST_CHECK_EQUAL(makeRefType(constLValue), RefType::LValue);
+    BOOST_CHECK_EQUAL(makeRefType(std::move(value)), RefType::RValue);
 
     BOOST_CHECK_EQUAL(proxyRefType(value), RefType::LValue);
     BOOST_CHECK_EQUAL(proxyRefType(lValue), RefType::LValue);
     BOOST_CHECK_EQUAL(proxyRefType(constLValue), RefType::LValue);
     BOOST_CHECK_EQUAL(proxyRefType(std::move(value)), RefType::RValue);
 
-    BOOST_CHECK_EQUAL(refType(fValue()), RefType::RValue);
-    BOOST_CHECK_EQUAL(refType(fLValue()), RefType::LValue);
-    BOOST_CHECK_EQUAL(refType(fConstLValue()), RefType::LValue);
+    BOOST_CHECK_EQUAL(makeRefType(fValue()), RefType::RValue);
+    BOOST_CHECK_EQUAL(makeRefType(fLValue()), RefType::LValue);
+    BOOST_CHECK_EQUAL(makeRefType(fConstLValue()), RefType::LValue);
 
     BOOST_CHECK_EQUAL(proxyRefType(fValue()), RefType::RValue);
     BOOST_CHECK_EQUAL(proxyRefType(fLValue()), RefType::LValue);
     BOOST_CHECK_EQUAL(proxyRefType(fConstLValue()), RefType::LValue);
+}
+
+BOOST_AUTO_TEST_CASE(types)
+{
+    BOOST_CHECK_EQUAL(makeRefType<unsigned>(), RefType::Value);
+    BOOST_CHECK_EQUAL(makeRefType<unsigned&>(), RefType::LValue);
+    BOOST_CHECK_EQUAL(makeRefType<unsigned&&>(), RefType::RValue);
+    BOOST_CHECK_EQUAL(makeRefType<const unsigned&>(), RefType::LValue);
+}
+
+BOOST_AUTO_TEST_CASE(constness)
+{
+    unsigned i = 0;
+    unsigned& ref = i;
+    unsigned&& rref = std::move(i);
+    const unsigned c = 0;;
+    const unsigned& cref = c;
+
+    BOOST_CHECK(!isConst(i));
+    BOOST_CHECK(!isConst(ref));
+    BOOST_CHECK(!isConst(rref));
+    BOOST_CHECK( isConst(c));
+    BOOST_CHECK( isConst(cref));
+
+    BOOST_CHECK(!isConst<unsigned>());
+    BOOST_CHECK(!isConst<unsigned&>());
+    BOOST_CHECK(!isConst<unsigned&&>());
+    BOOST_CHECK( isConst<const unsigned>());
+    BOOST_CHECK( isConst<const unsigned&>());
 }

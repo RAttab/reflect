@@ -18,10 +18,12 @@ namespace reflect {
 template<typename T>
 Value::
 Value(T&& value) :
-    value_(&value), reflection_(reflect<T>())
+    value_((void*)&value), // cast-away any const
+    reflection_(reflect<T>()),
+    refType_(makeRefType(std::forward<T>(value))),
+    isConst_(reflect::isConst(std::forward<T>(value)))
 {
-    if (reflect::refType(std::forward<T>(value)) != RefType::RValue)
-        return;
+    if (refType_ != RefType::RValue) return;
 
     typedef typename std::decay<T>::type CleanT;
     storage.reset(value_ = new CleanT(std::move(value)));
@@ -33,7 +35,9 @@ Value::
 castable() const
 {
     typedef typename std::decay<T>::type CleanT;
-    return !isVoid() && reflection_->isConvertibleTo<CleanT>();
+    return !isVoid()
+        && testConstConversion(isConst(), reflect::isConst<T>())
+        && reflection_->isConvertibleTo<CleanT>();
 }
 
 template<typename T>
@@ -46,6 +50,14 @@ cast() const
 }
 
 template<typename T>
+bool
+Value::
+movable() const
+{
+    return castable<T>() && (!storage || storage.unique());
+}
+
+template<typename T>
 T
 Value::
 move()
@@ -55,14 +67,6 @@ move()
     T value = std::move(*static_cast<T*>(value_));
     *this = Value();
     return value;
-}
-
-template<typename T>
-bool
-Value::
-movable() const
-{
-    return castable<T>() && (!storage || storage.unique());
 }
 
 
