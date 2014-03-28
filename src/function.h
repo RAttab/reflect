@@ -17,16 +17,14 @@ namespace reflect {
 
 struct Function
 {
-    typedef std::function<void()> VoidFn;
-
-    template<typename Ret, typename... Args>
-    Function(std::string name, std::function<Ret(Args...)> fn);
+    template<typename Fn>
+    Function(std::string name, Fn fn);
 
     Reflection* returnType() const { return ret; }
     size_t size() const { return args.size(); }
     Reflection* operator[] (size_t i) const { return args[i]; }
 
-    template<typename Ret, typename... Args>
+    template<typename Fn>
     bool test() const;
 
     bool test(const Function& other) const;
@@ -39,21 +37,30 @@ struct Function
 
 private:
 
-    void reflectArgs() {}
+    typedef std::function<void()> VoidFn;
+
+    template<typename Ret, typename... Args>
+    void initFn(std::function<Ret(Args...)> fn);
+
+    void reflectArgs(TypeVector<>) {}
 
     template<typename Arg, typename... Rest>
-    void reflectArgs();
+    void reflectArgs(TypeVector<Arg, Rest...>);
 
     bool test(Reflection* value, Reflection* target) const;
 
+    template<typename Ret, typename... Args>
+    bool test(TypeVector<Args...>) const;
+
     template<size_t Index> 
-    void testArgs() const {}
+    bool testArgs() const;
 
     template<size_t Index, typename Arg, typename... Rest>
-    void testArgs() const;
+    bool testArgs() const;
 
-    std::string name;
     VoidFn fn;
+    std::string name;
+
     Reflection* ret;
     std::vector<Reflection*> args;
 };

@@ -88,7 +88,8 @@ struct Cast<Value, Value>
 };
 
 template<typename Target, typename T>
-auto cast(T&& value) -> typename details::TargetRef<Target>::type
+auto cast(T&& value) ->
+    decltype(Cast<typename std::decay<T>::type, Target>::cast(std::forward<T>(value)))
 {
     typedef typename std::decay<T>::type CleanT;
     return Cast<CleanT, Target>::cast(std::forward<T>(value));
@@ -110,7 +111,7 @@ auto cast(T&& value) -> typename details::TargetRef<Target>::type
  */
 
 template<typename Target, typename T>
-Target retCast(T&& value, std::true_type) {}
+Target retCast(T&&, std::true_type) {}
 
 template<typename Target, typename T>
 Target retCast(T&& value, std::false_type)

@@ -24,6 +24,7 @@
 
 #include "utils.h"
 #include "type_vector.h"
+#include "function_traits.h"
 #include "type_name.h"
 #include "make_function.h"
 
