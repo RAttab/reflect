@@ -27,19 +27,16 @@ BOOST_AUTO_TEST_CASE(basics)
 
     Function fn("foo", &foo);
 
-    auto iType = reflect<int>();
-    auto uType = reflect<unsigned>();
-
-    BOOST_CHECK_EQUAL(fn.returnType(), uType);
+    BOOST_CHECK_EQUAL(fn.returnType(), reflect<unsigned>());
     BOOST_CHECK_EQUAL(fn.size(), 2);
-    BOOST_CHECK_EQUAL(fn[0], uType);
-    BOOST_CHECK_EQUAL(fn[1], iType);
+    BOOST_CHECK_EQUAL(fn[0], reflect<unsigned>());
+    BOOST_CHECK_EQUAL(fn[1], reflect<int>());
 
-    BOOST_CHECK(fn.test(fn));
-    BOOST_CHECK(fn.test<unsigned(unsigned, int)>());
-    BOOST_CHECK(fn.test<void    (unsigned, int)>());
+    BOOST_CHECK( fn.test(fn));
+    BOOST_CHECK( fn.test<unsigned(unsigned, int)>());
+    BOOST_CHECK( fn.test<void    (unsigned, int)>());
     BOOST_CHECK(!fn.test<unsigned(int, unsigned)>());
 
-    BOOST_CHECK_EQUAL(fn.call<unsigned>(unsigned(1), int(2)), foo(1, 2));
-    fn.call<void>(unsigned(1), int(2));
+    BOOST_CHECK_EQUAL(fn.call<unsigned>(1u, 2), foo(1, 2));
+    fn.call<void>(1u, 2);
 }

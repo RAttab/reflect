@@ -33,11 +33,11 @@ BOOST_AUTO_TEST_CASE(fn)
 
     unsigned value = 0;
 
-    Value ret = valueFn(Value(value), Value(int(10)));
+    Value ret = valueFn(Value(value), Value(10));
     BOOST_CHECK(ret.isVoid());
     BOOST_CHECK_EQUAL(value, 10);
 
-    valueFn(Value(value), Value(int(10)));
+    valueFn(Value(value), Value(10));
     BOOST_CHECK_EQUAL(value, 20);
 }
 
@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE(lambda)
 
     auto valueFn = makeValueFunction(lambda);
 
-    Value ret = valueFn(Value(unsigned(10)), Value(unsigned(10)));
+    Value ret = valueFn(Value(10u), Value(10u));
     BOOST_CHECK_EQUAL(value, 110);
     BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 110);
 }
@@ -86,14 +86,14 @@ BOOST_AUTO_TEST_CASE(functor)
     auto valueFn = makeValueFunction(Functor());
 
     {
-        Value ret = valueFn(Value(unsigned(10)));
+        Value ret = valueFn(Value(10u));
         BOOST_CHECK_EQUAL(ret.refType(), RefType::LValue);
         BOOST_CHECK(ret.castable<unsigned>());
         BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 10);
     }
 
     {
-        Value ret = valueFn(Value(unsigned(10)));
+        Value ret = valueFn(Value(10u));
         BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 20);
     }
 }
@@ -133,7 +133,7 @@ BOOST_AUTO_TEST_CASE(memberFn)
     auto valueFn = makeValueFunction(&Foo::bar);
 
     {
-        Value ret = valueFn(Value(foo), Value(unsigned(10)));
+        Value ret = valueFn(Value(foo), Value(10u));
         BOOST_CHECK_EQUAL(ret.refType(), RefType::LValue);
         BOOST_CHECK(ret.castable<unsigned>());
         BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 10);
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE(memberFn)
     }
 
     {
-        Value ret = valueFn(Value(foo), Value(unsigned(10)));
+        Value ret = valueFn(Value(foo), Value(10u));
         BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 20);
         BOOST_CHECK_EQUAL(foo.value, 20);
     }
