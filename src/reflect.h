@@ -4,8 +4,9 @@
 
    Main include header for reflect.
 
-   This exists because the order in which the headers are included is rather
-   important and it's just easier to deal with it all in a single place.
+   This exists because the order in which the headers are included is hard to
+   get right and since all the core headers are always required there's not much
+   point trying to deal with includes on a file per file basis.
 
    Also, I'm lazy.
 
