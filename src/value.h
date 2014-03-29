@@ -54,6 +54,9 @@ struct Value
     bool isConst() const { return arg.isConst(); }
     bool isVoid() const { return arg.isVoid(); }
 
+    // Get a reference to the value without any type checks.
+    template<typename T> const T& get() const;
+
     template<typename T> auto cast() const -> typename CleanRef<T>::type;
     template<typename T> bool castable() const;
 

@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE(basics)
     BOOST_CHECK_EQUAL(fn.call<unsigned>(1u, i, 3, std::move(i)), expected);
 
     Value ret = fn.call<Value>(1u, i, 3, std::move(i));
-    BOOST_CHECK_EQUAL(ret.cast<unsigned>(), expected);
+    BOOST_CHECK_EQUAL(ret.get<unsigned>(), expected);
 
 }
 
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE(value_call)
     BOOST_CHECK_EQUAL(fn.call<int>(10), foo(10));
 
     Value ret = fn.call<Value>(Value(10));
-    BOOST_CHECK_EQUAL(ret.cast<int>(), foo(10));
+    BOOST_CHECK_EQUAL(ret.get<int>(), foo(10));
 
     int i = 10;
     BOOST_CHECK_EQUAL(fn.call<int>(Value(i)), foo(i));

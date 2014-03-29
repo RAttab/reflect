@@ -47,7 +47,6 @@ BOOST_AUTO_TEST_CASE(fn)
 /* LAMBDA                                                                     */
 /******************************************************************************/
 
-
 BOOST_AUTO_TEST_CASE(lambda)
 {
     unsigned value = 0;
@@ -59,7 +58,7 @@ BOOST_AUTO_TEST_CASE(lambda)
 
     Value ret = valueFn(Value(10u), Value(10u));
     BOOST_CHECK_EQUAL(value, 110);
-    BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 110);
+    BOOST_CHECK_EQUAL(ret.get<unsigned>(), 110);
 }
 
 

@@ -27,6 +27,16 @@ Value(T&& value) :
     storage.reset(value_ = new CleanT(std::move(value)));
 }
 
+
+template<typename T>
+const T&
+Value::
+get() const
+{
+    return *static_cast<T*>(value_);
+}
+
+
 template<typename T>
 bool
 Value::
@@ -49,6 +59,7 @@ cast() const -> typename CleanRef<T>::type
     typedef typename std::decay<T>::type CleanT;
     return *static_cast<CleanT*>(value_);
 }
+
 
 template<typename T>
 bool
@@ -74,6 +85,7 @@ copy() const -> typename CleanValue<T>::type
     typedef typename std::decay<T>::type CleanT;
     return *static_cast<CleanT*>(value_);
 }
+
 
 template<typename T>
 bool

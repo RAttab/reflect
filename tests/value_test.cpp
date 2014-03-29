@@ -32,6 +32,7 @@ BOOST_AUTO_TEST_CASE(lValue)
 
     BOOST_CHECK(!lValue.isConst());
     BOOST_CHECK_EQUAL(lValue.refType(), RefType::LValue);
+    BOOST_CHECK_EQUAL(lValue.get<unsigned>(), u);
 
     // copy
     BOOST_CHECK(lValue.copiable<unsigned>());
@@ -70,6 +71,7 @@ BOOST_AUTO_TEST_CASE(constLValue)
 
     BOOST_CHECK(lValue.isConst());
     BOOST_CHECK_EQUAL(lValue.refType(), RefType::LValue);
+    BOOST_CHECK_EQUAL(lValue.get<unsigned>(), u);
 
     // copy
     BOOST_CHECK(lValue.copiable<unsigned>());
@@ -95,11 +97,11 @@ BOOST_AUTO_TEST_CASE(rValue)
 {
     unsigned u = 10;
     Value rValue(std::move(u));
+    u = 20; // Just to make sure we don't have a ref to u.
 
     BOOST_CHECK(!rValue.isConst());
     BOOST_CHECK_EQUAL(rValue.refType(), RefType::RValue);
-
-    u = 20; // Just to make sure we don't have a ref to u.
+    BOOST_CHECK_EQUAL(rValue.get<unsigned>(), 10);
 
     // Safety checks against moving out a shared storage.
     {
@@ -109,7 +111,7 @@ BOOST_AUTO_TEST_CASE(rValue)
     }
 
     // copy
-    BOOST_CHECK( rValue.copiable<unsigned>());
+    BOOST_CHECK(rValue.copiable<unsigned>());
     BOOST_CHECK_EQUAL(rValue.copy<unsigned>(), 10);
 
     // l-ref
@@ -136,4 +138,5 @@ BOOST_AUTO_TEST_CASE(constRValue)
 
     Value rValue(std::move(i));
     BOOST_CHECK(!rValue.isConst());
+    BOOST_CHECK_EQUAL(rValue.refType(), RefType::RValue);
 }
