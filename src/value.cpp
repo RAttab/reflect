@@ -33,7 +33,7 @@ Value
 Value::
 move()
 {
-    if (!type()->isCopiable())
+    if (!type()->isMovable())
         reflectError("<%s> is not movable", type()->id());
 
     reflectError("Value::move() is not implemented yet.");
