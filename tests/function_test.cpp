@@ -158,6 +158,7 @@ BOOST_AUTO_TEST_CASE(copy_call)
     // void
     fn.call<void>(10);
     BOOST_CHECK_THROW(fn.call<int>(), ReflectError);
+    BOOST_CHECK_THROW(fn.call<int>(Value()), ReflectError);
 
     // copy
     BOOST_CHECK_EQUAL(fn.call<int>(10), foo(10));
@@ -222,6 +223,7 @@ BOOST_AUTO_TEST_CASE(lValue_call)
     // void
     fn.call<void>(lValue);
     BOOST_CHECK_THROW(fn.call<int>(), ReflectError);
+    BOOST_CHECK_THROW(fn.call<int>(Value()), ReflectError);
 
     // copy
     BOOST_CHECK_THROW(fn.call<int&>(10), ReflectError);
@@ -285,6 +287,7 @@ BOOST_AUTO_TEST_CASE(constLValue_call)
     // void
     fn.call<void>(constLValue);
     BOOST_CHECK_THROW(fn.call<const int&>(), ReflectError);
+    BOOST_CHECK_THROW(fn.call<const int&>(Value()), ReflectError);
 
     // copy
     BOOST_CHECK_EQUAL(fn.call<int>(c), foo(c));
@@ -345,6 +348,7 @@ BOOST_AUTO_TEST_CASE(rValue_call)
         fn.call<void>(std::move(r));
     }
     BOOST_CHECK_THROW(fn.call<const int&>(), ReflectError);
+    BOOST_CHECK_THROW(fn.call<const int&>(Value()), ReflectError);
 
     // copy
     BOOST_CHECK_EQUAL(fn.call<int>(10), foo(10));
