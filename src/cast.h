@@ -61,6 +61,8 @@ private:
 
     static TargetRef cast(Value& value, std::false_type, std::false_type)
     {
+        if (value.refType() == RefType::RValue)
+            return value.move<Target>();
         return value.copy<Target>();
     }
 
