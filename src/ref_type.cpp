@@ -21,7 +21,7 @@ std::ostream& operator<<(std::ostream& stream, RefType type)
     {
     case RefType::LValue: stream << "LValue"; break;
     case RefType::RValue: stream << "RValue"; break;
-    case RefType:: Value: stream <<  "Value"; break;
+    case RefType::Copy:   stream << "Copy";   break;
     default: reflectError("Unknown RefType");
     };
 

@@ -7,10 +7,8 @@
 
 #include "reflect.h"
 
-#include <stdexcept>
 #include <cstdio>
 #include <cstdarg>
-
 
 namespace reflect {
 
@@ -31,7 +29,7 @@ void verror(bool except, const char* file, int line, const char* fmt, ...)
         std::to_string(line) + ": " +
         std::string(buf, n);
 
-    if (except) throw std::logic_error(msg);
+    if (except) throw ReflectError(msg);
 
     printf("%s\n", msg.c_str());
     abort();

@@ -38,7 +38,6 @@ struct Argument
     bool isConvertibleTo() const;
     bool isConvertibleTo(const Argument& other) const;
 
-
 private:
     Type* type_;
     RefType refType_;

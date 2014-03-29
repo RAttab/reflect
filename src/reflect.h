@@ -19,6 +19,7 @@
 #include <type_traits>
 #include <vector>
 #include <unordered_map>
+#include <stdexcept>
 #include <cstddef>
 
 #include <iostream> // debug only

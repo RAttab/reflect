@@ -32,7 +32,8 @@ bool
 Value::
 castable() const
 {
-    return !isVoid() && arg.isConvertibleTo<T>();
+    typedef typename CleanRef<T>::type Target;
+    return !isVoid() && arg.isConvertibleTo<Target>();
 }
 
 template<typename T>
@@ -54,7 +55,10 @@ bool
 Value::
 copiable() const
 {
-    return type()->isCopiable() && castable<T>();
+    typedef typename CleanValue<T>::type Target;
+    return !isVoid()
+        && type()->isCopiable()
+        && arg.isConvertibleTo<Target>();
 }
 
 template<typename T>
@@ -76,8 +80,11 @@ bool
 Value::
 movable() const
 {
-    return type()->isMovable()
-        && castable<T>()
+    typedef typename CleanValue<T>::type Target;
+    return !isVoid()
+        && type()->isMovable()
+        && !arg.isConst()
+        && arg.isConvertibleTo<Target>()
         && (!storage || storage.unique());
 }
 
@@ -86,7 +93,7 @@ auto
 Value::
 move() -> typename CleanValue<T>::type
 {
-    if (!castable<T>()) {
+    if (!movable<T>()) {
         reflectError("<%s> is not movable to <%s>",
                 arg.print(), printArgument<T>());
     }

@@ -40,7 +40,7 @@ isConvertibleTo(const Argument& target) const
     if (type() == valueType || target.type() == valueType)
         return true;
 
-    if (target.refType() != RefType::Value) {
+    if (target.refType() != RefType::Copy) {
         if (!testConstConversion(isConst(), target.isConst()))
             return false;
     }

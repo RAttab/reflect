@@ -18,30 +18,7 @@ namespace reflect {
 
 
 /******************************************************************************/
-/* CLEAN REF                                                                  */
-/******************************************************************************/
-
-template<typename T>
-struct CleanRef
-{
-    typedef typename std::decay<T>::type CleanT;
-    typedef typename std::add_lvalue_reference<CleanT>::type type;
-};
-
-
-/******************************************************************************/
-/* CLEAN VALUE                                                                */
-/******************************************************************************/
-
-template<typename T>
-struct CleanValue
-{
-    typedef typename std::decay<T>::type type;
-};
-
-
-/******************************************************************************/
-/* ERROR                                                                      */
+/* USE EXCEPTIONS                                                             */
 /******************************************************************************/
 
 #ifndef REFLECT_USE_EXCEPTIONS
@@ -49,6 +26,21 @@ struct CleanValue
 #endif
 
 enum { UseExceptions = REFLECT_USE_EXCEPTIONS };
+
+
+/******************************************************************************/
+/* REFLECT ERROR                                                              */
+/******************************************************************************/
+
+struct ReflectError : public std::logic_error
+{
+    ReflectError(std::string what) : std::logic_error(std::move(what)) {}
+};
+
+
+/******************************************************************************/
+/* ERROR                                                                      */
+/******************************************************************************/
 
 template<typename T>
 auto errorConvert(T&& value) -> decltype(std::forward<T>(value))

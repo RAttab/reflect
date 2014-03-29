@@ -16,7 +16,7 @@ namespace reflect {
 
 enum class RefType
 {
-    Value,
+    Copy,
     LValue,
     RValue,
 };
@@ -33,7 +33,7 @@ RefType makeRefType()
 {
     if (std::is_rvalue_reference<T>::value) return RefType::RValue;
     if (std::is_lvalue_reference<T>::value) return RefType::LValue;
-    return RefType::Value;
+    return RefType::Copy;
 }
 
 template<typename T>

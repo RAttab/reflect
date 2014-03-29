@@ -29,19 +29,30 @@ BOOST_AUTO_TEST_CASE(lValue)
 {
     unsigned u = 10;
     Value lValue(u);
+
+    BOOST_CHECK(!lValue.isConst());
     BOOST_CHECK_EQUAL(lValue.refType(), RefType::LValue);
 
+    // copy
+    BOOST_CHECK(lValue.copiable<unsigned>());
+    BOOST_CHECK_EQUAL(lValue.copy<unsigned>(), u);
+
+    // l-ref
     BOOST_CHECK(lValue.castable<unsigned>());
-    BOOST_CHECK(lValue.castable<const unsigned>());
-
-    BOOST_CHECK(lValue.movable<unsigned>());
-    BOOST_CHECK(lValue.movable<const unsigned>());
-
     {
         auto& value = lValue.cast<unsigned>();
         BOOST_CHECK_EQUAL(&value, &u);
     }
 
+    // const l-ref
+    BOOST_CHECK(lValue.castable<const unsigned>());
+    {
+        const auto& value = lValue.cast<const unsigned>();
+        BOOST_CHECK_EQUAL(&value, &u);
+    }
+
+    // r-ref
+    BOOST_CHECK(lValue.movable<unsigned>());
     {
         auto value = lValue.move<unsigned>();
         BOOST_CHECK_EQUAL(value, 10);
@@ -52,16 +63,43 @@ BOOST_AUTO_TEST_CASE(lValue)
     }
 }
 
+BOOST_AUTO_TEST_CASE(constLValue)
+{
+    const unsigned u = 10;
+    Value lValue(u);
+
+    BOOST_CHECK(lValue.isConst());
+    BOOST_CHECK_EQUAL(lValue.refType(), RefType::LValue);
+
+    // copy
+    BOOST_CHECK(lValue.copiable<unsigned>());
+    BOOST_CHECK_EQUAL(lValue.copy<unsigned>(), u);
+
+    // l-ref
+    BOOST_CHECK(!lValue.castable<unsigned>());
+    BOOST_CHECK_THROW(lValue.cast<unsigned>(), ReflectError);
+
+    // const l-ref
+    BOOST_CHECK(lValue.castable<const unsigned>());
+    {
+        const auto& value = lValue.cast<const unsigned>();
+        BOOST_CHECK_EQUAL(&value, &u);
+    }
+
+    // r-ref
+    BOOST_CHECK(!lValue.movable<unsigned>());
+    BOOST_CHECK_THROW(lValue.move<unsigned>(), ReflectError);
+}
+
 BOOST_AUTO_TEST_CASE(rValue)
 {
     unsigned u = 10;
     Value rValue(std::move(u));
+
+    BOOST_CHECK(!rValue.isConst());
     BOOST_CHECK_EQUAL(rValue.refType(), RefType::RValue);
 
     u = 20; // Just to make sure we don't have a ref to u.
-
-    BOOST_CHECK(rValue.castable<unsigned>());
-    BOOST_CHECK(rValue.movable<unsigned>());
 
     // Safety checks against moving out a shared storage.
     {
@@ -69,32 +107,33 @@ BOOST_AUTO_TEST_CASE(rValue)
         BOOST_CHECK(!rValue.movable<unsigned>());
         BOOST_CHECK(!other.movable<unsigned>());
     }
-    BOOST_CHECK(rValue.castable<unsigned>());
-    BOOST_CHECK(rValue.movable<unsigned>());
 
+    // copy
+    BOOST_CHECK( rValue.copiable<unsigned>());
+    BOOST_CHECK_EQUAL(rValue.copy<unsigned>(), 10);
+
+    // l-ref
+    BOOST_CHECK(!rValue.castable<unsigned>());
+    BOOST_CHECK_THROW(rValue.cast<unsigned>(), ReflectError);
+
+    // const l-ref
+    BOOST_CHECK( rValue.castable<const unsigned>());
     {
-        auto& value = rValue.cast<unsigned>();
+        const auto& value = rValue.cast<const unsigned>();
         BOOST_CHECK_NE(&value, &u);
         BOOST_CHECK_EQUAL(value, 10);
     }
 
+    // r-ref
+    BOOST_CHECK(rValue.movable<unsigned>());
     BOOST_CHECK_EQUAL(rValue.move<unsigned>(), 10);
     BOOST_CHECK(rValue.isVoid());
 }
 
-BOOST_AUTO_TEST_CASE(constness)
+BOOST_AUTO_TEST_CASE(constRValue)
 {
     const unsigned i = 0;
 
-    Value value(i);
-    BOOST_CHECK( value.castable<unsigned>());
-    BOOST_CHECK( value.castable<const unsigned>());
-}
-
-BOOST_AUTO_TEST_CASE(uncastable)
-{
-    Value value(10u);
-    BOOST_CHECK( value.castable<unsigned>());
-    BOOST_CHECK(!value.castable<int>());
-    BOOST_CHECK(!value.castable<long>());
+    Value rValue(std::move(i));
+    BOOST_CHECK(!rValue.isConst());
 }

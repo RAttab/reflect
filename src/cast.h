@@ -19,7 +19,7 @@ namespace details {
 template<typename T>
 struct TargetRef
 {
-    typedef typename std::decay<T>::type CleanT;
+    typedef typename std::remove_reference<T>::type CleanT;
     typedef typename std::add_lvalue_reference<CleanT>::type RefT;
 
     typedef typename std::conditional<

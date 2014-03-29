@@ -15,6 +15,29 @@ namespace reflect {
 struct Type;
 
 /******************************************************************************/
+/* CLEAN REF                                                                  */
+/******************************************************************************/
+
+template<typename T>
+struct CleanRef
+{
+    typedef typename std::remove_reference<T>::type CleanT;
+    typedef typename std::add_lvalue_reference<CleanT>::type type;
+};
+
+
+/******************************************************************************/
+/* CLEAN VALUE                                                                */
+/******************************************************************************/
+
+template<typename T>
+struct CleanValue
+{
+    typedef typename std::remove_reference<T>::type type;
+};
+
+
+/******************************************************************************/
 /* VALUE                                                                      */
 /******************************************************************************/
 

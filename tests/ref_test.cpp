@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(value)
 
 BOOST_AUTO_TEST_CASE(types)
 {
-    BOOST_CHECK_EQUAL(makeRefType<unsigned>(), RefType::Value);
+    BOOST_CHECK_EQUAL(makeRefType<unsigned>(), RefType::Copy);
     BOOST_CHECK_EQUAL(makeRefType<unsigned&>(), RefType::LValue);
     BOOST_CHECK_EQUAL(makeRefType<unsigned&&>(), RefType::RValue);
     BOOST_CHECK_EQUAL(makeRefType<const unsigned&>(), RefType::LValue);

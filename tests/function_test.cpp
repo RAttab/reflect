@@ -28,13 +28,13 @@ BOOST_AUTO_TEST_CASE(basics)
     Function fn("foo", foo);
 
     BOOST_CHECK_EQUAL(fn.returnType().type(), reflect<unsigned>());
-    BOOST_CHECK_EQUAL(fn.returnType().refType(), RefType::Value);
+    BOOST_CHECK_EQUAL(fn.returnType().refType(), RefType::Copy);
 
     BOOST_CHECK_EQUAL(fn.arguments(), 4);
 
     BOOST_CHECK(!fn.argument(0).isConst());
     BOOST_CHECK_EQUAL(fn.argument(0).type(), reflect<unsigned>());
-    BOOST_CHECK_EQUAL(fn.argument(0).refType(), RefType::Value);
+    BOOST_CHECK_EQUAL(fn.argument(0).refType(), RefType::Copy);
 
     BOOST_CHECK(!fn.argument(1).isConst());
     BOOST_CHECK_EQUAL(fn.argument(1).type(), reflect<int>());
@@ -83,8 +83,8 @@ BOOST_AUTO_TEST_CASE(value_test)
 
     BOOST_CHECK(!fn.returnType().isConst());
     BOOST_CHECK(!fn.argument(0).isConst());
-    BOOST_CHECK_EQUAL(fn.returnType().refType(), RefType::Value);
-    BOOST_CHECK_EQUAL(fn.argument(0).refType(), RefType::Value);
+    BOOST_CHECK_EQUAL(fn.returnType().refType(), RefType::Copy);
+    BOOST_CHECK_EQUAL(fn.argument(0).refType(), RefType::Copy);
 
     BOOST_CHECK( fn.test<void(int)>());
 
