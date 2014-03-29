@@ -36,15 +36,39 @@ castable() const
 }
 
 template<typename T>
-T&
+auto
 Value::
-cast() const
+cast() const -> typename CleanRef<T>::type
 {
     if (!castable<T>()) {
         reflectError("<%s> is not castable to <%s>",
                 arg.print(), printArgument<T>());
     }
-    return *static_cast<T*>(value_);
+
+    typedef typename std::decay<T>::type CleanT;
+    return *static_cast<CleanT*>(value_);
+}
+
+template<typename T>
+bool
+Value::
+copiable() const
+{
+    return type()->isCopiable() && castable<T>();
+}
+
+template<typename T>
+auto
+Value::
+copy() const -> typename CleanValue<T>::type
+{
+    if (!copiable<T>()) {
+        reflectError("<%s> is not copiable to <%s>",
+                arg.print(), printArgument<T>());
+    }
+
+    typedef typename std::decay<T>::type CleanT;
+    return *static_cast<CleanT*>(value_);
 }
 
 template<typename T>
@@ -52,20 +76,24 @@ bool
 Value::
 movable() const
 {
-    return castable<T>() && (!storage || storage.unique());
+    return type()->isMovable()
+        && castable<T>()
+        && (!storage || storage.unique());
 }
 
 template<typename T>
-T
+auto
 Value::
-move()
+move() -> typename CleanValue<T>::type
 {
     if (!castable<T>()) {
         reflectError("<%s> is not movable to <%s>",
                 arg.print(), printArgument<T>());
     }
 
-    T value = std::move(*static_cast<T*>(value_));
+    typedef typename std::decay<T>::type CleanT;
+
+    CleanT value = std::move(*static_cast<CleanT*>(value_));
     *this = Value();
     return value;
 }

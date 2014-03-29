@@ -38,6 +38,10 @@ struct Type
     }
     bool isConvertibleTo(Type* other);
 
+    // \todo implement
+    bool isCopiable() const { return true; }
+    bool isMovable() const { return true; }
+
 private:
 
     std::string id_;

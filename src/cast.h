@@ -23,7 +23,7 @@ struct TargetRef
     typedef typename std::add_lvalue_reference<CleanT>::type RefT;
 
     typedef typename std::conditional<
-        std::is_rvalue_reference<T>::value, CleanT, RefT>::type
+        std::is_lvalue_reference<T>::value, RefT, CleanT>::type
         type;
 };
 
@@ -47,25 +47,32 @@ struct Cast
 template<typename Target>
 struct Cast<Value, Target>
 {
-    typedef typename std::decay<Target>::type CleanTarget;
     typedef typename details::TargetRef<Target>::type TargetRef;
 
     static TargetRef cast(Value& value)
     {
-        return cast(value, std::is_rvalue_reference<Target>());
+        return cast(value,
+                std::is_lvalue_reference<Target>(),
+                std::is_rvalue_reference<Target>());
     }
 
 private:
 
-    static TargetRef cast(Value& value, std::true_type)
+    static TargetRef cast(Value& value, std::false_type, std::false_type)
     {
-        return value.move<CleanTarget>();
+        return value.copy<Target>();
     }
 
-    static TargetRef cast(Value& value, std::false_type)
+    static TargetRef cast(Value& value, std::true_type, std::false_type)
     {
-        return value.cast<CleanTarget>();
+        return value.cast<Target>();
     }
+
+    static TargetRef cast(Value& value, std::false_type, std::true_type)
+    {
+        return value.move<Target>();
+    }
+
 };
 
 template<typename T>

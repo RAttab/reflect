@@ -31,10 +31,13 @@ struct Value
     bool isConst() const { return arg.isConst(); }
     bool isVoid() const { return arg.isVoid(); }
 
-    template<typename T> T& cast() const;
+    template<typename T> auto cast() const -> typename CleanRef<T>::type;
     template<typename T> bool castable() const;
 
-    template<typename T> T move();
+    template<typename T> auto copy() const -> typename CleanValue<T>::type;
+    template<typename T> bool copiable() const;
+
+    template<typename T> auto move() -> typename CleanValue<T>::type;
     template<typename T> bool movable() const;
 
 
