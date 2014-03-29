@@ -34,9 +34,11 @@ struct Value
     template<typename T> auto cast() const -> typename CleanRef<T>::type;
     template<typename T> bool castable() const;
 
+    Value copy() const;
     template<typename T> auto copy() const -> typename CleanValue<T>::type;
     template<typename T> bool copiable() const;
 
+    Value move();
     template<typename T> auto move() -> typename CleanValue<T>::type;
     template<typename T> bool movable() const;
 

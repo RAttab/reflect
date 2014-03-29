@@ -44,6 +44,7 @@ struct Cast
     }
 };
 
+// \todo Forces copies in return statements that could otherwise be moved.
 template<typename Target>
 struct Cast<Value, Target>
 {
@@ -72,7 +73,6 @@ private:
     {
         return value.move<Target>();
     }
-
 };
 
 template<typename T>

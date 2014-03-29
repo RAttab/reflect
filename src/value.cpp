@@ -18,5 +18,27 @@ namespace reflect {
 Value::
 Value() : value_(nullptr) {}
 
+Value
+Value::
+copy() const
+{
+    if (!type()->isCopiable())
+        reflectError("<%s> is not copiable", type()->id());
+
+    reflectError("Value::copy() is not implemented yet.");
+    return Value();
+}
+
+Value
+Value::
+move()
+{
+    if (!type()->isCopiable())
+        reflectError("<%s> is not movable", type()->id());
+
+    reflectError("Value::move() is not implemented yet.");
+    return Value();
+}
+
 
 } // reflect
