@@ -20,6 +20,7 @@ struct Argument
     Reflection* type() const { return type_; }
     RefType refType() const { return refType_; }
     bool isConst() const { return isConst_; }
+    bool isVoid() const;
 
     template<typename T>
     static Argument make();

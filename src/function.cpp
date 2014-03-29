@@ -18,11 +18,27 @@ namespace reflect {
 /* ARGUMENT                                                                   */
 /******************************************************************************/
 
+bool
+Argument::
+isVoid() const
+{
+    return type_ == reflect<void>();
+}
+
 std::string
 Argument::
 print() const
 {
-    return type_->id() + (refType_ == RefType::LValue ? "&" : "&&");
+    std::stringstream ss;
+
+    if (isConst_) ss << "const ";
+
+    ss << type_->id();
+
+    if (refType_ == RefType::LValue) ss << "&";
+    if (refType_ == RefType::RValue) ss << "&&";
+
+    return ss.str();
 }
 
 
@@ -38,6 +54,11 @@ test(const Argument& value, const Argument& target) const
 
     if (value.type() == valueType || target.type() == valueType)
         return true;
+
+    if (target.refType() != RefType::Value) {
+        if (!testConstConversion(value.isConst(), target.isConst()))
+            return false;
+    }
 
     if (target.refType() == RefType::LValue) {
         if (target.isConst()) {}
@@ -103,7 +124,7 @@ signature(const Argument& ret, const std::vector<Argument>& args)
 {
     std::stringstream ss;
 
-    ss << ret.print() << " (";
+    ss << ret.print() << "(";
     for (size_t i = 0; i < args.size(); ++i) {
         ss << (i ? ", " : "") << args[i].print();
     }
