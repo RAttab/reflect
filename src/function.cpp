@@ -67,7 +67,7 @@ test(const Argument& value, const Argument& target) const
     }
 
     else if (target.refType() == RefType::RValue) {
-        if (value.refType() != RefType::RValue) return false;
+        if (value.refType() == RefType::LValue) return false;
     }
 
     return value.type()->isConvertibleTo(target.type());
