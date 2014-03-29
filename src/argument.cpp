@@ -37,7 +37,7 @@ isConvertibleTo(const Argument& target) const
 {
     static Type* valueType = reflect<Value>();
 
-    if (type() == valueType || target.type() == valueType)
+    if ((type() == valueType) ^ (target.type() == valueType))
         return true;
 
     if (target.refType() != RefType::Copy) {

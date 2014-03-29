@@ -54,6 +54,8 @@ struct Value
     bool isConst() const { return arg.isConst(); }
     bool isVoid() const { return arg.isVoid(); }
 
+    const Argument& argument() const { return arg; }
+
     // Get a reference to the value without any type checks.
     template<typename T> const T& get() const;
 
