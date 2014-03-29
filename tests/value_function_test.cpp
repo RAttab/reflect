@@ -22,7 +22,6 @@ using namespace reflect;
 /* FUNCTION                                                                   */
 /******************************************************************************/
 
-
 void foo(unsigned& value, int other)
 {
     value += other;

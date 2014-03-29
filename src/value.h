@@ -70,9 +70,7 @@ struct Value
     template<typename T> auto move() -> typename CleanValue<T>::type;
     template<typename T> bool movable() const;
 
-
 private:
-
     Argument arg;
     void* value_;
     std::shared_ptr<void> storage;

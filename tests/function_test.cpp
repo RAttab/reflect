@@ -121,8 +121,7 @@ BOOST_AUTO_TEST_CASE(copy_call)
 
     // r-ref
     BOOST_CHECK_EQUAL(fn.call<int>(std::move(r)), foo(10));
-    BOOST_CHECK_EQUAL(fn.call<int>(rValue), foo(10));
-    BOOST_CHECK(rValue.isVoid());
+    BOOST_CHECK_EQUAL(fn.call<int>(Value(std::move(r))), foo(10));
 }
 
 BOOST_AUTO_TEST_CASE(lValue_test)
@@ -156,8 +155,7 @@ BOOST_AUTO_TEST_CASE(lValue_call)
 
     int i = 10;        Value lValue(i);
     const auto& c = i; Value constLValue(c);
-    int r = i;         Value rValue(std::move(r));
-    r = i;
+    int r = i;
 
     // copy
     BOOST_CHECK_THROW(fn.call<int&>(10), ReflectError);
@@ -176,7 +174,7 @@ BOOST_AUTO_TEST_CASE(lValue_call)
 
     // r-ref
     BOOST_CHECK_THROW(fn.call<int&>(std::move(r)), ReflectError);
-    BOOST_CHECK_THROW(fn.call<int&>(rValue), ReflectError);
+    BOOST_CHECK_THROW(fn.call<int&>(Value(std::move(r))), ReflectError);
 }
 
 BOOST_AUTO_TEST_CASE(constLValue_test)
@@ -207,8 +205,7 @@ BOOST_AUTO_TEST_CASE(constLValue_call)
 
     int i = 10;        Value lValue(i);
     const auto& c = i; Value constLValue(c);
-    int r = i;         Value rValue(std::move(r));
-    r = i;
+    int r = i;
 
     // copy
     BOOST_CHECK_EQUAL(fn.call<int>(c), foo(c));
@@ -227,8 +224,7 @@ BOOST_AUTO_TEST_CASE(constLValue_call)
     // r-ref
     // We return a value to a temporary here so it's not safe to check it.
     fn.call<const int&>(std::move(r));
-    fn.call<const int&>(rValue);
-    BOOST_CHECK(rValue.isVoid());
+    fn.call<const int&>(Value(std::move(r)));
 }
 
 
@@ -266,9 +262,8 @@ BOOST_AUTO_TEST_CASE(rValue_call)
         BOOST_CHECK_THROW(fn.call<int&>(std::move(r)), ReflectError);
     }
     {
-        int r = i; Value rValue(std::move(r));
-        BOOST_CHECK_THROW(fn.call<int&>(rValue), ReflectError);
-        BOOST_CHECK(!rValue.isVoid());
+        int r = i;
+        BOOST_CHECK_THROW(fn.call<int&>(Value(std::move(r))), ReflectError);
     }
 
     // const l-ref
@@ -276,14 +271,12 @@ BOOST_AUTO_TEST_CASE(rValue_call)
     BOOST_CHECK_THROW(fn.call<int>(constLValue), ReflectError);
     {
         int r = i;
-        fn.call<const int&>(std::move(r)); // Allowed but returns garbage
+        fn.call<const int&>(std::move(r)); // Valid but returns garbage
     }
     {
-        int r = i; Value rValue(std::move(r));
-        BOOST_CHECK_EQUAL(fn.call<const int&>(rValue), foo(10));
-        BOOST_CHECK(rValue.isVoid());
+        int r = i; ;
+        fn.call<const int&>(Value(std::move(r))), foo(10); // Valid but returns garbage.
     }
-
 
     // r-ref
     {
@@ -291,8 +284,7 @@ BOOST_AUTO_TEST_CASE(rValue_call)
         BOOST_CHECK_EQUAL(fn.call<int>(std::move(r)), foo(10));
     }
     {
-        int r = i; Value rValue(std::move(r));
-        BOOST_CHECK_EQUAL(fn.call<int>(rValue), foo(10));
-        BOOST_CHECK(rValue.isVoid());
+        int r = i;
+        BOOST_CHECK_EQUAL(fn.call<int>(Value(std::move(r))), foo(10));
     }
 }

@@ -96,8 +96,7 @@ movable() const
     return !isVoid()
         && type()->isMovable()
         && !isConst()
-        && arg.isConvertibleTo<Target>()
-        && (!storage || storage.unique());
+        && arg.isConvertibleTo<Target>();
 }
 
 template<typename T>
