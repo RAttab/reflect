@@ -22,7 +22,7 @@ std::ostream& operator<<(std::ostream& stream, RefType type)
     case RefType::LValue: stream << "LValue"; break;
     case RefType::RValue: stream << "RValue"; break;
     case RefType:: Value: stream <<  "Value"; break;
-    default: assert(false);
+    default: reflectError("Unknown RefType");
     };
 
     return stream;

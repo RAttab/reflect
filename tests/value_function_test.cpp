@@ -7,6 +7,7 @@
 
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
+#define REFLECT_USE_EXCEPTIONS 1
 
 #include "reflect.h"
 #include "types/primitives.h"

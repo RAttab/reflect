@@ -42,9 +42,9 @@ void
 Registry::
 add(std::string id, Type* type)
 {
-    assert(type);
-    std::lock_guard<std::mutex>(registry.lock);
+    if (!type) reflectError("type can't be null");
 
+    std::lock_guard<std::mutex>(registry.lock);
     registry.idMap.emplace(std::move(id), type);
 }
 

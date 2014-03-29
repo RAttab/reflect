@@ -20,7 +20,6 @@
 #include <vector>
 #include <unordered_map>
 #include <cstddef>
-#include <cassert>
 
 #include <iostream> // debug only
 
@@ -32,6 +31,7 @@
 #include "make_function.h"
 
 #include "registry.h"
+#include "argument.h"
 #include "value.h"
 #include "cast.h"
 #include "value_function.h"
@@ -39,6 +39,7 @@
 #include "type.h"
 // #include "macros.h"
 
+#include "argument.tcc"
 #include "value.tcc"
 #include "function.tcc"
 

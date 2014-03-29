@@ -7,8 +7,11 @@
 
 #include "reflect.h"
 
+#include "utils.cpp"
 #include "ref_type.cpp"
+
 #include "registry.cpp"
+#include "argument.cpp"
 #include "value.cpp"
 #include "function.cpp"
 #include "type.cpp"

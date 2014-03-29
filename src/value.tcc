@@ -45,7 +45,10 @@ T&
 Value::
 cast() const
 {
-    assert(castable<T>());
+    if (!castable<T>()) {
+        reflectError("<%s> is not castable to <%s>",
+                printArgument<T>(), printArgument(type_, refType_, isConst_));
+    }
     return *static_cast<T*>(value_);
 }
 
@@ -62,7 +65,10 @@ T
 Value::
 move()
 {
-    assert(movable<T>());
+    if (!castable<T>()) {
+        reflectError("<%s> is not movable to <%s>",
+                printArgument<T>(), printArgument(type_, refType_, isConst_));
+    }
 
     T value = std::move(*static_cast<T*>(value_));
     *this = Value();

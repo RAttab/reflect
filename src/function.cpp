@@ -15,34 +15,6 @@ namespace reflect {
 
 
 /******************************************************************************/
-/* ARGUMENT                                                                   */
-/******************************************************************************/
-
-bool
-Argument::
-isVoid() const
-{
-    return type_ == reflect<void>();
-}
-
-std::string
-Argument::
-print() const
-{
-    std::stringstream ss;
-
-    if (isConst_) ss << "const ";
-
-    ss << type_->id();
-
-    if (refType_ == RefType::LValue) ss << "&";
-    if (refType_ == RefType::RValue) ss << "&&";
-
-    return ss.str();
-}
-
-
-/******************************************************************************/
 /* FUNCTION                                                                   */
 /******************************************************************************/
 
@@ -152,7 +124,7 @@ void
 Functions::
 add(Function fn)
 {
-    assert(!test(fn) && "ambiguous overload");
+    if (test(fn)) reflectError("<%s> is ambiguous", signature(fn));
     overloads.push_back(fn);
 }
 

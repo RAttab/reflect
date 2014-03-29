@@ -11,25 +11,6 @@
 namespace reflect {
 
 /******************************************************************************/
-/* ARGUMENT                                                                   */
-/******************************************************************************/
-
-template<typename T>
-Argument
-Argument::
-make()
-{
-    typedef typename std::decay<T>::type CleanT;
-
-    Argument arg;
-    arg.type_ = reflect<CleanT>();
-    arg.refType_ = makeRefType<T>();
-    arg.isConst_ = reflect::isConst<T>();
-    return arg;
-}
-
-
-/******************************************************************************/
 /* REFLECT FUNCTION                                                           */
 /******************************************************************************/
 
@@ -126,14 +107,10 @@ Ret
 Function::
 call(Args&&... args)
 {
-    bool signatureMatch = test<Ret(Args...)>();
-    if (!signatureMatch) {
-        std::cerr << "signature mismatch: "
-            << "expected=" << signature(*this)
-            << ", got=" << signature<Ret(Args...)>()
-            << std::endl;
+    if (!test<Ret(Args...)>()) {
+        reflectError("<%s> is not convertible to <%s>",
+                signature<Ret(Args...)>(), signature(*this));
     }
-    assert(signatureMatch);
 
     typedef typename MakeStdValueFunction<Args...>::type Fn;
     const auto& typedFn = *reinterpret_cast<Fn*>(&fn);
@@ -170,7 +147,7 @@ call(Args&&... args)
         return fn.call<Ret>(std::forward<Args>(args)...);
     }
 
-    assert(false && "No oveloads available");
+    reflectError("No overloads available for <%s>", signature<Ret(Args...)>());
 }
 
 } // reflect
