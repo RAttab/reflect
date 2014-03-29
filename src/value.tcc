@@ -47,7 +47,7 @@ cast() const
 {
     if (!castable<T>()) {
         reflectError("<%s> is not castable to <%s>",
-                printArgument<T>(), printArgument(type_, refType_, isConst_));
+                printArgument(type_, refType_, isConst_), printArgument<T>());
     }
     return *static_cast<T*>(value_);
 }
@@ -67,7 +67,7 @@ move()
 {
     if (!castable<T>()) {
         reflectError("<%s> is not movable to <%s>",
-                printArgument<T>(), printArgument(type_, refType_, isConst_));
+                printArgument(type_, refType_, isConst_), printArgument<T>());
     }
 
     T value = std::move(*static_cast<T*>(value_));
