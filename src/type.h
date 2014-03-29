@@ -1,8 +1,8 @@
-/* reflection.h                                 -*- C++ -*-
+/* type.h                                 -*- C++ -*-
    Rémi Attab (remi.attab@gmail.com), 08 Mar 2014
    FreeBSD-style copyright and disclaimer apply
 
-   Reflection core.
+   Type of a type.
 */
 
 #include "reflect.h"
@@ -10,37 +10,38 @@
 
 namespace reflect {
 
+
 /******************************************************************************/
-/* REFLECTION                                                                 */
+/* TYPE                                                                       */
 /******************************************************************************/
 
-struct Reflection
+struct Type
 {
-    explicit Reflection(std::string id, Reflection* parent = nullptr) :
+    explicit Type(std::string id, Type* parent = nullptr) :
         id_(std::move(id)), parent_(parent)
     {}
 
-    Reflection(Reflection&&) = delete;
-    Reflection(const Reflection&) = delete;
-    Reflection& operator=(Reflection&&) = delete;
-    Reflection& operator=(const Reflection&) = delete;
+    Type(Type&&) = delete;
+    Type(const Type&) = delete;
+    Type& operator=(Type&&) = delete;
+    Type& operator=(const Type&) = delete;
 
     const std::string& id() const { return id_; }
 
-    Reflection* parent() const { return parent_; }
-    void parent(Reflection* parent) { parent_ = parent; }
+    Type* parent() const { return parent_; }
+    void parent(Type* parent) { parent_ = parent; }
 
     template<typename T>
     bool isConvertibleTo()
     {
         return isConvertibleTo(reflect<T>());
     }
-    bool isConvertibleTo(Reflection* other);
+    bool isConvertibleTo(Type* other);
 
 private:
 
     std::string id_;
-    Reflection* parent_;
+    Type* parent_;
 
     std::unordered_map<std::string, Functions> fields;
 };

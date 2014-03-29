@@ -17,14 +17,14 @@ namespace reflect {
 
 Value::
 Value() :
-    value_(nullptr), reflection_(reflect<void>())
+    value_(nullptr), type_(reflect<void>())
 {}
 
 bool
 Value::
 isVoid() const
 {
-    return reflection_ == reflect<void>();
+    return type_ == reflect<void>();
 }
 
 

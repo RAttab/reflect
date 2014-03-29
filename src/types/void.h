@@ -2,7 +2,7 @@
    Rémi Attab (remi.attab@gmail.com), 25 Mar 2014
    FreeBSD-style copyright and disclaimer apply
 
-   Reflection for void.
+   Type for void.
 
    \todo Rewrite using macros.
 */
@@ -22,7 +22,7 @@ struct Reflect<void>
 {
     static constexpr const char* id = "void";
 
-    static Reflection* create() { return new Reflection(id); }
+    static Type* create() { return new Type(id); }
 };
 
 

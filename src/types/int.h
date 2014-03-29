@@ -20,7 +20,7 @@ struct Reflect<T, typename std::enable_if<std::is_integral<T>::value>::type>
 {
     static constexpr const char* id = TypeName<T>::name;
 
-    static Reflection* create() { return new Reflection(id); }
+    static Type* create() { return new Type(id); }
 };
 
 

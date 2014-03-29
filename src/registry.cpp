@@ -16,17 +16,17 @@ namespace {
 struct
 {
     std::mutex lock;
-    std::unordered_map<std::string, Reflection*> idMap;
+    std::unordered_map<std::string, Type*> idMap;
 } registry;
 
 } // namespace anonymous
 
 
 /******************************************************************************/
-/* REFLECTION REGISTRY                                                        */
+/* REGISTRY                                                                   */
 /******************************************************************************/
 
-Reflection*
+Type*
 Registry::
 get(const std::string& id)
 {
@@ -40,12 +40,12 @@ get(const std::string& id)
 
 void
 Registry::
-add(std::string id, Reflection* reflection)
+add(std::string id, Type* type)
 {
-    assert(reflection);
+    assert(type);
     std::lock_guard<std::mutex>(registry.lock);
 
-    registry.idMap.emplace(std::move(id), reflection);
+    registry.idMap.emplace(std::move(id), type);
 }
 
 } // reflect

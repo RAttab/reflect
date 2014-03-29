@@ -1,8 +1,8 @@
-/* reflection.cpp                                 -*- C++ -*-
+/* type.cpp                                 -*- C++ -*-
    Rémi Attab (remi.attab@gmail.com), 24 Mar 2014
    FreeBSD-style copyright and disclaimer apply
 
-   Reflection implementation.
+   Type implementation.
 */
 
 #include "reflect.h"
@@ -11,12 +11,12 @@ namespace reflect {
 
 
 /******************************************************************************/
-/* REFLECTION                                                                 */
+/* TYPE                                                                       */
 /******************************************************************************/
 
 bool
-Reflection::
-isConvertibleTo(Reflection* other)
+Type::
+isConvertibleTo(Type* other)
 {
     return this == other
         || (parent_ && parent_->isConvertibleTo(other));

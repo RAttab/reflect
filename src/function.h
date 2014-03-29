@@ -17,7 +17,7 @@ namespace reflect {
 
 struct Argument
 {
-    Reflection* type() const { return type_; }
+    Type* type() const { return type_; }
     RefType refType() const { return refType_; }
     bool isConst() const { return isConst_; }
     bool isVoid() const;
@@ -28,7 +28,7 @@ struct Argument
     std::string print() const;
 
 private:
-    Reflection* type_;
+    Type* type_;
     RefType refType_;
     bool isConst_;
 };

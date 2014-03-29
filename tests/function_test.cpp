@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE(value_call)
     int i = 10;
     BOOST_CHECK_EQUAL(fn.call<int>(Value(i)), foo(i));
 
-    const int c = 10;
+    const int c = 20;
     BOOST_CHECK_EQUAL(fn.call<int>(Value(c)), foo(c));
 }
 

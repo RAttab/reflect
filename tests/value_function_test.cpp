@@ -122,7 +122,7 @@ template<>
 struct Reflect<Foo>
 {
     static constexpr const char* id = "Foo";
-    static Reflection* create() { return new Reflection(id); }
+    static Type* create() { return new Type(id); }
 };
 
 } // namespace reflect

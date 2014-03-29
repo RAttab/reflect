@@ -2,7 +2,7 @@
    Rémi Attab (remi.attab@gmail.com), 13 Mar 2014
    FreeBSD-style copyright and disclaimer apply
 
-   Reflection macros
+   Type macros
 */
 
 #pragma once
@@ -31,7 +31,7 @@
         static constexpr const char* id =                       \
             REFLECT_ID(_class_,_ns_);                           \
                                                                 \
-        static Reflection* create();                            \
+        static Type* create();                                  \
     };
 
 
@@ -42,4 +42,4 @@
 #define REFLECT(_class_,_ns_)                                           \
     namespace reflect { REFLECT_SPECIALIZATION(_class_,_ns_) }          \
     template<>                                                          \
-    Reflection* reflect::Reflect<REFLECT_TYPE(_class_,_ns_)>::create()
+    Type* reflect::Reflect<REFLECT_TYPE(_class_,_ns_)>::create()

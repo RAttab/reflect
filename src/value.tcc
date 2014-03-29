@@ -19,7 +19,7 @@ template<typename T>
 Value::
 Value(T&& value) :
     value_((void*)&value), // cast-away any const
-    reflection_(reflect<T>()),
+    type_(reflect<T>()),
     refType_(makeRefType(std::forward<T>(value))),
     isConst_(reflect::isConst(std::forward<T>(value)))
 {
@@ -37,7 +37,7 @@ castable() const
     typedef typename std::decay<T>::type CleanT;
     return !isVoid()
         && testConstConversion(isConst(), reflect::isConst<T>())
-        && reflection_->isConvertibleTo<CleanT>();
+        && type_->isConvertibleTo<CleanT>();
 }
 
 template<typename T>

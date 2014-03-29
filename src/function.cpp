@@ -50,7 +50,7 @@ bool
 Function::
 test(const Argument& value, const Argument& target) const
 {
-    static Reflection* valueType = reflect<Value>();
+    static Type* valueType = reflect<Value>();
 
     if (value.type() == valueType || target.type() == valueType)
         return true;

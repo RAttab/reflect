@@ -12,7 +12,7 @@
 
 namespace reflect {
 
-struct Reflection;
+struct Type;
 
 /******************************************************************************/
 /* VALUE                                                                      */
@@ -26,7 +26,7 @@ struct Value
     explicit Value(T&& value);
 
     void* value() const { return value_; }
-    Reflection* reflection() const { return reflection_; }
+    Type* type() const { return type_; }
     RefType refType() const { return refType_; }
     bool isConst() const { return isConst_; }
 
@@ -41,7 +41,7 @@ struct Value
 private:
 
     void* value_;
-    Reflection* reflection_;
+    Type* type_;
 
     RefType refType_;
     bool isConst_;

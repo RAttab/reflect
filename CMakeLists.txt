@@ -81,7 +81,7 @@ install(
     # src/function_traits.h
     src/macros.h
     src/reflect.h
-    src/reflection.h
+    src/type.h
     src/registry.h
     src/type_vector.h
     src/utils.h

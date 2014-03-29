@@ -21,7 +21,7 @@ BOOST_AUTO_TEST_CASE(void_)
 {
     Value val;
     BOOST_CHECK(val.isVoid());
-    BOOST_CHECK_EQUAL(Value().reflection(), val.reflection());
+    BOOST_CHECK_EQUAL(Value().type(), val.type());
 }
 
 BOOST_AUTO_TEST_CASE(lValue)
