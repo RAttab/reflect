@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(constness)
     const unsigned i = 0;
 
     Value value(i);
-    BOOST_CHECK(!value.castable<unsigned>());
+    BOOST_CHECK( value.castable<unsigned>());
     BOOST_CHECK( value.castable<const unsigned>());
 }
 

@@ -26,9 +26,10 @@ struct Value
     explicit Value(T&& value);
 
     void* value() const { return value_; }
-    Type* type() const { return type_; }
-    RefType refType() const { return refType_; }
-    bool isConst() const { return isConst_; }
+    Type* type() const { return arg.type(); }
+    RefType refType() const { return arg.refType(); }
+    bool isConst() const { return arg.isConst(); }
+    bool isVoid() const { return arg.isVoid(); }
 
     template<typename T> T& cast() const;
     template<typename T> bool castable() const;
@@ -36,16 +37,11 @@ struct Value
     template<typename T> T move();
     template<typename T> bool movable() const;
 
-    bool isVoid() const;
 
 private:
 
+    Argument arg;
     void* value_;
-    Type* type_;
-
-    RefType refType_;
-    bool isConst_;
-
     std::shared_ptr<void> storage;
 };
 

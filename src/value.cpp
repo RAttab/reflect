@@ -16,16 +16,7 @@ namespace reflect {
 /******************************************************************************/
 
 Value::
-Value() :
-    value_(nullptr), type_(reflect<void>())
-{}
-
-bool
-Value::
-isVoid() const
-{
-    return type_ == reflect<void>();
-}
+Value() : value_(nullptr) {}
 
 
 } // reflect

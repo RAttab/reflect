@@ -31,6 +31,34 @@ isVoid() const
     return type_ == reflect<void>();
 }
 
+bool
+Argument::
+isConvertibleTo(const Argument& target) const
+{
+    static Type* valueType = reflect<Value>();
+
+    if (type() == valueType || target.type() == valueType)
+        return true;
+
+    if (target.refType() != RefType::Value) {
+        if (!testConstConversion(isConst(), target.isConst()))
+            return false;
+    }
+
+    if (target.refType() == RefType::LValue) {
+        if (target.isConst()) {}
+        else if (isConst()) return false;
+        else if (refType() != RefType::LValue) return false;
+    }
+
+    else if (target.refType() == RefType::RValue) {
+        if (refType() == RefType::LValue) return false;
+    }
+
+    return type()->isConvertibleTo(target.type());
+}
+
+
 std::string
 Argument::
 print() const

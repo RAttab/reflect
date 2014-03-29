@@ -18,12 +18,10 @@ namespace reflect {
 template<typename T>
 Value::
 Value(T&& value) :
-    value_((void*)&value), // cast-away any const
-    type_(reflect<T>()),
-    refType_(makeRefType(std::forward<T>(value))),
-    isConst_(reflect::isConst(std::forward<T>(value)))
+    arg(Argument::make(std::forward<T>(value))),
+    value_((void*)&value) // cast-away any const
 {
-    if (refType_ != RefType::RValue) return;
+    if (refType() != RefType::RValue) return;
 
     typedef typename std::decay<T>::type CleanT;
     storage.reset(value_ = new CleanT(std::move(value)));
@@ -34,10 +32,7 @@ bool
 Value::
 castable() const
 {
-    typedef typename std::decay<T>::type CleanT;
-    return !isVoid()
-        && testConstConversion(isConst(), reflect::isConst<T>())
-        && type_->isConvertibleTo<CleanT>();
+    return !isVoid() && arg.isConvertibleTo<T>();
 }
 
 template<typename T>
@@ -47,7 +42,7 @@ cast() const
 {
     if (!castable<T>()) {
         reflectError("<%s> is not castable to <%s>",
-                printArgument(type_, refType_, isConst_), printArgument<T>());
+                arg.print(), printArgument<T>());
     }
     return *static_cast<T*>(value_);
 }
@@ -67,7 +62,7 @@ move()
 {
     if (!castable<T>()) {
         reflectError("<%s> is not movable to <%s>",
-                printArgument(type_, refType_, isConst_), printArgument<T>());
+                arg.print(), printArgument<T>());
     }
 
     T value = std::move(*static_cast<T*>(value_));

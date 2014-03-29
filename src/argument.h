@@ -21,15 +21,23 @@ struct Argument
     Argument();
     Argument(Type* type, RefType refType, bool isConst);
 
+    template<typename T>
+    static Argument make();
+
+    template<typename T>
+    static Argument make(T&&);
+
     Type* type() const { return type_; }
     RefType refType() const { return refType_; }
     bool isConst() const { return isConst_; }
     bool isVoid() const;
 
-    template<typename T>
-    static Argument make();
-
     std::string print() const;
+
+    template<typename T>
+    bool isConvertibleTo() const;
+    bool isConvertibleTo(const Argument& other) const;
+
 
 private:
     Type* type_;

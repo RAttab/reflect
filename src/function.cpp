@@ -20,37 +20,10 @@ namespace reflect {
 
 bool
 Function::
-test(const Argument& value, const Argument& target) const
-{
-    static Type* valueType = reflect<Value>();
-
-    if (value.type() == valueType || target.type() == valueType)
-        return true;
-
-    if (target.refType() != RefType::Value) {
-        if (!testConstConversion(value.isConst(), target.isConst()))
-            return false;
-    }
-
-    if (target.refType() == RefType::LValue) {
-        if (target.isConst()) {}
-        else if (value.isConst()) return false;
-        else if (value.refType() != RefType::LValue) return false;
-    }
-
-    else if (target.refType() == RefType::RValue) {
-        if (value.refType() == RefType::LValue) return false;
-    }
-
-    return value.type()->isConvertibleTo(target.type());
-}
-
-bool
-Function::
 testReturn(const Argument& value, const Argument& target) const
 {
     return value.type() == reflect<void>()
-        || test(target, value);
+        || target.isConvertibleTo(value);
 }
 
 bool
@@ -62,7 +35,7 @@ testArguments(
     if (value.size() != target.size()) return false;
 
     for (size_t i = 0; i < target.size(); ++i) {
-        if (!test(value[i], target[i])) return false;
+        if (!value[i].isConvertibleTo(target[i])) return false;
     }
 
     return true;
