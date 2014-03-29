@@ -95,7 +95,7 @@ movable() const
     typedef typename CleanValue<T>::type Target;
     return !isVoid()
         && type()->isMovable()
-        && !arg.isConst()
+        && !isConst()
         && arg.isConvertibleTo<Target>()
         && (!storage || storage.unique());
 }
