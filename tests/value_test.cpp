@@ -103,13 +103,6 @@ BOOST_AUTO_TEST_CASE(rValue)
     BOOST_CHECK_EQUAL(rValue.refType(), RefType::RValue);
     BOOST_CHECK_EQUAL(rValue.get<unsigned>(), 10);
 
-    // Safety checks against moving out a shared storage.
-    {
-        Value other = rValue;
-        BOOST_CHECK(!rValue.movable<unsigned>());
-        BOOST_CHECK(!other.movable<unsigned>());
-    }
-
     // copy
     BOOST_CHECK(rValue.copiable<unsigned>());
     BOOST_CHECK_EQUAL(rValue.copy<unsigned>(), 10);
