@@ -92,16 +92,6 @@ signature(const Argument& ret, const std::vector<Argument>& args)
 /* FUNCTIONS                                                                  */
 /******************************************************************************/
 
-bool
-Functions::
-test(Function fn)
-{
-    for (const auto& other : overloads) {
-        if (fn.test(other)) return true;
-    }
-    return false;
-}
-
 void
 Functions::
 add(Function fn)
@@ -115,6 +105,16 @@ add(Function fn)
     }
 
     overloads.push_back(fn);
+}
+
+bool
+Functions::
+test(Function fn) const
+{
+    for (const auto& other : overloads) {
+        if (fn.test(other)) return true;
+    }
+    return false;
 }
 
 std::string

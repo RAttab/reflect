@@ -18,6 +18,47 @@ namespace reflect {
 Value::
 Value() : value_(nullptr) {}
 
+Value::
+Value(const Value& other) :
+    arg(other.arg),
+    value_(other.value_),
+    storage(other.storage)
+{}
+
+Value&
+Value::
+operator=(const Value& other)
+{
+    if (this == &other) return *this;
+
+    arg = other.arg;
+    value_ = other.value_;
+    storage = other.storage;
+
+    return *this;
+}
+
+Value::
+Value(Value&& other) :
+    arg(std::move(other.arg)),
+    value_(std::move(other.value_)),
+    storage(std::move(other.storage))
+{}
+
+Value&
+Value::
+operator=(Value&& other)
+{
+    if (this == &other) return *this;
+
+    arg = std::move(other.arg);
+    value_ = std::move(other.value_);
+    storage = std::move(other.storage);
+
+    return *this;
+}
+
+
 Value
 Value::
 copy() const

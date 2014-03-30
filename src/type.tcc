@@ -14,6 +14,15 @@ namespace reflect {
 /* TYPE                                                                       */
 /******************************************************************************/
 
+template<typename Ret, typename... Args>
+Ret
+Type::
+call(const std::string& fn, Args&&... args) const
+{
+    return field(fn).call<Ret>(std::forward<Args>(args)...);
+}
+
+
 template<typename Fn>
 void
 Type::

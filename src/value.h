@@ -46,6 +46,12 @@ struct Value
     template<typename T>
     explicit Value(T&& value);
 
+    Value(const Value& other);
+    Value& operator=(const Value& other);
+
+    Value(Value&& other);
+    Value& operator=(Value&& other);
+
     void* value() const { return value_; }
     Type* type() const { return arg.type(); }
     RefType refType() const { return arg.refType(); }
@@ -67,6 +73,9 @@ struct Value
     Value move();
     template<typename T> auto move() -> typename CleanValue<T>::type;
     template<typename T> bool movable() const;
+
+    template<typename Ret, typename... Args>
+    Ret call(const std::string& fn, Args&&... args) const;
 
 private:
     Argument arg;

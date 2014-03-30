@@ -91,6 +91,7 @@ struct Cast<Value, Value>
 {
     static Value& cast(Value&  value) { return value; }
     static Value  cast(Value&& value) { return value; }
+    static const Value& cast(const Value& value) { return value; }
 };
 
 template<typename Target, typename T>

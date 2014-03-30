@@ -33,6 +33,11 @@ const T&
 Value::
 get() const
 {
+    if (!type()->isConvertibleTo<T>()) {
+        reflectError("<%s> is not convertible to <%s>",
+                type()->id(), reflect::type<T>()->id());
+    }
+
     return *static_cast<T*>(value_);
 }
 
@@ -114,6 +119,16 @@ move() -> typename CleanValue<T>::type
     CleanT value = std::move(*static_cast<CleanT*>(value_));
     *this = Value();
     return value;
+}
+
+
+template<typename Ret, typename... Args>
+Ret
+Value::
+call(const std::string& fn, Args&&... args) const
+{
+    const auto& field = type()->field(fn);
+    return field.call<Ret>(*this, std::forward<Args>(args)...);
 }
 
 

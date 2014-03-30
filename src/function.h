@@ -42,7 +42,7 @@ struct Function
     bool test(const Function& other) const;
 
     template<typename Ret, typename... Args>
-    Ret call(Args&&... args);
+    Ret call(Args&&... args) const;
 
 private:
 
@@ -94,13 +94,12 @@ struct Functions
 
     void add(Function fn);
 
-    bool test(Function fn);
-
     template<typename Fn>
-    bool test();
+    bool test() const;
+    bool test(Function fn) const;
 
     template<typename Ret, typename... Args>
-    Ret call(Args&&... args);
+    Ret call(Args&&... args) const;
 
     std::string print(size_t indent = 0) const;
 

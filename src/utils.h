@@ -40,10 +40,11 @@ namespace reflect {
 
 
 /******************************************************************************/
-/* UNUSED                                                                     */
+/* COMPILER                                                                   */
 /******************************************************************************/
 
 #define reflectUnused __attribute__((unused))
+#define reflectUnreachable() __builtin_unreachable()
 
 
 /******************************************************************************/
@@ -99,6 +100,9 @@ void error(const char* file, int line, const char* fmt, Args&&... args)
 
 
 #define reflectError(...)                        \
-    error(__FILE__, __LINE__, __VA_ARGS__)
+    do {                                         \
+        error(__FILE__, __LINE__, __VA_ARGS__);  \
+        reflectUnreachable();                    \
+    } while(false)
 
 } // reflect

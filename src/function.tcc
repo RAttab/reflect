@@ -149,7 +149,7 @@ testParams(Args&&... args) const
 template<typename Ret, typename... Args>
 Ret
 Function::
-call(Args&&... args)
+call(Args&&... args) const
 {
     if (!testParams<Ret>(std::forward<Args>(args)...)) {
         reflectError("<%s> is not convertible to <%s>",
@@ -157,7 +157,7 @@ call(Args&&... args)
     }
 
     typedef typename MakeStdValueFunction<Args...>::type Fn;
-    const auto& typedFn = *reinterpret_cast<Fn*>(&fn);
+    const auto& typedFn = *reinterpret_cast<const Fn*>(&fn);
 
     Value ret = typedFn(cast<Value>(std::forward<Args>(args))...);
     return retCast<Ret>(ret);
@@ -171,7 +171,7 @@ call(Args&&... args)
 template<typename Fn>
 bool
 Functions::
-test()
+test() const
 {
     for (const auto& fn : overloads) {
         if (fn.test<Fn>()) return true;
@@ -183,7 +183,7 @@ test()
 template<typename Ret, typename... Args>
 Ret
 Functions::
-call(Args&&... args)
+call(Args&&... args) const
 {
     for (const auto& fn : overloads) {
         if (!fn.test<Ret(Args...)>()) continue;
@@ -191,7 +191,7 @@ call(Args&&... args)
         return fn.call<Ret>(std::forward<Args>(args)...);
     }
 
-    reflectError("No overloads available for <%s>", signature<Ret(Args...)>());
+    reflectError("no overloads available for <%s>", signature<Ret(Args...)>());
 }
 
 } // reflect
