@@ -11,6 +11,23 @@
 namespace reflect {
 
 /******************************************************************************/
+/* REFLECT PARENT                                                             */
+/******************************************************************************/
+
+template<typename T>
+void reflectParent_(Type* type)
+{
+    type->parent(reflect<T>());
+}
+
+#define reflectParent(parent)                                           \
+    do {                                                                \
+        reflectStaticAssert((std::is_base_of<parent, T_>::value));      \
+        reflectParent_<parent>(type_);                                  \
+    } while(false)
+
+
+/******************************************************************************/
 /* REFLECT GETTER                                                             */
 /******************************************************************************/
 
@@ -118,14 +135,14 @@ void reflectMember(Type*, std::string, T) {}
 /******************************************************************************/
 
 template<typename Fn>
-void reflectFunction(Type* type, std::string name, Fn fn)
+void reflectFunction_(Type* type, std::string name, Fn fn)
 {
     type->add(std::move(name), std::move(fn));
 }
 
-#define reflectFn(fn)                           \
+#define reflectFunction(fn)                     \
     do {                                        \
-        reflectFunction(type_, #fn, &T_::fn);   \
+        reflectFunction_(type_, #fn, &T_::fn);  \
     } while(false);
 
 

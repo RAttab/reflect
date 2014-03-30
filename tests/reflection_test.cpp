@@ -19,12 +19,32 @@ using namespace reflect;
 
 
 /******************************************************************************/
+/* BAR                                                                        */
+/******************************************************************************/
+
+namespace test {
+
+struct Bar
+{
+    int bar;
+};
+
+} // namespace test
+
+reflectClass(test::Bar)
+{
+    printf("\nfield(bar)\n");
+    reflectField(bar);
+}
+
+
+/******************************************************************************/
 /* FOO                                                                        */
 /******************************************************************************/
 
 namespace test {
 
-struct Foo
+struct Foo : public Bar
 {
     Foo() : constField(0) {}
 
@@ -48,7 +68,8 @@ struct Foo
     void rValue(int&& i) { value = std::move(i); }
     int rValue() { return std::move(value); }
 
-    void function(int a, int b, int c) { value += a * b + c; };
+    void fn(int a, int b, int c) { value += a * b + c; };
+    static Foo staticFn(int, int) { return Foo(); };
 
 private:
     int value;
@@ -57,12 +78,10 @@ private:
 } // namespace test
 
 
-/******************************************************************************/
-/* REFLECT FOO                                                                */
-/******************************************************************************/
-
 reflectClass(test::Foo)
 {
+    reflectParent(test::Bar);
+
     printf("\nfield(void)\n");        reflectField(void_);
     printf("\nfield(field)\n");       reflectField(field);
     printf("\nfield(constField)\n");  reflectField(constField);
@@ -71,7 +90,8 @@ reflectClass(test::Foo)
     printf("\nfield(constLValue)\n"); reflectField(constLValue);
     printf("\nfield(rValue)\n");      reflectField(rValue);
 
-    printf("\nfn(function)\n");       reflectFn(function);
+    printf("\nfn(fn)\n");             reflectFunction(fn);
+    printf("\nfn(staticFn)\n");       reflectFunction(staticFn);
 
     printf("\nlambda(custom)\n");
     reflectCustom(custom) (test::Foo& obj, int a, int b) {
@@ -81,5 +101,10 @@ reflectClass(test::Foo)
 
 BOOST_AUTO_TEST_CASE(blah)
 {
-    Registry::get<test::Foo>();
+    using reflect::reflect;
+
+    Type* barType = reflect<test::Bar>();
+    Type* fooType = reflect<test::Foo>();
+
+    BOOST_CHECK_EQUAL(fooType->parent(), barType);
 }
