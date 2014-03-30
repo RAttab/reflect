@@ -3,6 +3,9 @@
    FreeBSD-style copyright and disclaimer apply
 
    Constructor reflection.
+
+   Also contains the copy assignment and move assignment operators because it
+   makes sense to group em with their respective constructors.
 */
 
 #include "reflect.h"
@@ -56,6 +59,38 @@ void reflectConsMove(...) {}
 
 
 /******************************************************************************/
+/* OP ASSIGN COPY                                                             */
+/******************************************************************************/
+
+template<typename T,
+    class = typename std::enable_if<std::is_copy_assignable<T>::value>::type>
+void reflectOpAssignCopy(Type* type)
+{
+    type->add(OpAssign, [] (T& obj, const T& other) { return obj = other; });
+}
+
+template<typename>
+void reflectOpAssignCopy(...) {}
+
+
+/******************************************************************************/
+/* OP ASSIGN MOVE                                                             */
+/******************************************************************************/
+
+template<typename T,
+    class = typename std::enable_if<std::is_move_assignable<T>::value>::type>
+void reflectOpAssignMove(Type* type)
+{
+    type->add(OpAssign, [] (T& obj, T&& other) {
+                return obj = std::move(other);
+            });
+}
+
+template<typename>
+void reflectOpAssignMove(...) {}
+
+
+/******************************************************************************/
 /* CONS BASICS                                                                */
 /******************************************************************************/
 
@@ -64,6 +99,8 @@ void reflectConsMove(...) {}
         reflectConsDefault<T_>(type_);          \
         reflectConsCopy<T_>(type_);             \
         reflectConsMove<T_>(type_);             \
+        reflectOpAssignCopy<T_>(type_);         \
+        reflectOpAssignMove<T_>(type_);         \
     } while(false)
 
 
