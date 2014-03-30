@@ -38,8 +38,7 @@ make(T&& value)
     Argument arg;
     arg.type_ = reflect::type<CleanT>();
     arg.refType_ = makeRefType(std::forward<T>(value));
-    arg.isConst_ = arg.refType_ == RefType::RValue ?
-        false : reflect::isConst(std::forward<T>(value));
+    arg.isConst_ = reflect::isConst(std::forward<T>(value));
     return arg;
 }
 

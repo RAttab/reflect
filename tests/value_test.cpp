@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(rValue)
     u = 20; // Just to make sure we don't have a ref to u.
 
     BOOST_CHECK(!rValue.isConst());
-    BOOST_CHECK_EQUAL(rValue.refType(), RefType::RValue);
+    BOOST_CHECK_EQUAL(rValue.refType(), RefType::LValue);
     BOOST_CHECK_EQUAL(rValue.get<unsigned>(), 10);
 
     // copy
@@ -108,8 +108,8 @@ BOOST_AUTO_TEST_CASE(rValue)
     BOOST_CHECK_EQUAL(rValue.copy<unsigned>(), 10);
 
     // l-ref
-    BOOST_CHECK(!rValue.castable<unsigned>());
-    BOOST_CHECK_THROW(rValue.cast<unsigned>(), ReflectError);
+    BOOST_CHECK(rValue.castable<unsigned>());
+    BOOST_CHECK_EQUAL(rValue.cast<unsigned>(), 10);
 
     // const l-ref
     BOOST_CHECK( rValue.castable<const unsigned>());
@@ -131,5 +131,5 @@ BOOST_AUTO_TEST_CASE(constRValue)
 
     Value rValue(std::move(i));
     BOOST_CHECK(!rValue.isConst());
-    BOOST_CHECK_EQUAL(rValue.refType(), RefType::RValue);
+    BOOST_CHECK_EQUAL(rValue.refType(), RefType::LValue);
 }

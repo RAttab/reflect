@@ -25,6 +25,9 @@ Value(T&& value) :
 
     typedef typename std::decay<T>::type CleanT;
     storage.reset(value_ = new CleanT(std::move(value)));
+
+    // We now own the value so we're now l-ref-ing our internal storage.
+    arg = Argument(arg.type(), RefType::LValue, false);
 }
 
 
