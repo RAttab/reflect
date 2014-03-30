@@ -14,7 +14,8 @@ namespace reflect {
 /* CONS DEFAULT                                                               */
 /******************************************************************************/
 
-template<typename T, class = decltype(T())>
+template<typename T,
+    class = typename std::enable_if<std::is_default_constructible<T>::value>::type>
 void reflectConsDefault(Type* type)
 {
     type->add(Cons, [] { return T(); });
@@ -28,7 +29,8 @@ void reflectConsDefault(...) {}
 /* CONS COPY                                                                  */
 /******************************************************************************/
 
-template<typename T, class = decltype(T( *((const T*)0) ))>
+template<typename T,
+    class = typename std::enable_if<std::is_copy_constructible<T>::value>::type>
 void reflectConsCopy(Type* type)
 {
     type->add(Cons, [] (const T& other) { return T(other); });
@@ -42,7 +44,8 @@ void reflectConsCopy(...) {}
 /* CONS MOVE                                                                  */
 /******************************************************************************/
 
-template<typename T, class = decltype(T( std::move(*((T*)0)) ))>
+template<typename T,
+    class = typename std::enable_if<std::is_move_constructible<T>::value>::type>
 void reflectConsMove(Type* type)
 {
     type->add(Cons, [] (T&& other) { return T(std::move(other)); });
