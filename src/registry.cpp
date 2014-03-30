@@ -121,7 +121,7 @@ alias(const std::string& id, const std::string& alias)
     if (!ret.second) {
         reflectError(
                 "<%s> can't be aliased to <%s> because it's already aliased to <%s>",
-                alias, id, ret.first->second.c_str());
+                alias, id, ret.first->second);
     }
 }
 

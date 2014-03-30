@@ -26,9 +26,12 @@ struct Type
     Type& operator=(const Type&) = delete;
 
     const std::string& id() const { return id_; }
-
     Type* parent() const { return parent_; }
     void parent(Type* parent) { parent_ = parent; }
+
+    std::vector<std::string> fields() const;
+    bool hasField(const std::string& field) const;
+    const Functions& field(const std::string& field) const;
 
     template<typename T>
     bool isConvertibleTo()
@@ -37,23 +40,25 @@ struct Type
     }
     bool isConvertibleTo(Type* other);
 
+
     // \todo implement
     bool isCopiable() const { return true; }
     bool isMovable() const { return true; }
 
+
     template<typename Fn>
-    void add(std::string name, Fn rawFn)
-    {
-        Function fn(name, std::move(rawFn));
-        std::cerr << "add(" << name << "): " << signature(fn) << std::endl;
-    }
+    void add(const std::string& name, Fn rawFn);
+
+    std::string print(size_t indent = 0) const;
 
 private:
+
+    void fields(std::vector<std::string>& result) const;
 
     std::string id_;
     Type* parent_;
 
-    std::unordered_map<std::string, Functions> fields;
+    std::unordered_map<std::string, Functions> fields_;
 };
 
 

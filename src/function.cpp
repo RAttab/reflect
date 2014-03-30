@@ -106,8 +106,28 @@ void
 Functions::
 add(Function fn)
 {
-    if (test(fn)) reflectError("<%s> is ambiguous", signature(fn));
+    for (const auto& other : overloads) {
+        if (!fn.test(other)) continue;
+
+        reflectError("<%s, %s> is ambiguous with <%s, %s>",
+                fn.name(), signature(fn),
+                other.name(), signature(other));
+    }
+
     overloads.push_back(fn);
+}
+
+std::string
+Functions::
+print(size_t indent) const
+{
+    std::stringstream ss;
+    std::string pad(indent, ' ');
+
+    for (const auto& fn : overloads)
+        ss << pad << signature(fn) << "\n";
+
+    return ss.str();
 }
 
 

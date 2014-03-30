@@ -39,7 +39,6 @@ namespace reflect {
     reflectUniqueNameImpl(prefix, __COUNTER__)
 
 
-
 /******************************************************************************/
 /* UNUSED                                                                     */
 /******************************************************************************/
@@ -79,6 +78,7 @@ auto errorConvert(T&& value) -> decltype(std::forward<T>(value))
 }
 
 const char* errorConvert(const char* value) { return value; }
+const char* errorConvert(std::string& value) { return value.c_str(); }
 const char* errorConvert(std::string&& value) { return value.c_str(); }
 const char* errorConvert(const std::string& value) { return value.c_str(); }
 

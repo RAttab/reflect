@@ -33,7 +33,6 @@ struct Bar
 
 reflectClass(test::Bar)
 {
-    printf("\nfield(bar)\n");
     reflectField(bar);
 }
 
@@ -82,29 +81,52 @@ reflectClass(test::Foo)
 {
     reflectParent(test::Bar);
 
-    printf("\nfield(void)\n");        reflectField(void_);
-    printf("\nfield(field)\n");       reflectField(field);
-    printf("\nfield(constField)\n");  reflectField(constField);
-    printf("\nfield(copy)\n");        reflectField(copy);
-    printf("\nfield(lValue)\n");      reflectField(lValue);
-    printf("\nfield(constLValue)\n"); reflectField(constLValue);
-    printf("\nfield(rValue)\n");      reflectField(rValue);
+    reflectField(void_);
+    reflectField(field);
+    reflectField(constField);
+    reflectField(copy);
+    reflectField(lValue);
+    reflectField(constLValue);
+    reflectField(rValue);
 
-    printf("\nfn(fn)\n");             reflectFunction(fn);
-    printf("\nfn(staticFn)\n");       reflectFunction(staticFn);
+    reflectFunction(fn);
+    reflectFunction(staticFn);
 
-    printf("\nlambda(custom)\n");
     reflectCustom(custom) (test::Foo& obj, int a, int b) {
         obj.setter(a + b);
     };
 }
 
-BOOST_AUTO_TEST_CASE(blah)
+
+/******************************************************************************/
+/* TESTS                                                                      */
+/******************************************************************************/
+
+BOOST_AUTO_TEST_CASE(basics)
 {
     Type* typeBar = type("test::Bar");
     Type* typeFoo = type("test::Foo");
 
     BOOST_CHECK(typeBar);
     BOOST_CHECK(typeFoo);
+
+    std::cerr << typeBar->print() << std::endl;
+    std::cerr << typeFoo->print() << std::endl;
+
     BOOST_CHECK_EQUAL(typeFoo->parent(), typeBar);
+    BOOST_CHECK( typeFoo->isConvertibleTo(typeBar));
+    BOOST_CHECK(!typeBar->isConvertibleTo(typeFoo));
+
+    BOOST_CHECK( typeBar->hasField("bar"));
+    BOOST_CHECK(!typeBar->hasField("field"));
+
+    BOOST_CHECK( typeFoo->hasField("bar"));
+    BOOST_CHECK(!typeFoo->hasField("baz"));
+    BOOST_CHECK(!typeFoo->hasField("void_"));
+    BOOST_CHECK( typeFoo->hasField("field"));
+    BOOST_CHECK( typeFoo->hasField("constField"));
+    BOOST_CHECK( typeFoo->hasField("copy"));
+    BOOST_CHECK( typeFoo->hasField("rValue"));
+    BOOST_CHECK( typeFoo->hasField("fn"));
+    BOOST_CHECK( typeFoo->hasField("custom"));
 }

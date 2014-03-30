@@ -100,7 +100,7 @@ std::vector<Argument> reflectArguments(Args&&... args)
 template<typename Fn>
 Function::
 Function(std::string name, Fn fn) :
-    name(std::move(name))
+    name_(std::move(name))
 {
     initFn(makeFunction(std::move(fn)));
 }

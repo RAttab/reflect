@@ -29,6 +29,8 @@ struct Function
     template<typename Fn>
     Function(std::string name, Fn fn);
 
+    const std::string& name() const { return name_; }
+
     const Argument& returnType() const { return ret; }
 
     size_t arguments() const { return args.size(); }
@@ -59,7 +61,7 @@ private:
     bool testParams(Args&&... args) const;
 
     VoidFn fn;
-    std::string name;
+    std::string name_;
 
     Argument ret;
     std::vector<Argument> args;
@@ -99,6 +101,8 @@ struct Functions
 
     template<typename Ret, typename... Args>
     Ret call(Args&&... args);
+
+    std::string print(size_t indent = 0) const;
 
 private:
     std::vector<Function> overloads;

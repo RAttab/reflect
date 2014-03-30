@@ -87,6 +87,7 @@ install(
     src/ref_type.h
     src/registry.h
     src/type.h
+    src/type.tcc
     src/type_name.h
     src/type_vector.h
     src/utils.h
