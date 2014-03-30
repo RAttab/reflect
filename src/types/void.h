@@ -23,6 +23,7 @@ struct Reflect<void>
     static constexpr const char* id = "void";
 
     static Type* create() { return new Type(id); }
+    static void reflect(Type*) {}
 };
 
 

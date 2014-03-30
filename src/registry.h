@@ -34,10 +34,13 @@ struct Registry
 
         const auto& id = Reflect<CleanT>::id;
 
-        Type* reflect = get(id);
-        if (!reflect) add(id, reflect = Reflect<CleanT>::create());
+        Type* type = get(id);
+        if (!type) {
+            add(id, type = Reflect<CleanT>::create());
+            Reflect<CleanT>::reflect(type);
+        }
 
-        return reflect;
+        return type;
     }
 
     static Type* get(const std::string& id);

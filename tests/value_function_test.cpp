@@ -122,6 +122,7 @@ struct Reflect<Foo>
 {
     static constexpr const char* id = "Foo";
     static Type* create() { return new Type(id); }
+    static void reflect(Type*) {}
 };
 
 } // namespace reflect

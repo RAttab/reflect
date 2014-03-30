@@ -18,6 +18,7 @@ struct Reflect<Value>
     static constexpr const char* id = "reflect::Value";
 
     static Type* create() { return new Type(id); }
+    static void reflect(Type*) {}
 };
 
 } // reflect
