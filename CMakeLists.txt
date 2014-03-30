@@ -110,9 +110,11 @@ install(
 install(
     FILES
     src/reflect/basics.h
+    src/reflect/constructors.h
     src/reflect/class.h
     src/reflect/field.h
     src/reflect/function.h
+    src/reflect/names.h
 
     DESTINATION
     include/reflect/reflect)

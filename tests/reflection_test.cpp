@@ -82,6 +82,7 @@ struct Foo : public Bar
 reflectClass(test::Foo)
 {
     reflectParent(test::Bar);
+    reflectConsBasics();
 
     reflectField(void_);
     reflectField(field);

@@ -10,5 +10,6 @@
 
 #include "basics.h"
 #include "class.h"
+#include "constructor.h"
 #include "field.h"
 #include "function.h"

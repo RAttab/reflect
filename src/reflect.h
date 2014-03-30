@@ -32,6 +32,8 @@
 #include "type_name.h"
 #include "make_function.h"
 
+#include "reflect/names.h"
+
 #include "registry.h"
 #include "argument.h"
 #include "value.h"
