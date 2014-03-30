@@ -39,12 +39,13 @@
 #include "value_function.h"
 #include "function.h"
 #include "type.h"
-#include "reflection.h"
 
 #include "argument.tcc"
 #include "value.tcc"
 #include "function.tcc"
 #include "type.tcc"
+
+#include "reflect/class.h"
 
 #include "types/void.h"
 #include "types/value.h"

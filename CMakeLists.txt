@@ -83,7 +83,6 @@ install(
     src/function.tcc
     src/function_traits.h
     src/reflect.h
-    src/reflection.h
     src/ref_type.h
     src/registry.h
     src/type.h
@@ -107,6 +106,16 @@ install(
 
     DESTINATION
     include/reflect/types)
+
+install(
+    FILES
+    src/reflect/basics.h
+    src/reflect/class.h
+    src/reflect/field.h
+    src/reflect/function.h
+
+    DESTINATION
+    include/reflect/reflect)
 
 add_library(
     reflect
