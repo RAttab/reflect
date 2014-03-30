@@ -15,9 +15,8 @@ namespace reflect {
 template<>
 struct Reflect<Value>
 {
+    typedef Value T_;
     static constexpr const char* id = "reflect::Value";
-
-    static Type* create() { return new Type(id); }
     static void reflect(Type*) {}
 };
 

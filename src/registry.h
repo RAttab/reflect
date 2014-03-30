@@ -36,7 +36,7 @@ struct Registry
 
         Type* type = get(id);
         if (!type) {
-            add(id, type = Reflect<CleanT>::create());
+            add(id, type = new Type(id));
             Reflect<CleanT>::reflect(type);
         }
 

@@ -20,9 +20,8 @@ namespace reflect {
 template<>
 struct Reflect<void>
 {
+    typedef void T_;
     static constexpr const char* id = "void";
-
-    static Type* create() { return new Type(id); }
     static void reflect(Type*) {}
 };
 

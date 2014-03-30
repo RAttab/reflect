@@ -120,8 +120,8 @@ namespace reflect {
 template<>
 struct Reflect<Foo>
 {
+    typedef Foo T_;
     static constexpr const char* id = "Foo";
-    static Type* create() { return new Type(id); }
     static void reflect(Type*) {}
 };
 
