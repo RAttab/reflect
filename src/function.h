@@ -17,6 +17,8 @@ namespace reflect {
 template<typename Fn> Argument reflectReturn();
 template<typename Fn> std::vector<Argument> reflectArguments();
 
+template<typename... Args>
+std::vector<Argument> reflectArguments(Args&&... args);
 
 /******************************************************************************/
 /* FUNCTION                                                                   */
@@ -52,6 +54,9 @@ private:
     bool testArguments(
             const std::vector<Argument>& value,
             const std::vector<Argument>& target) const;
+
+    template<typename Ret, typename... Args>
+    bool testParams(Args&&... args) const;
 
     VoidFn fn;
     std::string name;

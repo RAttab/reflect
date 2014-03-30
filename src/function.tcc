@@ -59,6 +59,39 @@ std::vector<Argument> reflectArguments()
     return args;
 }
 
+void reflectArguments(std::vector<Argument>&) {}
+
+template<typename... Rest>
+void reflectArguments(
+        std::vector<Argument>& args, Value& value, Rest&&... rest)
+{
+    args.emplace_back(value.argument());
+    reflectArguments(args, std::forward<Rest>(rest)...);
+}
+
+template<typename... Rest>
+void reflectArguments(
+        std::vector<Argument>& args, Value&& value, Rest&&... rest)
+{
+    args.emplace_back(value.argument());
+    reflectArguments(args, std::forward<Rest>(rest)...);
+}
+
+template<typename Arg, typename... Rest>
+void reflectArguments(std::vector<Argument>& args, Arg&& arg, Rest&&... rest)
+{
+    args.emplace_back(Argument::make(std::forward<Arg>(arg)));
+    reflectArguments(args, std::forward<Rest>(rest)...);
+}
+
+template<typename... Args>
+std::vector<Argument> reflectArguments(Args&&... args)
+{
+    std::vector<Argument> result;
+    reflectArguments(result, std::forward<Args>(args)...);
+    return result;
+}
+
 
 /******************************************************************************/
 /* FUNCTION                                                                   */
@@ -101,13 +134,24 @@ test() const
         && testArguments(otherArgs, args);
 }
 
+template<typename Ret, typename... Args>
+bool
+Function::
+testParams(Args&&... args) const
+{
+    auto otherRet = reflectReturn<Ret(Args...)>();
+    auto otherArgs = reflectArguments(std::forward<Args>(args)...);
+
+    return testReturn(otherRet, ret)
+        && testArguments(otherArgs, this->args);
+}
 
 template<typename Ret, typename... Args>
 Ret
 Function::
 call(Args&&... args)
 {
-    if (!test<Ret(Args...)>()) {
+    if (!testParams<Ret>(std::forward<Args>(args)...)) {
         reflectError("<%s> is not convertible to <%s>",
                 signature<Ret(Args...)>(), signature(*this));
     }

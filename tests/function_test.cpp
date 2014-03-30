@@ -356,7 +356,7 @@ BOOST_AUTO_TEST_CASE(rValue_call)
     // l-ref
     int i = 10; Value lValue(i);
     BOOST_CHECK_THROW(fn.call<int>(i), ReflectError);
-    BOOST_CHECK_EQUAL(fn.call<int>(lValue), foo(10)); // \todo Fix this edge case.
+    BOOST_CHECK_THROW(fn.call<int>(lValue), ReflectError);
     {
         int r = i;
         BOOST_CHECK_THROW(fn.call<int&>(std::move(r)), ReflectError);
