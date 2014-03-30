@@ -149,6 +149,8 @@ BOOST_AUTO_TEST_CASE(basics)
     BOOST_CHECK_EQUAL(foo.value, 1);
     BOOST_CHECK_EQUAL(vFoo.call<int>("getter"), foo.value);
 
-    vFoo.call<void>("custom", 1, 2);
-    BOOST_CHECK_EQUAL(foo.value, 1 + 2);
+    Value a = vFoo.call<Value>("copy");
+
+    vFoo.call<void>("custom", a, 2);
+    BOOST_CHECK_EQUAL(foo.value, a.get<int>() + 2);
 }
