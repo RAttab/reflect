@@ -42,6 +42,13 @@ struct Type
     bool isCopiable() const { return true; }
     bool isMovable() const { return true; }
 
+    template<typename Fn>
+    void add(std::string name, Fn rawFn)
+    {
+        Function fn(name, std::move(rawFn));
+        std::cerr << "add(" << name << "): " << signature(fn) << std::endl;
+    }
+
 private:
 
     std::string id_;
