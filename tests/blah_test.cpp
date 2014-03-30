@@ -19,50 +19,52 @@ using namespace reflect;
 
 struct Foo
 {
-    const int& foo() const { return foo_; }
-    void foo(int i) { foo_ = i; }
+    Foo() : constField(0) {}
 
-    const int& blah() const { return foo_; }
-    void bleh(int i) { foo_ = i; }
+    int field;
+    const int constField;
 
-    void copy(int i) { woo = i; }
-    int copy() const { return woo; }
+    const int& getter() const { return value; }
+    void setter(int i) { value = i; }
 
-    void lValue(int& i) { woo = i; }
-    int& lValue() { return woo; }
+    void copy(int i) { value = i; }
+    int copy() const { return value; }
 
-    void constLValue(const int& i) { woo = i; }
-    const int& constLValue() const { return woo; }
+    void lValue(int& i) { value = i; }
+    int& lValue() { return value; }
 
-    void rValue(int&& i) { woo = std::move(i); }
-    int rValue() { return std::move(woo); }
+    void constLValue(const int& i) { value = i; }
+    const int& constLValue() const { return value; }
 
-    int bar;
+    void rValue(int&& i) { value = std::move(i); }
+    int rValue() { return std::move(value); }
+
+    void function() { value += 1; };
 
 private:
-    int foo_;
-    int woo;
+    int value;
 };
 
+namespace reflect {
 
 /******************************************************************************/
 /* REFLECT GETTER                                                             */
 /******************************************************************************/
 
 template<typename T, typename Obj>
-void reflectGetter(Type* type, const std::string& name, T (Obj::* getter)() const)
+void reflectGetter(Type* type, std::string name, T (Obj::* getter)() const)
 {
-    type->add(name, getter);
+    type->add(std::move(name), getter);
 }
 
 template<typename T, typename Obj>
-void reflectGetter(Type* type, const std::string& name, T (Obj::* getter)())
+void reflectGetter(Type* type, std::string name, T (Obj::* getter)())
 {
-    type->add(name, getter);
+    type->add(std::move(name), getter);
 }
 
 template<typename T>
-void reflectGetter(Type*, const std::string&, T) {}
+void reflectGetter(Type*, std::string, T) {}
 
 
 /******************************************************************************/
@@ -70,13 +72,13 @@ void reflectGetter(Type*, const std::string&, T) {}
 /******************************************************************************/
 
 template<typename T, typename Obj>
-void reflectSetter(Type* type, const std::string& name, void (Obj::* setter)(T))
+void reflectSetter(Type* type, std::string name, void (Obj::* setter)(T))
 {
-    type->add(name, setter);
+    type->add(std::move(name), setter);
 }
 
 template<typename T>
-void reflectSetter(Type*, const std::string&, T) {}
+void reflectSetter(Type*, std::string, T) {}
 
 
 /******************************************************************************/
@@ -102,25 +104,35 @@ struct IsMemberPtr
 
 template<typename T, typename Obj,
     class = typename std::enable_if<IsMemberPtr<T, Obj>::value>::type>
-void reflectMember(Type* type, const std::string& name, T Obj::* field)
+void reflectMember(Type* type, std::string name, T Obj::* field)
 {
-    type->add(name,
+    type->add(std::move(name),
             [=] (const Foo& obj) -> const T& {
                 return obj.*field;
             });
 
-    type->add(name,
+    type->add(std::move(name),
             [=] (Foo& obj, T value) {
                 obj.*field = std::move(value);
             });
 }
 
+template<typename T, typename Obj,
+    class = typename std::enable_if<IsMemberPtr<T, Obj>::value>::type>
+void reflectMember(Type* type, std::string name, T const Obj::* field)
+{
+    type->add(std::move(name),
+            [=] (const Foo& obj) -> const T& {
+                return obj.*field;
+            });
+}
+
 // Used to disambiguate fields that have both getter and setter.
 template<typename T, typename Obj>
-void reflectMember(Type*, const std::string&, void (Obj::*)(T)) {}
+void reflectMember(Type*, std::string, void (Obj::*)(T)) {}
 
 template<typename T>
-void reflectMember(Type*, const std::string&, T) {}
+void reflectMember(Type*, std::string, T) {}
 
 
 /******************************************************************************/
@@ -133,6 +145,54 @@ void reflectMember(Type*, const std::string&, T) {}
         reflectSetter(type, #field, &Foo::field);         \
         reflectMember(type, #field, &Foo::field);         \
     } while(false)
+
+
+/******************************************************************************/
+/* REFLECT FN                                                                 */
+/******************************************************************************/
+
+template<typename Fn>
+void reflectFunction(Type* type, std::string name, Fn fn)
+{
+    type->add(std::move(name), std::move(fn));
+}
+
+#define reflectFn(type, T, fn)                  \
+    do {                                        \
+        reflectFunction(type, #fn, &T::fn);     \
+    } while(false);
+
+
+/******************************************************************************/
+/* REFLECT CUSTOM                                                             */
+/******************************************************************************/
+
+struct AddLambdaToType
+{
+    AddLambdaToType(Type* type, std::string name) : 
+        type(type), name(std::move(name)) 
+    {}
+
+    template<typename Fn>
+    void operator+= (Fn fn)
+    {
+        type->add(std::move(name), std::move(fn));
+    }
+
+private:
+    Type* type;
+    std::string name;
+};
+
+AddLambdaToType reflectLambda(Type* type, std::string name)
+{
+    return AddLambdaToType(type, std::move(name));
+}
+
+#define reflectCustom(type, T, name)            \
+    reflectLambda(type, #name) += []
+
+} // namespace reflect 
 
 
 /******************************************************************************/
@@ -155,19 +215,19 @@ void
 reflect::Reflect<Foo>::
 reflect(Type* type)
 {
-    printf("\ngetter(foo)\n"); reflectGetter(type, "foo", &Foo::foo);
-    printf("\nsetter(foo)\n"); reflectSetter(type, "foo", &Foo::foo);
-    printf("\nmember(bar)\n"); reflectMember(type, "foo", &Foo::bar);
-
-    printf("\nfield(foo)\n");  reflectField(type, Foo, foo);
-    printf("\nfield(blah)\n"); reflectField(type, Foo, blah);
-    printf("\nfield(bleh)\n"); reflectField(type, Foo, bleh);
-    printf("\nfield(bar)\n");  reflectField(type, Foo, bar);
-
-    printf("\nfield(copy)\n"); reflectField(type, Foo, copy);
-    printf("\nfield(lValue)\n"); reflectField(type, Foo, lValue);
+    printf("\nfield(field)\n");       reflectField(type, Foo, field);
+    printf("\nfield(constField)\n");  reflectField(type, Foo, constField);
+    printf("\nfield(copy)\n");        reflectField(type, Foo, copy);
+    printf("\nfield(lValue)\n");      reflectField(type, Foo, lValue);
     printf("\nfield(constLValue)\n"); reflectField(type, Foo, constLValue);
-    printf("\nfield(rValue)\n"); reflectField(type, Foo, rValue);
+    printf("\nfield(rValue)\n");      reflectField(type, Foo, rValue);
+
+    printf("\nfn(function)\n"); reflectField(type, Foo, function);
+
+    printf("\nlambda(custom)\n"); 
+    reflectCustom(type, Foo, "custom") (Foo& obj, int a, int b) {
+        obj.setter(a + b);
+    };
 }
 
 BOOST_AUTO_TEST_CASE(blah)
