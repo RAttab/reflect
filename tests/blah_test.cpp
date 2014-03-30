@@ -25,11 +25,23 @@ struct Foo
     const int& blah() const { return foo_; }
     void bleh(int i) { foo_ = i; }
 
+    void copy(int i) { woo = i; }
+    int copy() const { return woo; }
+
+    void lValue(int& i) { woo = i; }
+    int& lValue() { return woo; }
+
+    void constLValue(const int& i) { woo = i; }
+    const int& constLValue() const { return woo; }
+
+    void rValue(int&& i) { woo = std::move(i); }
+    int rValue() { return std::move(woo); }
+
     int bar;
-    int woo;
 
 private:
     int foo_;
+    int woo;
 };
 
 
@@ -39,6 +51,12 @@ private:
 
 template<typename T, typename Obj>
 void reflectGetter(Type* type, const std::string& name, T (Obj::* getter)() const)
+{
+    type->add(name, getter);
+}
+
+template<typename T, typename Obj>
+void reflectGetter(Type* type, const std::string& name, T (Obj::* getter)())
 {
     type->add(name, getter);
 }
@@ -145,6 +163,11 @@ reflect(Type* type)
     printf("\nfield(blah)\n"); reflectField(type, Foo, blah);
     printf("\nfield(bleh)\n"); reflectField(type, Foo, bleh);
     printf("\nfield(bar)\n");  reflectField(type, Foo, bar);
+
+    printf("\nfield(copy)\n"); reflectField(type, Foo, copy);
+    printf("\nfield(lValue)\n"); reflectField(type, Foo, lValue);
+    printf("\nfield(constLValue)\n"); reflectField(type, Foo, constLValue);
+    printf("\nfield(rValue)\n"); reflectField(type, Foo, rValue);
 }
 
 BOOST_AUTO_TEST_CASE(blah)
