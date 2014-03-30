@@ -24,6 +24,8 @@ struct Foo
     int field;
     const int constField;
 
+    void void_() {}
+
     const int& getter() const { return value; }
     void setter(int i) { value = i; }
 
@@ -39,7 +41,7 @@ struct Foo
     void rValue(int&& i) { value = std::move(i); }
     int rValue() { return std::move(value); }
 
-    void function() { value += 1; };
+    void function(int a, int b, int c) { value += a * b + c; };
 
 private:
     int value;
@@ -51,13 +53,15 @@ namespace reflect {
 /* REFLECT GETTER                                                             */
 /******************************************************************************/
 
-template<typename T, typename Obj>
+template<typename T, typename Obj,
+    class = typename std::enable_if<!std::is_same<T, void>::value>::type>
 void reflectGetter(Type* type, std::string name, T (Obj::* getter)() const)
 {
     type->add(std::move(name), getter);
 }
 
-template<typename T, typename Obj>
+template<typename T, typename Obj,
+    class = typename std::enable_if<!std::is_same<T, void>::value>::type>
 void reflectGetter(Type* type, std::string name, T (Obj::* getter)())
 {
     type->add(std::move(name), getter);
@@ -71,7 +75,8 @@ void reflectGetter(Type*, std::string, T) {}
 /* REFLECT SETTER                                                             */
 /******************************************************************************/
 
-template<typename T, typename Obj>
+template<typename T, typename Obj,
+    class = typename std::enable_if<!std::is_same<T, void>::value>::type>
 void reflectSetter(Type* type, std::string name, void (Obj::* setter)(T))
 {
     type->add(std::move(name), setter);
@@ -139,11 +144,11 @@ void reflectMember(Type*, std::string, T) {}
 /* REFLECT FIELD                                                              */
 /******************************************************************************/
 
-#define reflectField(type, T, field)                      \
+#define reflectField(field)                               \
     do {                                                  \
-        reflectGetter(type, #field, &Foo::field);         \
-        reflectSetter(type, #field, &Foo::field);         \
-        reflectMember(type, #field, &Foo::field);         \
+        reflectGetter(type, #field, &T::field);           \
+        reflectSetter(type, #field, &T::field);           \
+        reflectMember(type, #field, &T::field);           \
     } while(false)
 
 
@@ -157,7 +162,7 @@ void reflectFunction(Type* type, std::string name, Fn fn)
     type->add(std::move(name), std::move(fn));
 }
 
-#define reflectFn(type, T, fn)                  \
+#define reflectFn(fn)                           \
     do {                                        \
         reflectFunction(type, #fn, &T::fn);     \
     } while(false);
@@ -189,7 +194,7 @@ AddLambdaToType reflectLambda(Type* type, std::string name)
     return AddLambdaToType(type, std::move(name));
 }
 
-#define reflectCustom(type, T, name)            \
+#define reflectCustom(name)                     \
     reflectLambda(type, #name) += []
 
 } // namespace reflect 
@@ -204,6 +209,7 @@ namespace reflect {
 template<>
 struct Reflect<Foo>
 {
+    typedef Foo T;
     static constexpr const char* id = "Foo";
     static Type* create() { return new Type(id); }
     static void reflect(Type* type);
@@ -215,17 +221,18 @@ void
 reflect::Reflect<Foo>::
 reflect(Type* type)
 {
-    printf("\nfield(field)\n");       reflectField(type, Foo, field);
-    printf("\nfield(constField)\n");  reflectField(type, Foo, constField);
-    printf("\nfield(copy)\n");        reflectField(type, Foo, copy);
-    printf("\nfield(lValue)\n");      reflectField(type, Foo, lValue);
-    printf("\nfield(constLValue)\n"); reflectField(type, Foo, constLValue);
-    printf("\nfield(rValue)\n");      reflectField(type, Foo, rValue);
+    printf("\nfield(void)\n");        reflectField(void_);
+    printf("\nfield(field)\n");       reflectField(field);
+    printf("\nfield(constField)\n");  reflectField(constField);
+    printf("\nfield(copy)\n");        reflectField(copy);
+    printf("\nfield(lValue)\n");      reflectField(lValue);
+    printf("\nfield(constLValue)\n"); reflectField(constLValue);
+    printf("\nfield(rValue)\n");      reflectField(rValue);
 
-    printf("\nfn(function)\n"); reflectField(type, Foo, function);
+    printf("\nfn(function)\n");       reflectFn(function);
 
     printf("\nlambda(custom)\n"); 
-    reflectCustom(type, Foo, "custom") (Foo& obj, int a, int b) {
+    reflectCustom(custom) (Foo& obj, int a, int b) {
         obj.setter(a + b);
     };
 }
