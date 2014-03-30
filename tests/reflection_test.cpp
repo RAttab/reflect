@@ -84,11 +84,11 @@ reflectClass(test::Foo)
 
     reflectField(void_);
     reflectField(field);
+    reflectField(constField);
 
     reflectField(getter);
     reflectField(setter);
 
-    reflectField(constField);
     reflectField(copy);
     reflectField(lValue);
     reflectField(constLValue);

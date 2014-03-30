@@ -193,7 +193,7 @@ AddLambdaToType reflectLambda(Type* type, std::string name)
     } // namespace reflect
 
 
-#define reflectLoader(_type_)                                   \
+#define reflectClassLoader(_type_)                              \
     namespace reflect {                                         \
     template<>                                                  \
     struct Loader<_type_>                                       \
@@ -211,7 +211,7 @@ AddLambdaToType reflectLambda(Type* type, std::string name)
 
 
 #define reflectClassImpl(_type_)                        \
-    reflectLoader(_type_)                               \
+    reflectClassLoader(_type_)                          \
                                                         \
     void                                                \
     reflect::Reflect<_type_>::                          \
