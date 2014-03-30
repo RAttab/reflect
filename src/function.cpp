@@ -22,8 +22,17 @@ bool
 Function::
 testReturn(const Argument& value, const Argument& target) const
 {
-    return value.type() == reflect<void>()
-        || target.isConvertibleTo(value);
+    // If our caller doesn't want a return value then we can just discard it.
+    if (value.type() == reflect<void>()) return true;
+
+    if (!target.isConvertibleTo(value)) return false;
+
+    // While this is valid C++, it doesn't quite work through the reflection
+    // since the compiler doesn't know enough to extend the lifespan of an
+    // r-value reference when binding to a const l-value referencce.
+    if (target.isTemporary() && value.isConstRef()) return false;
+
+    return true;
 }
 
 bool

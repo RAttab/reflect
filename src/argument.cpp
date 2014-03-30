@@ -33,6 +33,21 @@ isVoid() const
 
 bool
 Argument::
+isConstRef() const
+{
+    return isConst() && refType_ == RefType::LValue;
+}
+
+bool
+Argument::
+isTemporary() const
+{
+    return refType_ == RefType::RValue
+        || refType_ == RefType::Copy;
+}
+
+bool
+Argument::
 isConvertibleTo(const Argument& target) const
 {
     static Type* valueType = reflect<Value>();

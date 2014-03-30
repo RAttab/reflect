@@ -32,6 +32,9 @@ struct Argument
     bool isConst() const { return isConst_; }
     bool isVoid() const;
 
+    bool isConstRef() const;
+    bool isTemporary() const;
+
     std::string print() const;
 
     template<typename T>
