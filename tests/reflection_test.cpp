@@ -26,6 +26,8 @@ namespace test {
 
 struct Bar
 {
+    Bar() : bar(0) {}
+
     int bar;
 };
 
@@ -45,7 +47,7 @@ namespace test {
 
 struct Foo : public Bar
 {
-    Foo() : constField(0) {}
+    Foo() : field(0), constField(0), value(0) {}
 
     int field;
     const int constField;
@@ -68,9 +70,8 @@ struct Foo : public Bar
     int rValue() { return std::move(value); }
 
     void fn(int a, int b, int c) { value += a * b + c; };
-    static Foo staticFn(int, int) { return Foo(); };
+    static Foo make() { return Foo(); };
 
-private:
     int value;
 };
 
@@ -83,6 +84,10 @@ reflectClass(test::Foo)
 
     reflectField(void_);
     reflectField(field);
+
+    reflectField(getter);
+    reflectField(setter);
+
     reflectField(constField);
     reflectField(copy);
     reflectField(lValue);
@@ -90,7 +95,7 @@ reflectClass(test::Foo)
     reflectField(rValue);
 
     reflectFunction(fn);
-    reflectFunction(staticFn);
+    reflectFunction(make);
 
     reflectCustom(custom) (test::Foo& obj, int a, int b) {
         obj.setter(a + b);
@@ -124,9 +129,26 @@ BOOST_AUTO_TEST_CASE(basics)
     BOOST_CHECK(!typeFoo->hasField("baz"));
     BOOST_CHECK(!typeFoo->hasField("void_"));
     BOOST_CHECK( typeFoo->hasField("field"));
-    BOOST_CHECK( typeFoo->hasField("constField"));
+    BOOST_CHECK( typeFoo->hasField("getter"));
+    BOOST_CHECK( typeFoo->hasField("setter"));
     BOOST_CHECK( typeFoo->hasField("copy"));
     BOOST_CHECK( typeFoo->hasField("rValue"));
     BOOST_CHECK( typeFoo->hasField("fn"));
     BOOST_CHECK( typeFoo->hasField("custom"));
+
+    Value vFoo = typeFoo->call<Value>("make");
+    const auto& foo = vFoo.get<test::Foo>();
+    const auto& bar = vFoo.get<test::Bar>();
+
+    vFoo.call<void>("bar", 1);
+    BOOST_CHECK_EQUAL(foo.bar, 1);
+    BOOST_CHECK_EQUAL(bar.bar, 1);
+    BOOST_CHECK_EQUAL(vFoo.call<int>("bar"), foo.bar);
+
+    vFoo.call<void>("setter", 1);
+    BOOST_CHECK_EQUAL(foo.value, 1);
+    BOOST_CHECK_EQUAL(vFoo.call<int>("getter"), foo.value);
+
+    vFoo.call<void>("custom", 1, 2);
+    BOOST_CHECK_EQUAL(foo.value, 1 + 2);
 }

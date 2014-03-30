@@ -2,7 +2,7 @@
    Rémi Attab (remi.attab@gmail.com), 25 Mar 2014
    FreeBSD-style copyright and disclaimer apply
 
-   Value implementation. Mostly exists to break some header dependencies.
+   Value implementation.
 */
 
 #include "reflect.h"
