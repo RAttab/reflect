@@ -17,8 +17,8 @@ struct Type;
 /* REFLECT                                                                    */
 /******************************************************************************/
 
-template<typename T, typename Enable = void>
-struct Reflect;
+template<typename T, typename Enable = void> struct Reflect;
+template<typename T, typename Enable = void> struct Loader;
 
 
 /******************************************************************************/
@@ -31,26 +31,23 @@ struct Registry
     static Type* get()
     {
         typedef typename std::decay<T>::type CleanT;
-
-        const auto& id = Reflect<CleanT>::id;
-
-        Type* type = get(id);
-        if (!type) {
-            add(id, type = new Type(id));
-            Reflect<CleanT>::reflect(type);
-        }
-
-        return type;
+        return get(Reflect<CleanT>::id);
     }
 
     static Type* get(const std::string& id);
-    static void add(std::string id, Type* type);
+    static void add(const std::string& id, std::function<void(Type*)> loader);
 
     template<typename T>
     static void alias(std::string alias)
     {
-        add(std::move(alias), get<T>());
+        typedef typename std::decay<T>::type CleanT;
+        alias(Reflect<CleanT>::id, std::move(alias));
     }
+    static void alias(const std::string& id, const std::string& alias);
+
+private:
+    static void add(const std::string& id, Type* type);
+    static Type* load(const std::string& id);
 };
 
 

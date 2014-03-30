@@ -8,35 +8,21 @@
 #include "reflect.h"
 #pragma once
 
-namespace reflect {
-
-
 /******************************************************************************/
-/* REFLECT INTEGRAL                                                           */
+/* REFLECT INTS                                                               */
 /******************************************************************************/
 
-template<typename T>
-struct Reflect<T, typename std::enable_if<std::is_integral<T>::value>::type>
-{
-    typedef T T_;
-    static constexpr const char* id = TypeName<T>::name;
-    static void reflect(Type*) {}
-};
+reflectClass(char) {}
+reflectClass(unsigned char) {}
 
+reflectClass(short) {}
+reflectClass(unsigned short) {}
 
-/******************************************************************************/
-/* TYPE NAMES                                                                 */
-/******************************************************************************/
+reflectClass(int) {}
+reflectClass(unsigned int) {}
 
-REFLECT_TYPE_NAME(         char);
-REFLECT_TYPE_NAME(unsigned char);
-REFLECT_TYPE_NAME(         short);
-REFLECT_TYPE_NAME(unsigned short);
-REFLECT_TYPE_NAME(         int);
-REFLECT_TYPE_NAME(unsigned int);
-REFLECT_TYPE_NAME(         long);
-REFLECT_TYPE_NAME(unsigned long);
-REFLECT_TYPE_NAME(         long long);
-REFLECT_TYPE_NAME(unsigned long long);
+reflectClass(long) {}
+reflectClass(unsigned long) {}
 
-} // reflect
+reflectClass(long long) {}
+reflectClass(unsigned long long) {}

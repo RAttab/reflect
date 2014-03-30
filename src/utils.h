@@ -26,6 +26,21 @@ namespace reflect {
 
 
 /******************************************************************************/
+/* UNIQUE NAME                                                                */
+/******************************************************************************/
+
+#define reflectUniqueNameImpl2(prefix, b)    \
+    prefix ## _ ## b
+
+#define reflectUniqueNameImpl(prefix, b)     \
+    reflectUniqueNameImpl2(prefix, b)
+
+#define reflectUniqueName(prefix)               \
+    reflectUniqueNameImpl(prefix, __COUNTER__)
+
+
+
+/******************************************************************************/
 /* UNUSED                                                                     */
 /******************************************************************************/
 

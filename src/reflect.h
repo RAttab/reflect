@@ -45,4 +45,5 @@
 #include "value.tcc"
 #include "function.tcc"
 
+#include "types/void.h"
 #include "types/value.h"

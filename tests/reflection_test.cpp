@@ -101,8 +101,10 @@ reflectClass(test::Foo)
 
 BOOST_AUTO_TEST_CASE(blah)
 {
-    Type* barType = type<test::Bar>();
-    Type* fooType = type<test::Foo>();
+    Type* typeBar = type("test::Bar");
+    Type* typeFoo = type("test::Foo");
 
-    BOOST_CHECK_EQUAL(fooType->parent(), barType);
+    BOOST_CHECK(typeBar);
+    BOOST_CHECK(typeFoo);
+    BOOST_CHECK_EQUAL(typeFoo->parent(), typeBar);
 }

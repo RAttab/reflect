@@ -192,7 +192,27 @@ AddLambdaToType reflectLambda(Type* type, std::string name)
     };                                                                  \
     } // namespace reflect
 
+
+#define reflectLoader(_type_)                                   \
+    namespace reflect {                                         \
+    template<>                                                  \
+    struct Loader<_type_>                                       \
+    {                                                           \
+        Loader()                                                \
+        {                                                       \
+            typedef Reflect<_type_> type;                       \
+            Registry::add(type::id, [] (Type* type_) {          \
+                        type::reflect(type_);                   \
+                    });                                         \
+        }                                                       \
+    };                                                          \
+    namespace { Loader<_type_> reflectUniqueName(loader); }     \
+    } // namespace reflect
+
+
 #define reflectClassImpl(_type_)                        \
+    reflectLoader(_type_)                               \
+                                                        \
     void                                                \
     reflect::Reflect<_type_>::                          \
     reflect(reflectUnused Type* type_)

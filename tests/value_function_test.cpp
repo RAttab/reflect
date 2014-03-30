@@ -115,17 +115,7 @@ struct Foo
     unsigned value;
 };
 
-namespace reflect {
-
-template<>
-struct Reflect<Foo>
-{
-    typedef Foo T_;
-    static constexpr const char* id = "Foo";
-    static void reflect(Type*) {}
-};
-
-} // namespace reflect
+reflectClass(Foo) {}
 
 BOOST_AUTO_TEST_CASE(memberFn)
 {
