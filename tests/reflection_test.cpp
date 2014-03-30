@@ -70,8 +70,8 @@ struct Foo : public Bar
     void rValue(int&& i) { value = std::move(i); }
     int rValue() { return std::move(value); }
 
-    void fn(int a, int b, int c) { value += a * b + c; };
-    static Foo make() { return Foo(); };
+    void fn(int a, int b, int c) { value += a * b + c; }
+    static int staticFn(int a, int b) { return a + b ;}
 
     int value;
 };
@@ -97,7 +97,7 @@ reflectClass(test::Foo)
     reflectField(rValue);
 
     reflectFunction(fn);
-    reflectFunction(make);
+    reflectFunction(staticFn);
 
     reflectCustom(custom) (test::Foo& obj, int a, int b) {
         obj.setter(a + b);
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE(basics)
     BOOST_CHECK( typeFoo->hasField("fn"));
     BOOST_CHECK( typeFoo->hasField("custom"));
 
-    Value vFoo = typeFoo->call<Value>("make");
+    Value vFoo = typeFoo->construct();
     const auto& foo = vFoo.get<test::Foo>();
     const auto& bar = vFoo.get<test::Bar>();
 
@@ -155,4 +155,8 @@ BOOST_AUTO_TEST_CASE(basics)
 
     vFoo.call<void>("custom", a, 2);
     BOOST_CHECK_EQUAL(foo.value, a.get<int>() + 2);
+
+    BOOST_CHECK_EQUAL(
+            typeFoo->call<int>("staticFn", 1, 2),
+            test::Foo::staticFn(1,2));
 }

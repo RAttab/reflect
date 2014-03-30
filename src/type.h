@@ -45,6 +45,9 @@ struct Type
     bool isCopiable() const { return true; }
     bool isMovable() const { return true; }
 
+    template<typename... Args>
+    Value construct(Args&&... args) const;
+
     template<typename Ret, typename... Args>
     Ret call(const std::string& field, Args&&... args) const;
 
