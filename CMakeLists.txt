@@ -76,13 +76,18 @@ include_directories("${PROJECT_SOURCE_DIR}/src")
 
 install(
     FILES
+    src/argument.h
+    src/argument.tcc
     src/cast.h
     src/function.h
-    # src/function_traits.h
-    src/macros.h
+    src/function.tcc
+    src/function_traits.h
     src/reflect.h
-    src/type.h
+    src/reflection.h
+    src/ref_type.h
     src/registry.h
+    src/type.h
+    src/type_name.h
     src/type_vector.h
     src/utils.h
     src/value_function.h
@@ -96,6 +101,7 @@ install(
     FILES
     src/types/void.h
     src/types/int.h
+    src/types/primitives.h
     src/types/value.h
 
     DESTINATION
@@ -125,4 +131,4 @@ reflect_test(ref)
 reflect_test(value)
 reflect_test(value_function)
 reflect_test(function)
-reflect_test(blah)
+reflect_test(reflection)

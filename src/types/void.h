@@ -3,27 +3,13 @@
    FreeBSD-style copyright and disclaimer apply
 
    Type for void.
-
-   \todo Rewrite using macros.
 */
 
 #include "reflect.h"
 #pragma once
 
-namespace reflect {
-
-
 /******************************************************************************/
 /* REFLECT VOID                                                               */
 /******************************************************************************/
 
-template<>
-struct Reflect<void>
-{
-    typedef void T_;
-    static constexpr const char* id = "void";
-    static void reflect(Type*) {}
-};
-
-
-} // reflect
+reflectClass(void) {}

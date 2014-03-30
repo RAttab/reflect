@@ -3,21 +3,16 @@
    FreeBSD-style copyright and disclaimer apply
 
    Type for reflect::Value.
-
-   \todo Convert to macro.
 */
 
 #include "reflect.h"
 #pragma once
 
-namespace reflect {
+/******************************************************************************/
+/* REFLECT VALUE                                                              */
+/******************************************************************************/
 
-template<>
-struct Reflect<Value>
+reflectClass(reflect::Value)
 {
-    typedef Value T_;
-    static constexpr const char* id = "reflect::Value";
-    static void reflect(Type*) {}
-};
-
-} // reflect
+    // \todo Reflect Value
+}
