@@ -193,6 +193,9 @@ AddLambdaToType reflectLambda(Type* type, std::string name)
     } // namespace reflect
 
 
+// Note that we need the template specialization because we if we use
+// reflectUniqueName to get a unique typename then we have no way to recover the
+// type to name our constructor.
 #define reflectClassLoader(_type_)                              \
     namespace reflect {                                         \
     template<>                                                  \
