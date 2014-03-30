@@ -17,7 +17,7 @@ namespace reflect {
 /******************************************************************************/
 
 Argument::
-Argument() : type_(reflect<void>()) {}
+Argument() : type_(reflect::type<void>()) {}
 
 Argument::
 Argument(Type* type, RefType refType, bool isConst) :
@@ -28,7 +28,7 @@ bool
 Argument::
 isVoid() const
 {
-    return type_ == reflect<void>();
+    return type_ == reflect::type<void>();
 }
 
 bool
@@ -50,7 +50,7 @@ bool
 Argument::
 isConvertibleTo(const Argument& target) const
 {
-    static Type* valueType = reflect<Value>();
+    static Type* valueType = reflect::type<Value>();
 
     if ((type() == valueType) ^ (target.type() == valueType))
         return true;

@@ -10,7 +10,6 @@
 
 namespace reflect {
 
-
 /******************************************************************************/
 /* TYPE                                                                       */
 /******************************************************************************/
@@ -34,7 +33,7 @@ struct Type
     template<typename T>
     bool isConvertibleTo()
     {
-        return isConvertibleTo(reflect<T>());
+        return isConvertibleTo(type<T>());
     }
     bool isConvertibleTo(Type* other);
 

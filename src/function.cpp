@@ -23,7 +23,7 @@ Function::
 testReturn(const Argument& value, const Argument& target) const
 {
     // If our caller doesn't want a return value then we can just discard it.
-    if (value.type() == reflect<void>()) return true;
+    if (value.type() == type<void>()) return true;
 
     if (!target.isConvertibleTo(value)) return false;
 

@@ -17,7 +17,7 @@ namespace reflect {
 template<typename T>
 void reflectParent_(Type* type)
 {
-    type->parent(reflect<T>());
+    type->parent(reflect::type<T>());
 }
 
 #define reflectParent(parent)                                           \

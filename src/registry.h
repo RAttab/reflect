@@ -55,16 +55,16 @@ struct Registry
 
 
 /******************************************************************************/
-/* REFLECT                                                                    */
+/* TYPE                                                                       */
 /******************************************************************************/
 
 template<typename T>
-Type* reflect()
+Type* type()
 {
     return Registry::get<T>();
 }
 
-inline Type* reflect(const std::string& id)
+inline Type* type(const std::string& id)
 {
     return Registry::get(id);
 }

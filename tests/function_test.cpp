@@ -20,32 +20,30 @@ using namespace reflect;
 
 BOOST_AUTO_TEST_CASE(basics)
 {
-    using reflect::reflect;
-
     auto foo = [] (unsigned i, int& j, const int&, int&&) -> unsigned {
         return i + 1 * j;
     };
     Function fn("foo", foo);
 
-    BOOST_CHECK_EQUAL(fn.returnType().type(), reflect<unsigned>());
+    BOOST_CHECK_EQUAL(fn.returnType().type(), type<unsigned>());
     BOOST_CHECK_EQUAL(fn.returnType().refType(), RefType::Copy);
 
     BOOST_CHECK_EQUAL(fn.arguments(), 4);
 
     BOOST_CHECK(!fn.argument(0).isConst());
-    BOOST_CHECK_EQUAL(fn.argument(0).type(), reflect<unsigned>());
+    BOOST_CHECK_EQUAL(fn.argument(0).type(), type<unsigned>());
     BOOST_CHECK_EQUAL(fn.argument(0).refType(), RefType::Copy);
 
     BOOST_CHECK(!fn.argument(1).isConst());
-    BOOST_CHECK_EQUAL(fn.argument(1).type(), reflect<int>());
+    BOOST_CHECK_EQUAL(fn.argument(1).type(), type<int>());
     BOOST_CHECK_EQUAL(fn.argument(1).refType(), RefType::LValue);
 
     BOOST_CHECK(fn.argument(2).isConst());
-    BOOST_CHECK_EQUAL(fn.argument(2).type(), reflect<int>());
+    BOOST_CHECK_EQUAL(fn.argument(2).type(), type<int>());
     BOOST_CHECK_EQUAL(fn.argument(2).refType(), RefType::LValue);
 
     BOOST_CHECK(!fn.argument(3).isConst());
-    BOOST_CHECK_EQUAL(fn.argument(3).type(), reflect<int>());
+    BOOST_CHECK_EQUAL(fn.argument(3).type(), type<int>());
     BOOST_CHECK_EQUAL(fn.argument(3).refType(), RefType::RValue);
 
 
@@ -65,11 +63,9 @@ BOOST_AUTO_TEST_CASE(basics)
 
 BOOST_AUTO_TEST_CASE(void_test)
 {
-    using reflect::reflect;
-
     Function fn("foo", [] {});
 
-    BOOST_CHECK_EQUAL(fn.returnType().type(), reflect<void>());
+    BOOST_CHECK_EQUAL(fn.returnType().type(), type<void>());
     BOOST_CHECK_EQUAL(fn.arguments(), 0);
 
     // void
