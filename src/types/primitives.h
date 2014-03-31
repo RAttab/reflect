@@ -9,4 +9,5 @@
 #pragma once
 
 #include "void.h"
+#include "bool.h"
 #include "int.h"
