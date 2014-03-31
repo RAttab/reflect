@@ -138,5 +138,21 @@ call(const std::string& fn, Args&&... args) const
     return field.call<Ret>(*this, std::forward<Args>(args)...);
 }
 
+template<typename Ret>
+Ret
+Value::
+get(const std::string& field) const
+{
+    return call<Ret>(field);
+}
+
+template<typename Arg>
+void
+Value::
+set(const std::string& field, Arg&& arg) const
+{
+    call<void>(field, std::forward<Arg>(arg));
+}
+
 
 } // reflect

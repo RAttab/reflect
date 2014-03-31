@@ -49,6 +49,7 @@ namespace test {
 struct Foo : public Bar
 {
     Foo() : field(0), constField(0), value(0) {}
+    Foo(int i) : field(i), constField(i), value(i) {}
 
     int field;
     const int constField;
@@ -74,6 +75,12 @@ struct Foo : public Bar
     static int staticFn(int a, int b) { return a * b ;}
     static int staticFn(int a, int b, int c) { return a * b + c;}
 
+    Foo& operator+=(const Foo& other)
+    {
+        field += other.field;
+        return *this;
+    }
+
     int value;
 };
 
@@ -84,6 +91,7 @@ reflectClass(test::Foo)
 {
     reflectParent(test::Bar);
     reflectConsBasics();
+    reflectOpAssign();
 
     reflectField(void_);
     reflectField(field);
@@ -144,6 +152,10 @@ BOOST_AUTO_TEST_CASE(basics)
     const auto& foo = vFoo.get<test::Foo>();
     const auto& bar = vFoo.get<test::Bar>();
 
+    BOOST_CHECK_EQUAL(
+            typeFoo->call<int>("staticFn", 1, 2),
+            test::Foo::staticFn(1,2));
+
     vFoo.call<void>("bar", 1);
     BOOST_CHECK_EQUAL(foo.bar, 1);
     BOOST_CHECK_EQUAL(bar.bar, 1);
@@ -158,7 +170,7 @@ BOOST_AUTO_TEST_CASE(basics)
     vFoo.call<void>("custom", a, 2);
     BOOST_CHECK_EQUAL(foo.value, a.get<int>() + 2);
 
-    BOOST_CHECK_EQUAL(
-            typeFoo->call<int>("staticFn", 1, 2),
-            test::Foo::staticFn(1,2));
+    vFoo.set("field", 100);
+    vFoo += test::Foo(20);
+    BOOST_CHECK_EQUAL(vFoo.get<int>("field"), 120);
 }

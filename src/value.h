@@ -36,6 +36,33 @@ struct CleanValue
 
 
 /******************************************************************************/
+/* VALUE OP                                                                   */
+/******************************************************************************/
+// All operators return Values because there's no clean way to provide a
+// template parameter for the return value when using the operator.
+
+#define reflectValueOpUnary(op)                 \
+    Value op() const                            \
+    {                                           \
+        return call<Value>(#op);                \
+    }
+
+#define reflectValueOpBinary(op)                                \
+    template<typename Arg>                                      \
+    Value op(Arg&& arg) const                                   \
+    {                                                           \
+        return call<Value>(#op, std::forward<Arg>(arg));        \
+    }
+
+#define reflectValueOpNary(op)                                  \
+    template<typename... Args>                                  \
+    Value op(Args&&... args) const                              \
+    {                                                           \
+        return call<Value>(#op, std::forward<Args>(args)...);   \
+    }
+
+
+/******************************************************************************/
 /* VALUE                                                                      */
 /******************************************************************************/
 
@@ -76,6 +103,57 @@ struct Value
 
     template<typename Ret, typename... Args>
     Ret call(const std::string& fn, Args&&... args) const;
+
+    template<typename Ret>
+    Ret get(const std::string& field) const;
+
+    template<typename Arg>
+    void set(const std::string& field, Arg&& arg) const;
+
+    reflectValueOpBinary(operator+=)
+    reflectValueOpBinary(operator-=)
+    reflectValueOpBinary(operator*=)
+    reflectValueOpBinary(operator/=)
+    reflectValueOpBinary(operator%=)
+    reflectValueOpBinary(operator&=)
+    reflectValueOpBinary(operator|=)
+    reflectValueOpBinary(operator^=)
+    reflectValueOpBinary(operator<<=)
+    reflectValueOpBinary(operator>>=)
+
+    reflectValueOpUnary (operator++)
+    reflectValueOpBinary(operator++)
+    reflectValueOpUnary (operator--)
+    reflectValueOpBinary(operator--)
+
+    reflectValueOpBinary(operator+)
+    reflectValueOpBinary(operator-)
+    reflectValueOpBinary(operator*)
+    reflectValueOpBinary(operator/)
+    reflectValueOpBinary(operator%)
+    reflectValueOpUnary (operator~)
+    reflectValueOpBinary(operator&)
+    reflectValueOpBinary(operator|)
+    reflectValueOpBinary(operator^)
+    reflectValueOpBinary(operator<<)
+    reflectValueOpBinary(operator>>)
+
+    reflectValueOpUnary (operator!)
+    reflectValueOpBinary(operator&&)
+    reflectValueOpBinary(operator||)
+
+    reflectValueOpBinary(operator==)
+    reflectValueOpBinary(operator!=)
+    reflectValueOpBinary(operator<)
+    reflectValueOpBinary(operator>)
+    reflectValueOpBinary(operator<=)
+    reflectValueOpBinary(operator>=)
+
+    reflectValueOpNary  (operator())
+    reflectValueOpBinary(operator[])
+    reflectValueOpUnary (operator*)
+    reflectValueOpUnary (operator->)
+    reflectValueOpBinary(operator->*)
 
 private:
     Argument arg;

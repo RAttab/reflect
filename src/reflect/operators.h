@@ -181,7 +181,6 @@ reflectOpFn(operator>=, GEComp)
 reflectOpFn(operator(),  Function)
 reflectOpFn(operator[],  Array)
 reflectOpFn(operator*,   Indirection)
-reflectOpFn(operator&,   AddressOf)
 reflectOpFn(operator->,  MemberAccess)
 reflectOpFn(operator->*, PointerToMemberAccess)
 
@@ -190,7 +189,6 @@ reflectOpFn(operator->*, PointerToMemberAccess)
         reflectOp(operator(),  Function);               \
         reflectOp(operator[],  Array);                  \
         reflectOp(operator*,   Indirection);            \
-        reflectOp(operator&,   AddressOf);              \
         reflectOp(operator->,  MemberAccess);           \
         reflectOp(operator->*, PointerToMemberAccess);  \
     } while(false);
