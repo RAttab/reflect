@@ -78,7 +78,15 @@ struct Foo : public Bar
     Foo& operator+=(const Foo& other)
     {
         field += other.field;
+        value += other.value;
         return *this;
+    }
+
+    Foo operator+(const Foo& other) const
+    {
+        Foo result(*this);
+        result += other;
+        return result;
     }
 
     int value;
@@ -90,8 +98,12 @@ struct Foo : public Bar
 reflectClass(test::Foo)
 {
     reflectParent(test::Bar);
+
+    reflectCons(int);
     reflectConsBasics();
+
     reflectOpAssign();
+    reflectOpArithmetic();
 
     reflectField(void_);
     reflectField(field);
@@ -170,7 +182,6 @@ BOOST_AUTO_TEST_CASE(basics)
     vFoo.call<void>("custom", a, 2);
     BOOST_CHECK_EQUAL(foo.value, a.get<int>() + 2);
 
-    vFoo.set("field", 100);
-    vFoo += test::Foo(20);
-    BOOST_CHECK_EQUAL(vFoo.get<int>("field"), 120);
+    Value result = typeFoo->construct(100) + typeFoo->construct(20);
+    BOOST_CHECK_EQUAL(result.get<int>("field"), 120);
 }
