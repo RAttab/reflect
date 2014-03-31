@@ -71,7 +71,8 @@ struct Foo : public Bar
     int rValue() { return std::move(value); }
 
     void fn(int a, int b, int c) { value += a * b + c; }
-    static int staticFn(int a, int b) { return a + b ;}
+    static int staticFn(int a, int b) { return a * b ;}
+    static int staticFn(int a, int b, int c) { return a * b + c;}
 
     int value;
 };
@@ -96,8 +97,9 @@ reflectClass(test::Foo)
     reflectField(constLValue);
     reflectField(rValue);
 
-    reflectFunction(fn);
-    reflectFunction(staticFn);
+    reflectFn(fn);
+    reflectFnTyped(staticFn, int(int, int));
+    reflectFnTyped(staticFn, int(int, int, int));
 
     reflectCustom(custom) (test::Foo& obj, int a, int b) {
         obj.setter(a + b);

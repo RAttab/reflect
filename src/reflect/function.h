@@ -15,15 +15,16 @@ namespace reflect {
 /******************************************************************************/
 
 template<typename Fn>
-void reflectFunction_(Type* type, std::string name, Fn fn)
+void reflectFunction(Type* type, std::string name, Fn fn)
 {
     type->add(std::move(name), std::move(fn));
 }
 
-#define reflectFunction(fn)                     \
-    do {                                        \
-        reflectFunction_(type_, #fn, &T_::fn);  \
-    } while(false);
+#define reflectFn(fn)                           \
+    reflectFunction(type_, #fn, &T_::fn)
+
+#define reflectFnTyped(fn, signature)           \
+    reflectFunction<signature>(type_, #fn, &T_::fn)
 
 
 /******************************************************************************/
