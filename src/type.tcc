@@ -19,7 +19,7 @@ Value
 Type::
 construct(Args&&... args) const
 {
-    return call<Value>(Cons, std::forward<Args>(args)...);
+    return call<Value>(id(), std::forward<Args>(args)...);
 }
 
 template<typename Ret, typename... Args>

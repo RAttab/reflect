@@ -115,7 +115,7 @@ install(
     src/reflect/class.h
     src/reflect/field.h
     src/reflect/function.h
-    src/reflect/names.h
+    src/reflect/operators.h
 
     DESTINATION
     include/reflect/reflect)

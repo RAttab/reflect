@@ -20,25 +20,11 @@ void reflectFunction(Type* type, std::string name, Fn fn)
     type->add(std::move(name), std::move(fn));
 }
 
-template<typename Fn,
-    class = decltype( reflectFunction<Fn>(nullptr, "", *((Fn*)0) ) )>
-void reflectFunctionOptional(Type* type, std::string name, Fn fn)
-{
-    reflectFunction(type, std::move(name), std::move(fn));
-}
-
-template<typename>
-void reflectFunctionOptional(...) {}
-
-
 #define reflectFn(fn)                           \
     reflectFunction(type_, #fn, &T_::fn)
 
 #define reflectFnTyped(fn, signature)           \
     reflectFunction<signature>(type_, #fn, &T_::fn)
-
-#define reflectFnTypedOptional(fn, signature)                   \
-    reflectFunctionOptional<signature>(type_, #fn, &T_::fn)
 
 
 /******************************************************************************/
