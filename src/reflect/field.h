@@ -29,8 +29,8 @@ void reflectGetter(Type* type, std::string name, T (Obj::* getter)())
     type->add(std::move(name), getter);
 }
 
-template<typename T>
-void reflectGetter(Type*, std::string, T) {}
+template<typename...>
+void reflectGetter(...) {}
 
 
 /******************************************************************************/
@@ -44,8 +44,8 @@ void reflectSetter(Type* type, std::string name, void (Obj::* setter)(T))
     type->add(std::move(name), setter);
 }
 
-template<typename T>
-void reflectSetter(Type*, std::string, T) {}
+template<typename...>
+void reflectSetter(...) {}
 
 
 /******************************************************************************/
@@ -98,8 +98,8 @@ void reflectMember(Type* type, std::string name, T const Obj::* field)
 template<typename T, typename Obj>
 void reflectMember(Type*, std::string, void (Obj::*)(T)) {}
 
-template<typename T>
-void reflectMember(Type*, std::string, T) {}
+template<typename...>
+void reflectMember(...) {}
 
 
 /******************************************************************************/
