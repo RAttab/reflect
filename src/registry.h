@@ -38,10 +38,11 @@ struct Registry
     static void add(const std::string& id, std::function<void(Type*)> loader);
 
     template<typename T>
-    static void alias(std::string alias)
+    static void alias(const std::string& alias)
     {
         typedef typename std::decay<T>::type CleanT;
-        alias(Reflect<CleanT>::id, std::move(alias));
+
+        Registry::alias(Reflect<CleanT>::id, alias);
     }
     static void alias(const std::string& id, const std::string& alias);
 

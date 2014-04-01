@@ -94,13 +94,13 @@ void reflectOpAssignMove(...) {}
 /* CONS BASICS                                                                */
 /******************************************************************************/
 
-#define reflectConsBasics()                     \
-    do {                                        \
-        reflectConsDefault<T_>(type_);          \
-        reflectConsCopy<T_>(type_);             \
-        reflectConsMove<T_>(type_);             \
-        reflectOpAssignCopy<T_>(type_);         \
-        reflectOpAssignMove<T_>(type_);         \
+#define reflectConsBasics()                             \
+    do {                                                \
+        reflect::reflectConsDefault<T_>(type_);         \
+        reflect::reflectConsCopy<T_>(type_);            \
+        reflect::reflectConsMove<T_>(type_);            \
+        reflect::reflectOpAssignCopy<T_>(type_);        \
+        reflect::reflectOpAssignMove<T_>(type_);        \
     } while(false)
 
 
@@ -117,6 +117,6 @@ void reflectCons_(Type* type)
 }
 
 #define reflectCons(...)                        \
-    reflectCons_<T_, __VA_ARGS__>(type_);
+    reflect::reflectCons_<T_, __VA_ARGS__>(type_);
 
 } // reflect

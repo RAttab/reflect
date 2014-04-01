@@ -34,7 +34,7 @@ namespace reflect {
     template<typename>                                          \
     void reflectOpName(name)(...) {}
 
-#define reflectOp(op, name) reflectOpName(name)<T_>(type_, #op)
+#define reflectOp(op, name) reflect::reflectOpName(name)<T_>(type_, #op)
 
 
 /******************************************************************************/
@@ -52,7 +52,7 @@ namespace reflect {
     template<typename>                                                  \
     void reflectOpName(name)(...) {}
 
-#define reflectOpTyped(op, name) reflectOpName(name)<T_>(type_, #op)
+#define reflectOpTyped(op, name) reflect::reflectOpName(name)<T_>(type_, #op)
 
 
 /******************************************************************************/

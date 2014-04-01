@@ -21,10 +21,10 @@ void reflectFunction(Type* type, std::string name, Fn fn)
 }
 
 #define reflectFn(fn)                           \
-    reflectFunction(type_, #fn, &T_::fn)
+    reflect::reflectFunction(type_, #fn, &T_::fn)
 
 #define reflectFnTyped(fn, signature)           \
-    reflectFunction<signature>(type_, #fn, &T_::fn)
+    reflect::reflectFunction<signature>(type_, #fn, &T_::fn)
 
 
 /******************************************************************************/
@@ -54,7 +54,7 @@ AddLambdaToType reflectLambda(Type* type, std::string name)
 }
 
 #define reflectCustom(name)                     \
-    reflectLambda(type_, #name) += []
+    reflect::reflectLambda(type_, #name) += []
 
 
 } // reflect

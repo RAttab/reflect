@@ -39,7 +39,7 @@ Argument reflectReturn()
 
     C++ uses dark corner case. It's super effective!
 */
-void reflectArguments(std::vector<Argument>&, TypeVector<>) {}
+inline void reflectArguments(std::vector<Argument>&, TypeVector<>) {}
 
 template<typename Arg, typename... Rest>
 void reflectArguments(std::vector<Argument>& args, TypeVector<Arg, Rest...>)
@@ -59,7 +59,7 @@ std::vector<Argument> reflectArguments()
     return args;
 }
 
-void reflectArguments(std::vector<Argument>&) {}
+inline void reflectArguments(std::vector<Argument>&) {}
 
 template<typename... Rest>
 void reflectArguments(

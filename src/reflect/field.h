@@ -106,11 +106,11 @@ void reflectMember(...) {}
 /* REFLECT FIELD                                                              */
 /******************************************************************************/
 
-#define reflectField(field)                             \
-    do {                                                \
-        reflectGetter(type_, #field, &T_::field);       \
-        reflectSetter(type_, #field, &T_::field);       \
-        reflectMember(type_, #field, &T_::field);       \
+#define reflectField(field)                                     \
+    do {                                                        \
+        reflect::reflectGetter(type_, #field, &T_::field);      \
+        reflect::reflectSetter(type_, #field, &T_::field);      \
+        reflect::reflectMember(type_, #field, &T_::field);      \
     } while(false)
 
 

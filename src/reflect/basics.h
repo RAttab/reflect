@@ -23,7 +23,7 @@ void reflectParent_(Type* type)
 #define reflectParent(parent)                                           \
     do {                                                                \
         reflectStaticAssert((std::is_base_of<parent, T_>::value));      \
-        reflectParent_<parent>(type_);                                  \
+        reflect::reflectParent_<parent>(type_);                         \
     } while(false)
 
 } // reflect
