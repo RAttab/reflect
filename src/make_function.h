@@ -124,4 +124,14 @@ auto makeFunction(Fn&& fn) ->
     return std::function<FnType>(std::forward<Fn>(fn));
 }
 
+
+// C++14 return type deduction would be handy right about now...
+template<typename Ret, typename... Args>
+std::function<Ret(Args...)>
+makeFunction(std::function<Ret(Args...)>&& fn)
+{
+    return std::move(fn);
+}
+
+
 } // reflect
