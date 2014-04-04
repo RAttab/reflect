@@ -133,6 +133,9 @@ reflectClass(test::Foo)
 
 BOOST_AUTO_TEST_CASE(basics)
 {
+    Type* typeInt type("uint64_t");
+    std::cerr << typeInt->print() << std::endl;
+
     Type* typeBar = type("test::Bar");
     Type* typeFoo = type("test::Foo");
 

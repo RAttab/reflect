@@ -51,9 +51,6 @@ link_directories("$ENV{HOME}/local/lib")
 # LIBRARIES
 #------------------------------------------------------------------------------#
 
-link_libraries(rt)
-link_libraries(pthread)
-
 option(USE_TCMALLOC "Use tcmalloc for heap allocations." ON)
 find_library(LIB_TCMALLOC tcmalloc)
 
@@ -101,7 +98,7 @@ install(
     FILES
     src/types/void.h
     src/types/bool.h
-    src/types/int.h
+    src/types/number.h
     src/types/primitives.h
     src/types/value.h
 
@@ -123,7 +120,11 @@ install(
 add_library(
     reflect
     SHARED
-    src/reflect.cpp)
+    src/reflect.cpp
+    src/types/void.cpp
+    src/types/bool.cpp
+    src/types/number.cpp
+    src/types/value.cpp)
 
 install(TARGETS reflect DESTINATION lib)
 

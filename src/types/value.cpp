@@ -1,15 +1,18 @@
-/* value.h                                 -*- C++ -*-
-   Rémi Attab (remi.attab@gmail.com), 25 Mar 2014
+/* value.cpp                                 -*- C++ -*-
+   Rémi Attab (remi.attab@gmail.com), 31 Mar 2014
    FreeBSD-style copyright and disclaimer apply
 
-   Type for reflect::Value.
+   Value reflection impl
 */
 
-#include "reflect.h"
-#pragma once
+#include "reflect.h" // No idea why this is required...
+#include "value.h"
 
 /******************************************************************************/
 /* REFLECT VALUE                                                              */
 /******************************************************************************/
 
-reflectClassDecl(reflect::Value)
+reflectClassImpl(reflect::Value)
+{
+
+}
