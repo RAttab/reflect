@@ -42,21 +42,21 @@ struct CleanValue
 // template parameter for the return value when using the operator.
 
 #define reflectValueOpUnary(op)                 \
-    Value op() const                            \
+    Value op()                                  \
     {                                           \
         return call<Value>(#op);                \
     }
 
 #define reflectValueOpBinary(op)                                \
     template<typename Arg>                                      \
-    Value op(Arg&& arg) const                                   \
+    Value op(Arg&& arg)                                         \
     {                                                           \
         return call<Value>(#op, std::forward<Arg>(arg));        \
     }
 
 #define reflectValueOpNary(op)                                  \
     template<typename... Args>                                  \
-    Value op(Args&&... args) const                              \
+    Value op(Args&&... args)                                    \
     {                                                           \
         return call<Value>(#op, std::forward<Args>(args)...);   \
     }
@@ -102,13 +102,13 @@ struct Value
     template<typename T> bool movable() const;
 
     template<typename Ret, typename... Args>
-    Ret call(const std::string& fn, Args&&... args) const;
+    Ret call(const std::string& fn, Args&&... args);
 
     template<typename Ret>
-    Ret get(const std::string& field) const;
+    Ret get(const std::string& field);
 
     template<typename Arg>
-    void set(const std::string& field, Arg&& arg) const;
+    void set(const std::string& field, Arg&& arg);
 
     reflectValueOpBinary(operator+=)
     reflectValueOpBinary(operator-=)
@@ -160,6 +160,5 @@ private:
     void* value_;
     std::shared_ptr<void> storage;
 };
-
 
 } // reflect

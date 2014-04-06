@@ -31,7 +31,7 @@ struct Type
 
     std::vector<std::string> fields() const;
     bool hasField(const std::string& field) const;
-    const Functions& field(const std::string& field) const;
+    Functions& field(const std::string& field);
 
     template<typename T>
     bool isConvertibleTo()
@@ -49,7 +49,7 @@ struct Type
     Value construct(Args&&... args) const;
 
     template<typename Ret, typename... Args>
-    Ret call(const std::string& field, Args&&... args) const;
+    Ret call(const std::string& field, Args&&... args);
 
 
     template<typename Fn>

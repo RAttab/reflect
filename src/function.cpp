@@ -18,6 +18,21 @@ namespace reflect {
 /* FUNCTION                                                                   */
 /******************************************************************************/
 
+Function::
+~Function()
+{
+    if (fn) freeValueFunction(fn);
+}
+
+// compile time optimization. Moved all non-template related code out of the
+// template constructor. Provides ridiculous levels of speed-up in compile time.
+void
+Function::
+init(const char* name)
+{
+    name_ = name;
+}
+
 bool
 Function::
 testReturn(const Argument& value, const Argument& target) const

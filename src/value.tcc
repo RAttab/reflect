@@ -132,16 +132,16 @@ move() -> typename CleanValue<T>::type
 template<typename Ret, typename... Args>
 Ret
 Value::
-call(const std::string& fn, Args&&... args) const
+call(const std::string& fn, Args&&... args)
 {
-    const auto& field = type()->field(fn);
+    auto& field = type()->field(fn);
     return field.call<Ret>(*this, std::forward<Args>(args)...);
 }
 
 template<typename Ret>
 Ret
 Value::
-get(const std::string& field) const
+get(const std::string& field)
 {
     return call<Ret>(field);
 }
@@ -149,7 +149,7 @@ get(const std::string& field) const
 template<typename Arg>
 void
 Value::
-set(const std::string& field, Arg&& arg) const
+set(const std::string& field, Arg&& arg)
 {
     call<void>(field, std::forward<Arg>(arg));
 }

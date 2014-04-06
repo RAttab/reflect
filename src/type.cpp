@@ -56,9 +56,9 @@ hasField(const std::string& field) const
     return parent_ ? parent_->hasField(field) : false;
 }
 
-const Functions&
+Functions&
 Type::
-field(const std::string& field) const
+field(const std::string& field)
 {
     auto it = fields_.find(field);
     if (it != fields_.end()) return it->second;

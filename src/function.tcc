@@ -11,15 +11,28 @@
 namespace reflect {
 
 /******************************************************************************/
-/* REFLECT FUNCTION                                                           */
+/* REFLECT RETURN                                                             */
 /******************************************************************************/
 
 template<typename Fn>
 Argument reflectReturn()
 {
-    typedef typename GetReturnValue<Fn>::type Ret;
+    typedef typename FunctionType<Fn>::Return Ret;
     return Argument::make<Ret>();
 }
+
+
+template<typename Fn>
+void reflectReturn(Argument& ret)
+{
+    typedef typename FunctionType<Fn>::Return Ret;
+    Argument::fill<Ret>(ret);
+}
+
+
+/******************************************************************************/
+/* REFLECT ARGUMENTS                                                          */
+/******************************************************************************/
 
 /** Note that we have to use TypeVector otherwise if we're dealing purely with
     types then we'd need to define the base case like so:
@@ -48,47 +61,58 @@ void reflectArguments(std::vector<Argument>& args, TypeVector<Arg, Rest...>)
     reflectArguments(args, TypeVector<Rest...>());
 }
 
+// Compile-time optimization: Constructing the vector in the template is
+// extremely expensive when called from the Function construcctor.
+template<typename Fn>
+void reflectArguments(std::vector<Argument>& args)
+{
+    typedef typename FunctionType<Fn>::Arguments Args;
+    reflectArguments(args, Args());
+}
 
 template<typename Fn>
 std::vector<Argument> reflectArguments()
 {
-    typedef typename GetArguments<Fn>::type Args;
-
     std::vector<Argument> args;
-    reflectArguments(args, Args());
+    reflectArguments<Fn>(args);
     return args;
 }
 
-inline void reflectArguments(std::vector<Argument>&) {}
+
+/******************************************************************************/
+/* REFLECT PARAMS                                                             */
+/******************************************************************************/
+
+inline void reflectParams(std::vector<Argument>&) {}
 
 template<typename... Rest>
-void reflectArguments(
+void reflectParams(
         std::vector<Argument>& args, Value& value, Rest&&... rest)
 {
     args.emplace_back(value.argument());
-    reflectArguments(args, std::forward<Rest>(rest)...);
+    reflectParams(args, std::forward<Rest>(rest)...);
 }
 
 template<typename... Rest>
-void reflectArguments(
+void reflectParams(
         std::vector<Argument>& args, Value&& value, Rest&&... rest)
 {
     args.emplace_back(value.argument());
-    reflectArguments(args, std::forward<Rest>(rest)...);
+    reflectParams(args, std::forward<Rest>(rest)...);
 }
 
 template<typename Arg, typename... Rest>
-void reflectArguments(std::vector<Argument>& args, Arg&& arg, Rest&&... rest)
+void reflectParams(std::vector<Argument>& args, Arg&& arg, Rest&&... rest)
 {
     args.emplace_back(Argument::make(std::forward<Arg>(arg)));
-    reflectArguments(args, std::forward<Rest>(rest)...);
+    reflectParams(args, std::forward<Rest>(rest)...);
 }
 
 template<typename... Args>
-std::vector<Argument> reflectArguments(Args&&... args)
+std::vector<Argument> reflectParams(Args&&... args)
 {
     std::vector<Argument> result;
-    reflectArguments(result, std::forward<Args>(args)...);
+    reflectParams(result, std::forward<Args>(args)...);
     return result;
 }
 
@@ -99,26 +123,14 @@ std::vector<Argument> reflectArguments(Args&&... args)
 
 template<typename Fn>
 Function::
-Function(std::string name, Fn fn) :
-    name_(std::move(name))
+Function(const char* name, Fn rawFn)
+    // fn(makeValueFunction(std::move(rawFn)))
 {
-    initFn(makeFunction(std::move(fn)));
-}
+    (void) rawFn;
 
-template<typename Ret, typename... Args>
-void
-Function::
-initFn(std::function<Ret(Args...)> rawFn)
-{
-    auto typedFn = makeValueFunction(std::move(rawFn));
-
-    // std::function is stored as a single pointer (memory allocation are used
-    // to handle spill overs) which means it's "safe" to cast it to VoidFn and
-    // back. The original type can always be recovered before we make the calll.
-    fn = *reinterpret_cast<VoidFn*>(&typedFn);
-
-    ret = reflectReturn<Ret(Args...)>();
-    args = reflectArguments<Ret(Args...)>();
+    init(name);
+    reflectReturn<Fn>(ret);
+    reflectArguments<Fn>(args);
 }
 
 
@@ -140,7 +152,7 @@ Function::
 testParams(Args&&... args) const
 {
     auto otherRet = reflectReturn<Ret(Args...)>();
-    auto otherArgs = reflectArguments(std::forward<Args>(args)...);
+    auto otherArgs = reflectParams(std::forward<Args>(args)...);
 
     return testReturn(otherRet, ret)
         && testArguments(otherArgs, this->args);
@@ -149,15 +161,15 @@ testParams(Args&&... args) const
 template<typename Ret, typename... Args>
 Ret
 Function::
-call(Args&&... args) const
+call(Args&&... args)
 {
     if (!testParams<Ret>(std::forward<Args>(args)...)) {
         reflectError("<%s> is not convertible to <%s>",
                 signature<Ret(Args...)>(), signature(*this));
     }
 
-    typedef typename MakeStdValueFunction<Args...>::type Fn;
-    const auto& typedFn = *reinterpret_cast<const Fn*>(&fn);
+    typedef ValueFunction<sizeof...(Args)> Fn;
+    Fn& typedFn = *static_cast<Fn*>(fn);
 
     Value ret = typedFn(cast<Value>(std::forward<Args>(args))...);
     return retCast<Ret>(ret);
@@ -183,9 +195,9 @@ test() const
 template<typename Ret, typename... Args>
 Ret
 Functions::
-call(Args&&... args) const
+call(Args&&... args)
 {
-    for (const auto& fn : overloads) {
+    for (auto& fn : overloads) {
         if (!fn.test<Ret(Args...)>()) continue;
 
         return fn.call<Ret>(std::forward<Args>(args)...);

@@ -15,10 +15,13 @@ namespace reflect {
 /******************************************************************************/
 
 template<typename Fn> Argument reflectReturn();
+template<typename Fn> void reflectReturn(Argument& ret);
+
+template<typename Fn> void reflectArguments(std::vector<Argument>& args);
 template<typename Fn> std::vector<Argument> reflectArguments();
 
 template<typename... Args>
-std::vector<Argument> reflectArguments(Args&&... args);
+std::vector<Argument> reflectParams(Args&&... args);
 
 /******************************************************************************/
 /* FUNCTION                                                                   */
@@ -27,7 +30,9 @@ std::vector<Argument> reflectArguments(Args&&... args);
 struct Function
 {
     template<typename Fn>
-    Function(std::string name, Fn fn);
+    Function(const char* name, Fn fn);
+
+    ~Function();
 
     const std::string& name() const { return name_; }
 
@@ -42,14 +47,11 @@ struct Function
     bool test(const Function& other) const;
 
     template<typename Ret, typename... Args>
-    Ret call(Args&&... args) const;
+    Ret call(Args&&... args);
 
 private:
 
-    typedef std::function<void()> VoidFn;
-
-    template<typename Ret, typename... Args>
-    void initFn(std::function<Ret(Args...)> fn);
+    void init(const char* name);
 
     bool test(const Argument& value, const Argument& target) const;
     bool testReturn(const Argument& value, const Argument& target) const;
@@ -60,7 +62,7 @@ private:
     template<typename Ret, typename... Args>
     bool testParams(Args&&... args) const;
 
-    VoidFn fn;
+    void* fn;
     std::string name_;
 
     Argument ret;
@@ -99,7 +101,7 @@ struct Functions
     bool test(Function fn) const;
 
     template<typename Ret, typename... Args>
-    Ret call(Args&&... args) const;
+    Ret call(Args&&... args);
 
     std::string print(size_t indent = 0) const;
 

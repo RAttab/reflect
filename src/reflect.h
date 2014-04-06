@@ -28,9 +28,10 @@
 #include "utils.h"
 #include "ref_type.h"
 #include "type_vector.h"
-#include "function_traits.h"
 #include "type_name.h"
-#include "make_function.h"
+#include "function_type.h"
+// #include "function_traits.h"
+// #include "make_function.h"
 
 #include "registry.h"
 #include "argument.h"
