@@ -123,11 +123,9 @@ std::vector<Argument> reflectParams(Args&&... args)
 
 template<typename Fn>
 Function::
-Function(const char* name, Fn rawFn)
-    // fn(makeValueFunction(std::move(rawFn)))
+Function(const char* name, Fn rawFn) :
+    fn(makeValueFunction(std::move(rawFn)))
 {
-    (void) rawFn;
-
     init(name);
     reflectReturn<Fn>(ret);
     reflectArguments<Fn>(args);

@@ -167,13 +167,8 @@ auto makeValueFunction(Fn fn) -> typename MakeValueFunction<Fn>::type*
     typedef typename RepeatType<Value, FnType::ArgCount>::type Values;
     typedef ValueFunctionImpl<Fn, TypeVector<> > ValueFn;
 
-    (void) fn;
     ValueFn* ptr = (ValueFn*) std::malloc(sizeof(ValueFn));
-
-    // new (ptr) Blah<Fn, Values>();
-
     new (ptr) ValueFn(std::move(fn));
-    // (*ptr)();
     return ptr;
 }
 
