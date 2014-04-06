@@ -13,10 +13,19 @@ namespace reflect {
 /* VALUE FUNCTION                                                             */
 /******************************************************************************/
 
+void* allocValueFunction(size_t size)
+{
+    return std::malloc(size);
+}
+
 void freeValueFunction(void* fn)
 {
+    if (!fn) return;
+
     typedef ValueFunction<0> Fn;
     static_cast<Fn*>(fn)->free();
+
+    free(fn);
 }
 
 } // reflect

@@ -40,41 +40,12 @@ struct ValueFunction :
 
 
 /******************************************************************************/
-/* TEST                                                                       */
-/******************************************************************************/
-
-template<typename Vs> struct Bar;
-
-template<typename... Values>
-struct Bar< TypeVector<Values...> >
-{
-    // virtual ~Bar() {}
-    virtual Value operator() (Values...) = 0;
-};
-
-template<size_t N> 
-struct Foo : public Bar<typename RepeatType<Value, N>::type>
-{
-};
-
-
-template<typename Fn, typename Vs> struct Blah;
-
-template<typename Fn, typename... Values> 
-struct Blah< Fn, TypeVector<Values...> > // : public Foo<sizeof...(Values)>
-{
-    virtual Value operator() (Values...) { return Value(); }
-};
-
-
-
-/******************************************************************************/
 /* VALUE FUNCTION IMPL                                                        */
 /******************************************************************************/
 
 template<typename Fn, typename Values> struct ValueFunctionImpl;
 
-template<typename Fn, typename... Values> 
+template<typename Fn, typename... Values>
 struct ValueFunctionImpl< Fn, TypeVector<Values...> > :
         public ValueFunction<sizeof...(Values)>
 {
@@ -160,14 +131,16 @@ struct MakeValueFunction
 };
 
 
+void* allocValueFunction(size_t size);
+void freeValueFunction(void* fn);
+
 template<typename Fn>
 auto makeValueFunction(Fn fn) -> typename MakeValueFunction<Fn>::type*
 {
-    typedef FunctionType<Fn> FnType;
-    typedef typename RepeatType<Value, FnType::ArgCount>::type Values;
-    typedef ValueFunctionImpl<Fn, TypeVector<> > ValueFn;
+    typedef typename MakeValueFunction<Fn>::type ValueFn;
 
-    ValueFn* ptr = (ValueFn*) std::malloc(sizeof(ValueFn));
+    (void) fn;
+    ValueFn* ptr = (ValueFn*) allocValueFunction(sizeof(ValueFn));
     new (ptr) ValueFn(std::move(fn));
     return ptr;
 }
@@ -177,10 +150,10 @@ auto makeValueFunctionSafe(Fn fn) ->
     std::unique_ptr<typename MakeValueFunction<Fn>::type>
 {
     typedef typename MakeValueFunction<Fn>::type ValueFn;
+
+    reflectError("\todo unique_ptr should have a custom destructor");
     return std::unique_ptr<ValueFn>(makeValueFunction(std::move(fn)));
 }
 
-
-void freeValueFunction(void* fn);
 
 } // reflect
