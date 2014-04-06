@@ -69,7 +69,7 @@ struct ValueFunctionImpl< Fn, TypeVector<Values...> > :
 
 private:
 
-    void call(std::true_type, Value& ret, Values&... values)
+    void call(std::true_type, Value&, Values&... values)
     {
         typedef typename FnType::type type;
         typedef typename FnType::Arguments Args;
