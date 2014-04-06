@@ -14,30 +14,25 @@ namespace reflect {
 /* ARGUMENT                                                                   */
 /******************************************************************************/
 
+template<typename T>
+Argument
+Argument::
+make()
+{
+    Argument arg;
+    Argument::fill<T>(arg);
+    return arg;
+}
+
 // Compile-time optimization: Avoids the construction of Argument when possible.
 template<typename T>
 void
 Argument::
 fill(Argument& arg)
 {
-    typedef typename std::decay<T>::type CleanT;
-    arg.type_ = reflect::type<CleanT>();
+    arg.type_ = reflect::type<T>();
     arg.refType_ = makeRefType<T>();
     arg.isConst_ = reflect::isConst<T>();
-}
-
-template<typename T>
-Argument
-Argument::
-make()
-{
-    typedef typename std::decay<T>::type CleanT;
-
-    Argument arg;
-    arg.type_ = reflect::type<CleanT>();
-    arg.refType_ = makeRefType<T>();
-    arg.isConst_ = reflect::isConst<T>();
-    return arg;
 }
 
 template<typename T>
@@ -45,10 +40,8 @@ Argument
 Argument::
 make(T&& value)
 {
-    typedef typename std::decay<T>::type CleanT;
-
     Argument arg;
-    arg.type_ = reflect::type<CleanT>();
+    arg.type_ = reflect::type<T>();
     arg.refType_ = makeRefType(std::forward<T>(value));
     arg.isConst_ = reflect::isConst(std::forward<T>(value));
     return arg;
