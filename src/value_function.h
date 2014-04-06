@@ -187,9 +187,8 @@ auto makeValueFunctionSafe(Fn fn) ->
 
 inline void freeValueFunction(void* fn)
 {
-    (void) fn;
     typedef ValueFunction<0> Fn;
-    // delete static_cast<Fn*>(fn);
+    static_cast<Fn*>(fn)->free();
 }
 
 
