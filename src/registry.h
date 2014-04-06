@@ -63,10 +63,14 @@ Type* type()
     return Registry::get<T>();
 }
 
-inline Type* type(const std::string& id)
+inline Type* type(const char* id)
 {
     return Registry::get(id);
 }
 
+inline Type* type(const std::string& id)
+{
+    return Registry::get(id);
+}
 
 } // reflect
