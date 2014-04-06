@@ -154,23 +154,30 @@
 #define reflectNumOpCast(type)                                          \
     type_->add("operator " #type "()", [] (T_ value) { return (type) value; })
 
+
+// @@@@@@@
+
 #define reflectNumLimits(name)                                          \
     do {                                                                \
         auto fn = [] { return std::numeric_limits<T_>::name; };         \
-        type_->add(#name, std::function<decltype(fn())()>(fn));         \
+        type_->add(#name, fn);                                          \
     } while(false)
 
-        // auto fn = [] { return std::numeric_limits<T_>::name; };         
-        // 
+#if 0
+blah(fn);\
+reflect::makeValueFunction(fn);\
+reflect::Function(#name, fn);\
+type_->add(#name, fn);\
 
+#endif
+
+
+// @@@@@@
 
 #define reflectNumLimitsFn(name)                                        \
-    do {                                                                \
-        auto fn = [] { return std::numeric_limits<T_>::name(); };       \
-        type_->add(#name, std::function<decltype(fn())()>(fn));         \
-    } while(false)
+    type_->add(#name, [] { return std::numeric_limits<T_>::name(); })
 
- 
+
 
 namespace {
 
@@ -296,6 +303,7 @@ void reflectNumber(reflect::Type* type_)
 
 #endif
 
+#if 1
     reflectNumLimits(is_signed);
     reflectNumLimits(is_integer);
     reflectNumLimits(is_exact);
@@ -318,6 +326,8 @@ void reflectNumber(reflect::Type* type_)
     reflectNumLimits(max_exponent10);
     reflectNumLimits(traps);
     reflectNumLimits(tinyness_before);
+
+#endif
 
 #if 0
     reflectNumLimitsFn(min);
