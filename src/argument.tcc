@@ -14,6 +14,18 @@ namespace reflect {
 /* ARGUMENT                                                                   */
 /******************************************************************************/
 
+// Compile-time optimization: Avoids the construction of Argument when possible.
+template<typename T>
+void
+Argument::
+fill(Argument& arg)
+{
+    typedef typename std::decay<T>::type CleanT;
+    arg.type_ = reflect::type<CleanT>();
+    arg.refType_ = makeRefType<T>();
+    arg.isConst_ = reflect::isConst<T>();
+}
+
 template<typename T>
 Argument
 Argument::

@@ -22,6 +22,9 @@ struct Argument
     Argument(Type* type, RefType refType, bool isConst);
 
     template<typename T>
+    static void fill(Argument& arg);
+
+    template<typename T>
     static Argument make();
 
     template<typename T>
