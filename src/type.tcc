@@ -25,7 +25,7 @@ construct(Args&&... args) const
 template<typename Ret, typename... Args>
 Ret
 Type::
-call(const std::string& fn, Args&&... args) const
+call(const std::string& fn, Args&&... args)
 {
     return field(fn).call<Ret>(std::forward<Args>(args)...);
 }
@@ -34,10 +34,9 @@ call(const std::string& fn, Args&&... args) const
 template<typename Fn>
 void
 Type::
-add(const std::string& name, Fn rawFn)
+add(const char* name, Fn fn)
 {
-    Function fn(name, std::move(rawFn));
-    fields_[name].add(std::move(fn));
+    add(name, Function(name, std::move(fn)));
 }
 
 } // namespace reflect

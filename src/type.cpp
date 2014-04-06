@@ -69,6 +69,12 @@ field(const std::string& field)
     return parent_->field(field);
 }
 
+void
+Type::
+add(const char* name, Function fn)
+{
+    fields_[name].add(std::move(fn));
+}
 
 std::string
 Type::

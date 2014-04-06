@@ -53,7 +53,8 @@ struct Type
 
 
     template<typename Fn>
-    void add(const std::string& name, Fn rawFn);
+    void add(const char* name, Fn rawFn);
+    void add(const char* name, Function fn);
 
     std::string print(size_t indent = 0) const;
 
