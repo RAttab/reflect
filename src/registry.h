@@ -34,6 +34,7 @@ struct Registry
         return get(Reflect<CleanT>::id);
     }
 
+    static Type* get(const char* id);
     static Type* get(const std::string& id);
     static void add(const std::string& id, std::function<void(Type*)> loader);
 

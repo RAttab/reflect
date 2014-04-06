@@ -40,6 +40,15 @@ RegistryState& getRegistry()
 /* REGISTRY                                                                   */
 /******************************************************************************/
 
+// compile-time optimization: Avoids the std::string construction in the
+// templated get().
+Type*
+Registry::
+get(const char* id)
+{
+    return get(std::string(id));
+}
+
 Type*
 Registry::
 get(const std::string& id)
