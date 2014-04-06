@@ -15,6 +15,8 @@ project(reflect)
 enable_testing()
 
 add_definitions("-Wall -Wextra -Werror -pedantic -g -O4")
+# add_definitions("-ftime-report -time")
+add_definitions("-Wno-unused-variable")
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
