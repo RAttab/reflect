@@ -17,21 +17,31 @@ namespace reflect {
 
 template<typename T>
 Value::
-Value(T&& value) :
-    arg(Argument::make(std::forward<T>(value))),
-    value_((void*)&value) // cast-away any const
+Value(T&& value)
 {
-    if (refType() != RefType::RValue) return;
+    Value::fill(*this, std::forward<T>(value));
+}
+
+
+// compile-tile optimization: Allows Value construction in heavily used
+// templates.
+template<typename T>
+void fill(Value& obj, T&& value)
+{
+    obj.arg = Argument::make(std::forward<T>(value));
+    obj.value_ = (void*)&value; // cast-away constness
+
+    if (obj.refType() != RefType::RValue) return;
 
     typedef typename std::decay<T>::type CleanT;
     reflectStaticAssert(
             std::is_copy_constructible<CleanT>::value ||
             std::is_move_constructible<CleanT>::value);
 
-    storage.reset(value_ = new CleanT(std::forward<T>(value)));
+    obj.storage.reset(obj.value_ = new CleanT(std::forward<T>(value)));
 
     // We now own the value so we're now l-ref-ing our internal storage.
-    arg = Argument(arg.type(), RefType::LValue, false);
+    obj.arg = Argument(obj.arg.type(), RefType::LValue, false);
 }
 
 

@@ -89,59 +89,59 @@ struct ValueFunctionImpl< Fn, TypeVector<Values...> > :
     virtual Value operator() (Values... values)
     {
         typedef typename std::is_same<Ret, void>::type IsVoidRet;
-        return call(IsVoidRet(), std::move(values)...);
+
+        Value ret;
+        call(IsVoidRet(), ret, values...);
+        return ret;
     }
 
 
 private:
 
-#if 1
-    Value call(std::true_type, Values... values)
+    void call(std::true_type, Value& ret, Values&... values)
     {
         typedef typename FnType::type type;
         typedef typename FnType::Arguments Args;
 
-        call(type(), Args(), std::move(values)...);
-        return Value();
+        call(type(), Args(), values...);
     }
 
-    Value call(std::false_type, Values... values)
+    void call(std::false_type, Value& ret, Values&... values)
     {
         typedef typename FnType::type type;
         typedef typename FnType::Arguments Args;
 
-        return Value(call(type(), Args(), std::move(values)...));
+        Value::fill(ret, call(type(), Args(), values...));
     }
 
 
     template<typename... Args>
-    Ret call(GlobalFunction, TypeVector<Args...>, Values... values)
+    Ret call(GlobalFunction, TypeVector<Args...>, Values&... values)
     {
         return (*fn)(cast<Args>(values)...);
     }
 
     template<typename Obj, typename... Args, typename... Rest>
     Ret call(
-            MemberFunction, TypeVector<Obj, Args...>, 
-            Value obj, Rest... values)
+            MemberFunction, TypeVector<Obj, Args...>,
+            Value& obj, Rest&... values)
     {
         return (cast<Obj&>(obj).*fn)(cast<Args>(values)...);
     }
 
     template<typename Obj, typename... Args, typename... Rest>
     Ret call(
-            MemberFunction, TypeVector<const Obj, Args...>, 
-            Value obj, Rest... values)
+            MemberFunction, TypeVector<const Obj, Args...>,
+            Value& obj, Rest&... values)
     {
         return (cast<const Obj&>(obj).*fn)(cast<Args>(values)...);
     }
 
     template<typename... Args>
-    Ret call(FunctorFunction, TypeVector<Args...>, Values... values)
+    Ret call(FunctorFunction, TypeVector<Args...>, Values&... values)
     {
         return fn(cast<Args>(values)...);
     }
-#endif
 
     Fn fn;
 };

@@ -79,6 +79,9 @@ struct Value
     Value(Value&& other);
     Value& operator=(Value&& other);
 
+    template<typename T>
+    static void fill(Value& obj, T&& value);
+
     void* value() const { return value_; }
     Type* type() const { return arg.type(); }
     RefType refType() const { return arg.refType(); }
