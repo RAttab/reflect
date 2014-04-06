@@ -31,6 +31,19 @@ void reflectReturn(Argument& ret)
 
 
 /******************************************************************************/
+/* REFLECT ARGUMENT                                                           */
+/******************************************************************************/
+
+void reflectArgument(std::vector<Argument>& args, Argument arg);
+
+template<typename Arg>
+void reflectArgument(std::vector<Argument>& args)
+{
+    reflectArgument(args, Argument::make<Arg>());
+}
+
+
+/******************************************************************************/
 /* REFLECT ARGUMENTS                                                          */
 /******************************************************************************/
 
@@ -57,7 +70,7 @@ inline void reflectArguments(std::vector<Argument>&, TypeVector<>) {}
 template<typename Arg, typename... Rest>
 void reflectArguments(std::vector<Argument>& args, TypeVector<Arg, Rest...>)
 {
-    args.push_back(Argument::make<Arg>());
+    reflectArgument<Arg>(args);
     reflectArguments(args, TypeVector<Rest...>());
 }
 
