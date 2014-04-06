@@ -14,17 +14,14 @@ namespace reflect {
 /* REFLECT FN                                                                 */
 /******************************************************************************/
 
-template<typename Fn>
-void reflectFunction(Type* type, std::string name, Fn fn)
-{
-    type->add(std::move(name), std::move(fn));
-}
+#define reflectFn(fn) \
+    type_->add(#fn, reflect::Function(#fn, &T_::fn))
 
-#define reflectFn(fn)                           \
-    reflect::reflectFunction(type_, #fn, &T_::fn)
+#define reflectFnTyped(fn, signature) \
+    type_->add(#fn, reflect::Function(#fn, (signature) &T_::fn))
 
-#define reflectFnTyped(fn, signature)           \
-    reflect::reflectFunction<signature>(type_, #fn, &T_::fn)
+#define reflectLambda(name, fn) \
+    type_->add(name, reflect::Function(name, std::move(fn)))
 
 
 /******************************************************************************/
@@ -48,13 +45,8 @@ private:
     std::string name;
 };
 
-AddLambdaToType reflectLambda(Type* type, std::string name)
-{
-    return AddLambdaToType(type, std::move(name));
-}
-
-#define reflectCustom(name)                     \
-    reflect::reflectLambda(type_, #name) += []
+#define reflectCustom(name)                             \
+    reflect::AddLambdaToType(type_, #name) += []
 
 
 } // reflect

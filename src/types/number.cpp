@@ -9,6 +9,7 @@
 
 #include "primitives.h"
 #include "reflect/constructor.h"
+#include "reflect/function.h"
 
 #include <limits>
 
@@ -42,8 +43,11 @@
 /* MACROS                                                                     */
 /******************************************************************************/
 
-#define reflectNumOpBinaryImpl(op, type)             \
-    type_->add("operator" #op, [] (T_ lhs, type rhs) { return lhs op rhs; })
+#define reflectNumOpBinaryImpl(op, type)                                \
+    do {                                                                \
+        auto fn = [] (T_ lhs, type rhs) { return lhs op rhs; };         \
+        reflectLambda("operator" #op, fn);                              \
+    } while(false)
 
 #define reflectNumOpBinary(op)                                  \
     do {                                                        \
@@ -108,8 +112,11 @@
     } while (false)
 
 
-#define reflectNumOpAssignImpl(op, type)             \
-    type_->add("operator" #op, [] (T_& lhs, type rhs) { return lhs op rhs; })
+#define reflectNumOpAssignImpl(op, type)                                \
+    do {                                                                \
+        auto fn = [] (T_& lhs, type rhs) { return lhs op rhs; };        \
+        reflectLambda("operator" #op, fn);                              \
+    } while (false)
 
 #define reflectNumOpAssign(op)                                  \
     do {                                                        \
@@ -152,30 +159,23 @@
     } while (false)
 
 #define reflectNumOpCast(type)                                          \
-    type_->add("operator " #type "()", [] (T_ value) { return (type) value; })
+    do {                                                                \
+        auto fn = [] (T_ value) { return (type) value; }                \
+        reflectLambda("operator " #type "()", fn);                      \
+    } while(false)
 
-
-// @@@@@@@
 
 #define reflectNumLimits(name)                                          \
     do {                                                                \
         auto fn = [] { return std::numeric_limits<T_>::name; };         \
-        type_->add(#name, fn);                                          \
-    } while(false)
-
-#if 0
-blah(fn);\
-reflect::makeValueFunction(fn);\
-reflect::Function(#name, fn);\
-type_->add(#name, fn);\
-
-#endif
-
-
-// @@@@@@
+        reflectLambda(#name, fn);                                       \
+    } while (false)
 
 #define reflectNumLimitsFn(name)                                        \
-    type_->add(#name, [] { return std::numeric_limits<T_>::name(); })
+    do {                                                                \
+        auto fn = [] { return std::numeric_limits<T_>::name(); };       \
+        reflectLambda(#name, fn);                                       \
+    } while (false)
 
 
 
