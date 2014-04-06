@@ -180,11 +180,7 @@ auto makeValueFunctionSafe(Fn fn) ->
     return std::unique_ptr<ValueFn>(makeValueFunction(std::move(fn)));
 }
 
-inline void freeValueFunction(void* fn)
-{
-    typedef ValueFunction<0> Fn;
-    static_cast<Fn*>(fn)->free();
-}
 
+void freeValueFunction(void* fn);
 
 } // reflect
