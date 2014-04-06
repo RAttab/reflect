@@ -47,12 +47,10 @@ template<typename Fn, typename Values> struct ValueFunctionImpl;
 
 template<typename Fn, typename... Values>
 struct ValueFunctionImpl< Fn, TypeVector<Values...> > :
-        public ValueFunction<sizeof...(Values)>
+    public ValueFunction<sizeof...(Values)>
 {
     typedef FunctionType<Fn> FnType;
     typedef typename FnType::Return Ret;
-
-    ValueFunctionImpl(Fn fn) : fn(std::move(fn)) {}
 
     // Compile-time optimization. See ValueFunctionBase::free()
     virtual void free() { this->~ValueFunctionImpl(); }
@@ -66,8 +64,6 @@ struct ValueFunctionImpl< Fn, TypeVector<Values...> > :
         return ret;
     }
 
-
-private:
 
     void call(std::true_type, Value&, Values&... values)
     {
@@ -139,9 +135,12 @@ auto makeValueFunction(Fn fn) -> typename MakeValueFunction<Fn>::type*
 {
     typedef typename MakeValueFunction<Fn>::type ValueFn;
 
-    (void) fn;
     ValueFn* ptr = (ValueFn*) allocValueFunction(sizeof(ValueFn));
-    new (ptr) ValueFn(std::move(fn));
+
+    // Compile time optimization: Bypass the ValueFn constructor for huge
+    // savings. Risky but worth it.
+    new (&ptr->fn) Fn(std::move(fn));
+
     return ptr;
 }
 
