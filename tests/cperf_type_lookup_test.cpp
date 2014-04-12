@@ -7,13 +7,19 @@
    In other words, if we have thousands of reflected types in our project,
    what's the overhead of looking up one of those types. gcc 4.7 seems to have a
    complexity of O(1) as was expected.
- */
+
+*/
 
 #include "reflect.h"
 
 #include <boost/test/unit_test.hpp>
 
 using namespace reflect;
+
+
+/******************************************************************************/
+/* REFLECT THING                                                              */
+/******************************************************************************/
 
 #define reflectThing1Impl(name)                 \
     struct name {};                             \
@@ -60,13 +66,17 @@ using namespace reflect;
     reflectThing100()
 
 
+/******************************************************************************/
+/* MAIN                                                                       */
+/******************************************************************************/
+
 reflectThing1000()
 
 struct Target {};
 reflectClass(Target) {}
 
+
 int main(int, char**)
 {
     (void) type<Target>();
-    (void) type<Thing_100>();
 }
