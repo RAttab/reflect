@@ -1,15 +1,18 @@
-/* bool.h                                 -*- C++ -*-
-   Rémi Attab (remi.attab@gmail.com), 30 Mar 2014
+/* primitive_bool.cpp                                 -*- C++ -*-
+   Rémi Attab (remi.attab@gmail.com), 12 Apr 2014
    FreeBSD-style copyright and disclaimer apply
 
-   Bool reflection.
+   Bool reflection
 */
 
-#include "reflect.h"
-#pragma once
+#include "primitives.h"
+#include "reflect/constructor.h"
 
 /******************************************************************************/
 /* REFLECT BOOL                                                               */
 /******************************************************************************/
 
-reflectClass(bool) {}
+reflectClassImpl(bool)
+{
+    reflectConsBasics();
+}

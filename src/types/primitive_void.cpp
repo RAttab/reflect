@@ -1,15 +1,14 @@
-/* void.h                                 -*- C++ -*-
-   Rémi Attab (remi.attab@gmail.com), 25 Mar 2014
+/* primitive_void.cpp                                 -*- C++ -*-
+   Rémi Attab (remi.attab@gmail.com), 12 Apr 2014
    FreeBSD-style copyright and disclaimer apply
 
-   Type for void.
+   Void reflection
 */
 
-#include "reflect.h"
-#pragma once
+#include "primitives.h"
 
 /******************************************************************************/
 /* REFLECT VOID                                                               */
 /******************************************************************************/
 
-reflectClass(void) {}
+reflectClassImpl(void) {}

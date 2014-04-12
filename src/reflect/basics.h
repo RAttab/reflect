@@ -26,4 +26,12 @@ void reflectParent_(Type* type)
         reflect::reflectParent_<parent>(type_);                         \
     } while(false)
 
+
+/******************************************************************************/
+/* REFLECT ALIAS                                                              */
+/******************************************************************************/
+
+#define reflectAlias(type) \
+    reflect::Registry::alias<type>(#type)
+
 } // reflect

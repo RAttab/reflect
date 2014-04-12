@@ -5,9 +5,30 @@
    Include headers for all primitive types.
 */
 
-#include "reflect.h"
 #pragma once
 
-#include "void.h"
-#include "bool.h"
-#include "int.h"
+#include "reflect.h"
+#include "reflect/class.h"
+
+/******************************************************************************/
+/* REFLECT PRIMITIVES                                                         */
+/******************************************************************************/
+
+reflectClassDecl(void)
+
+reflectClassDecl(bool)
+
+reflectClassDecl(signed char)
+reflectClassDecl(unsigned char)
+
+reflectClassDecl(short int)
+reflectClassDecl(unsigned short int)
+
+reflectClassDecl(int)
+reflectClassDecl(unsigned int)
+
+reflectClassDecl(long int)
+reflectClassDecl(unsigned long int)
+
+reflectClassDecl(long long int)
+reflectClassDecl(unsigned long long int)

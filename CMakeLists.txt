@@ -74,6 +74,20 @@ endif()
 
 include_directories("${PROJECT_SOURCE_DIR}/src")
 
+add_library(reflect SHARED
+    src/reflect.cpp
+    src/types/primitives.cpp
+    src/types/primitive_void.cpp
+    src/types/primitive_bool.cpp
+    src/types/primitive_char.cpp
+    src/types/primitive_short.cpp
+    src/types/primitive_int.cpp
+    src/types/primitive_long.cpp
+    src/types/primitive_long_long.cpp
+    src/types/value.cpp)
+
+install(TARGETS reflect DESTINATION lib)
+
 install(
     FILES
     src/argument.h

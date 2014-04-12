@@ -5,14 +5,12 @@
    Type for reflect::Value.
 */
 
-#include "reflect.h"
 #pragma once
+
+#include "reflect.h"
 
 /******************************************************************************/
 /* REFLECT VALUE                                                              */
 /******************************************************************************/
 
-reflectClass(reflect::Value)
-{
-    // \todo Reflect Value
-}
+reflectClassDecl(reflect::Value)
