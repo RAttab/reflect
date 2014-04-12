@@ -134,22 +134,20 @@ install(
     DESTINATION
     include/reflect/reflect)
 
-add_library(
-    reflect
-    SHARED
-    src/reflect.cpp)
-
-install(TARGETS reflect DESTINATION lib)
-
 
 #------------------------------------------------------------------------------#
 # TESTS
 #------------------------------------------------------------------------------#
 
+add_library(reflect_test SHARED
+    tests/test_types.cpp)
+
 function(reflect_test name)
     if(CMAKE_SOURCE_DIR STREQUAL ${PROJECT_SOURCE_DIR})
         add_executable(${name}_test tests/${name}_test.cpp)
-        target_link_libraries(${name}_test reflect boost_unit_test_framework)
+        target_link_libraries(${name}_test reflect)
+        target_link_libraries(${name}_test reflect_test)
+        target_link_libraries(${name}_test boost_unit_test_framework)
         add_test(${name} bin/${name}_test)
     endif()
 endfunction()
