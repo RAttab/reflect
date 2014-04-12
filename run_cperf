@@ -1,0 +1,13 @@
+#! /bin/bash
+
+# Rémi Attab (remi.attab@gmail.com), 12 Apr 2014
+# FreeBSD-style copyright and disclaimer apply
+
+# Small utility to run compile performance tests.
+
+
+TEST_NAME=cperf_$1_test
+
+nice make -kj8 reflect \
+    && touch tests/$TEST_NAME.cpp \
+    && time make $TEST_NAME \
