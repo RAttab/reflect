@@ -32,6 +32,12 @@ struct Function
     template<typename Fn>
     Function(const char* name, Fn fn);
 
+    Function(const Function&) = delete;
+    Function& operator=(const Function&) = delete;
+
+    Function(Function&&);
+    Function& operator=(Function&&);
+
     ~Function();
 
     const std::string& name() const { return name_; }
@@ -90,15 +96,17 @@ std::string signature()
 
 struct Functions
 {
+    ~Functions();
+
     size_t size() const { return overloads.size(); }
-    Function& operator[] (size_t i) { return overloads[i]; }
-    const Function& operator[] (size_t i) const { return overloads[i]; }
+    Function& operator[] (size_t i) { return *overloads[i]; }
+    const Function& operator[] (size_t i) const { return *overloads[i]; }
 
     void add(Function fn);
 
     template<typename Fn>
     bool test() const;
-    bool test(Function fn) const;
+    bool test(const Function& fn) const;
 
     template<typename Ret, typename... Args>
     Ret call(Args&&... args);
@@ -106,7 +114,7 @@ struct Functions
     std::string print(size_t indent = 0) const;
 
 private:
-    std::vector<Function> overloads;
+    std::vector<Function*> overloads;
 };
 
 } // reflect

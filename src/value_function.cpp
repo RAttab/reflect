@@ -28,4 +28,11 @@ void freeValueFunction(void* fn)
     free(fn);
 }
 
+void 
+ValueFunctionDestructor::
+operator() (void* ptr) const
+{
+    freeValueFunction(ptr);
+}
+
 } // reflect

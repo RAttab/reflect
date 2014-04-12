@@ -17,15 +17,15 @@ namespace reflect {
 template<typename... Args>
 Value
 Type::
-construct(Args&&... args) const
+construct(Args&&... args)
 {
-    return call<Value>(id(), std::forward<Args>(args)...);
+    return call<Value>(id().c_str(), std::forward<Args>(args)...);
 }
 
 template<typename Ret, typename... Args>
 Ret
 Type::
-call(const std::string& fn, Args&&... args)
+call(const char* fn, Args&&... args)
 {
     return field(fn).call<Ret>(std::forward<Args>(args)...);
 }

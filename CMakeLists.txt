@@ -101,6 +101,7 @@ install(
     src/types/void.h
     src/types/bool.h
     src/types/number.h
+    src/types/number.tcc
     src/types/primitives.h
     src/types/value.h
 
@@ -125,7 +126,11 @@ add_library(
     src/reflect.cpp
     src/types/void.cpp
     src/types/bool.cpp
-    src/types/number.cpp
+    src/types/number_aliases.cpp
+    src/types/number_char.cpp
+    src/types/number_float.cpp
+    src/types/number_int.cpp
+    src/types/number_long.cpp
     src/types/value.cpp)
 
 install(TARGETS reflect DESTINATION lib)
@@ -148,3 +153,4 @@ reflect_test(value)
 reflect_test(value_function)
 reflect_test(function)
 reflect_test(reflection)
+reflect_test(blah)

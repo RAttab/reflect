@@ -46,10 +46,10 @@ struct Type
     bool isMovable() const { return true; }
 
     template<typename... Args>
-    Value construct(Args&&... args) const;
+    Value construct(Args&&... args);
 
     template<typename Ret, typename... Args>
-    Ret call(const std::string& field, Args&&... args);
+    Ret call(const char* field, Args&&... args);
 
 
     template<typename Fn>

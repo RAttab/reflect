@@ -197,7 +197,7 @@ Functions::
 test() const
 {
     for (const auto& fn : overloads) {
-        if (fn.test<Fn>()) return true;
+        if (fn->test<Fn>()) return true;
     }
     return false;
 
@@ -209,9 +209,9 @@ Functions::
 call(Args&&... args)
 {
     for (auto& fn : overloads) {
-        if (!fn.test<Ret(Args...)>()) continue;
+        if (!fn->test<Ret(Args...)>()) continue;
 
-        return fn.call<Ret>(std::forward<Args>(args)...);
+        return fn->call<Ret>(std::forward<Args>(args)...);
     }
 
     reflectError("no overloads available for <%s>", signature<Ret(Args...)>());

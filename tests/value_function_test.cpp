@@ -29,16 +29,21 @@ void foo(unsigned& value, int other)
 
 BOOST_AUTO_TEST_CASE(fn)
 {
+    printf("@@@ A\n");
     auto valueFn = makeValueFunctionSafe(&foo);
+    printf("@@@ B\n");
 
     unsigned value = 0;
 
+    printf("@@@ C\n");
     Value ret = (*valueFn)(Value(value), Value(10));
+    printf("@@@ D\n");
     BOOST_CHECK(ret.isVoid());
     BOOST_CHECK_EQUAL(value, 10);
 
     (*valueFn)(Value(value), Value(10));
     BOOST_CHECK_EQUAL(value, 20);
+
 }
 
 

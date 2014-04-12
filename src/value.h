@@ -105,13 +105,13 @@ struct Value
     template<typename T> bool movable() const;
 
     template<typename Ret, typename... Args>
-    Ret call(const std::string& fn, Args&&... args);
+    Ret call(const char* fn, Args&&... args);
 
     template<typename Ret>
-    Ret get(const std::string& field);
+    Ret get(const char* field);
 
     template<typename Arg>
-    void set(const std::string& field, Arg&& arg);
+    void set(const char* field, Arg&& arg);
 
     reflectValueOpBinary(operator+=)
     reflectValueOpBinary(operator-=)

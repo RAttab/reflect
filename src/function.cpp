@@ -30,10 +30,36 @@ void reflectArgument(std::vector<Argument>& args, Argument arg)
 /******************************************************************************/
 
 Function::
+Function(Function&& other) :
+    fn(other.fn),
+    name_(std::move(other.name_)),
+    ret(std::move(other.ret)),
+    args(std::move(other.args))
+{
+    other.fn = nullptr;
+}
+    
+Function& 
+Function::
+operator=(Function&& other)
+{
+    if (this == &other) return *this;
+
+    fn = other.fn;
+    other.fn = nullptr;
+    name_ = std::move(other.name_);
+    ret = std::move(other.ret);
+    args = std::move(other.args);
+        
+    return *this;
+}
+
+Function::
 ~Function()
 {
     if (fn) freeValueFunction(fn);
 }
+
 
 // compile time optimization. Moved all non-template related code out of the
 // template constructor. Provides ridiculous levels of speed-up in compile time.
@@ -118,27 +144,33 @@ signature(const Argument& ret, const std::vector<Argument>& args)
 /* FUNCTIONS                                                                  */
 /******************************************************************************/
 
+Functions::
+~Functions()
+{
+    for (auto fn : overloads) delete fn;
+}
+
 void
 Functions::
 add(Function fn)
 {
     for (const auto& other : overloads) {
-        if (!fn.test(other)) continue;
+        if (!fn.test(*other)) continue;
 
         reflectError("<%s, %s> is ambiguous with <%s, %s>",
                 fn.name(), signature(fn),
-                other.name(), signature(other));
+                other->name(), signature(*other));
     }
 
-    overloads.push_back(fn);
+    overloads.push_back(new Function(std::move(fn)));
 }
 
 bool
 Functions::
-test(Function fn) const
+test(const Function& fn) const
 {
     for (const auto& other : overloads) {
-        if (fn.test(other)) return true;
+        if (fn.test(*other)) return true;
     }
     return false;
 }
@@ -151,7 +183,7 @@ print(size_t indent) const
     std::string pad(indent, ' ');
 
     for (const auto& fn : overloads)
-        ss << pad << signature(fn) << "\n";
+        ss << pad << signature(*fn) << "\n";
 
     return ss.str();
 }

@@ -21,7 +21,7 @@ template<typename T,
     class = typename std::enable_if<std::is_default_constructible<T>::value>::type>
 void reflectConsDefault(Type* type)
 {
-    type->add(type->id(), [] { return T(); });
+    type->add(type->id().c_str(), [] { return T(); });
 }
 
 template<typename>
@@ -36,7 +36,7 @@ template<typename T,
     class = typename std::enable_if<std::is_copy_constructible<T>::value>::type>
 void reflectConsCopy(Type* type)
 {
-    type->add(type->id(), [] (const T& other) { return T(other); });
+    type->add(type->id().c_str(), [] (const T& other) { return T(other); });
 }
 
 template<typename>
@@ -51,7 +51,7 @@ template<typename T,
     class = typename std::enable_if<std::is_move_constructible<T>::value>::type>
 void reflectConsMove(Type* type)
 {
-    type->add(type->id(), [] (T&& other) { return T(std::move(other)); });
+    type->add(type->id().c_str(), [] (T&& other) { return T(std::move(other)); });
 }
 
 template<typename>
@@ -111,7 +111,7 @@ void reflectOpAssignMove(...) {}
 template<typename T, typename... Args>
 void reflectCons_(Type* type)
 {
-    type->add(type->id(), [] (Args... args) {
+    type->add(type->id().c_str(), [] (Args... args) {
                 return T(std::forward<Args>(args)...);
             });
 }

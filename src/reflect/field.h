@@ -17,16 +17,16 @@ namespace reflect {
 
 template<typename T, typename Obj,
     class = typename std::enable_if<!std::is_same<T, void>::value>::type>
-void reflectGetter(Type* type, std::string name, T (Obj::* getter)() const)
+void reflectGetter(Type* type, const char* name, T (Obj::* getter)() const)
 {
-    type->add(std::move(name), getter);
+    type->add(name, getter);
 }
 
 template<typename T, typename Obj,
     class = typename std::enable_if<!std::is_same<T, void>::value>::type>
-void reflectGetter(Type* type, std::string name, T (Obj::* getter)())
+void reflectGetter(Type* type, const char* name, T (Obj::* getter)())
 {
-    type->add(std::move(name), getter);
+    type->add(name, getter);
 }
 
 template<typename...>
@@ -39,9 +39,9 @@ void reflectGetter(...) {}
 
 template<typename T, typename Obj,
     class = typename std::enable_if<!std::is_same<T, void>::value>::type>
-void reflectSetter(Type* type, std::string name, void (Obj::* setter)(T))
+void reflectSetter(Type* type, const char* name, void (Obj::* setter)(T))
 {
-    type->add(std::move(name), setter);
+    type->add(name, setter);
 }
 
 template<typename...>
@@ -71,27 +71,21 @@ struct IsMemberPtr
 
 template<typename T, typename Obj,
     class = typename std::enable_if<IsMemberPtr<T, Obj>::value>::type>
-void reflectMember(Type* type, std::string name, T Obj::* field)
+void reflectMember(Type* type, const char* name, T Obj::* field)
 {
-    type->add(std::move(name),
-            [=] (const Obj& obj) -> const T& {
-                return obj.*field;
-            });
+    auto getter = [=] (const Obj& obj) -> const T& { return obj.*field; };
+    type->add(name, reflect::Function(name, getter));
 
-    type->add(std::move(name),
-            [=] (Obj& obj, T value) {
-                obj.*field = std::move(value);
-            });
+    auto setter = [=] (Obj& obj, T value) { obj.*field = std::move(value); };
+    type->add(name, reflect::Function(name, setter));
 }
 
 template<typename T, typename Obj,
     class = typename std::enable_if<IsMemberPtr<T, Obj>::value>::type>
-void reflectMember(Type* type, std::string name, T const Obj::* field)
+void reflectMember(Type* type, const char* name, T const Obj::* field)
 {
-    type->add(std::move(name),
-            [=] (const Obj& obj) -> const T& {
-                return obj.*field;
-            });
+    auto fn = [=] (const Obj& obj) -> const T& { return obj.*field; };
+    type->add(name, reflect::Function(name, fn));
 }
 
 // Used to disambiguate fields that have both getter and setter.

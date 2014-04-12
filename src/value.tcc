@@ -26,7 +26,9 @@ Value(T&& value)
 // compile-tile optimization: Allows Value construction in heavily used
 // templates.
 template<typename T>
-void fill(Value& obj, T&& value)
+void 
+Value::
+fill(Value& obj, T&& value)
 {
     obj.arg = Argument::make(std::forward<T>(value));
     obj.value_ = (void*)&value; // cast-away constness
@@ -142,7 +144,7 @@ move() -> typename CleanValue<T>::type
 template<typename Ret, typename... Args>
 Ret
 Value::
-call(const std::string& fn, Args&&... args)
+call(const char* fn, Args&&... args)
 {
     auto& field = type()->field(fn);
     return field.call<Ret>(*this, std::forward<Args>(args)...);
@@ -151,7 +153,7 @@ call(const std::string& fn, Args&&... args)
 template<typename Ret>
 Ret
 Value::
-get(const std::string& field)
+get(const char* field)
 {
     return call<Ret>(field);
 }
@@ -159,7 +161,7 @@ get(const std::string& field)
 template<typename Arg>
 void
 Value::
-set(const std::string& field, Arg&& arg)
+set(const char* field, Arg&& arg)
 {
     call<void>(field, std::forward<Arg>(arg));
 }

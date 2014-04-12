@@ -118,8 +118,8 @@ reflectClass(test::Foo)
     reflectField(rValue);
 
     reflectFn(fn);
-    reflectFnTyped(staticFn, int(int, int));
-    reflectFnTyped(staticFn, int(int, int, int));
+    reflectFnTyped(staticFn, int(*)(int, int));
+    reflectFnTyped(staticFn, int(*)(int, int, int));
 
     reflectCustom(custom) (test::Foo& obj, int a, int b) {
         obj.setter(a + b);
@@ -133,7 +133,7 @@ reflectClass(test::Foo)
 
 BOOST_AUTO_TEST_CASE(basics)
 {
-    Type* typeInt type("uint64_t");
+    Type* typeInt = type("uint64_t");
     std::cerr << typeInt->print() << std::endl;
 
     Type* typeBar = type("test::Bar");

@@ -26,9 +26,9 @@ namespace reflect {
 
 #define reflectOpFn(op, name)                                   \
     template<typename T, class = decltype(&T::op)>              \
-    void reflectOpName(name) (Type* type, std::string name)     \
+    void reflectOpName(name) (Type* type, const char* name)     \
     {                                                           \
-        reflectFunction(type, name, &T::op);                    \
+        type->add(name, reflect::Function(name, &T::op));       \
     }                                                           \
                                                                 \
     template<typename>                                          \
@@ -44,9 +44,9 @@ namespace reflect {
 #define reflectOpTypedFn(op, name, signature)                           \
     template<typename T,                                                \
         class = decltype( static_cast<signature>(&T::op) )>             \
-    void reflectOpName(name) (Type* type, std::string name)             \
+    void reflectOpName(name) (Type* type, const char* name)             \
     {                                                                   \
-        reflectFunction<signature>(type, name, &T::op);                 \
+        type->add(name, reflect::Function(name, (signature) &T::op));   \
     }                                                                   \
                                                                         \
     template<typename>                                                  \

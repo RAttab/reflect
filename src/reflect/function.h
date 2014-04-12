@@ -30,19 +30,19 @@ namespace reflect {
 
 struct AddLambdaToType
 {
-    AddLambdaToType(Type* type, std::string name) :
-        type(type), name(std::move(name))
+    AddLambdaToType(Type* type, const char* name) :
+        type(type), name(name)
     {}
 
     template<typename Fn>
     void operator+= (Fn fn)
     {
-        type->add(std::move(name), std::move(fn));
+        type->add(name, reflect::Function(name, std::move(fn)));
     }
 
 private:
     Type* type;
-    std::string name;
+    const char* name;
 };
 
 #define reflectCustom(name)                             \

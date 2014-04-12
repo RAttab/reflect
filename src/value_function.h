@@ -57,6 +57,7 @@ struct ValueFunctionImpl< Fn, TypeVector<Values...> > :
 
     virtual Value operator() (Values... values)
     {
+        printf("@@@ ValueFunctionCall\n");
         typedef typename std::is_same<Ret, void>::type IsVoidRet;
 
         Value ret;
@@ -137,21 +138,32 @@ auto makeValueFunction(Fn fn) -> typename MakeValueFunction<Fn>::type*
 
     ValueFn* ptr = (ValueFn*) allocValueFunction(sizeof(ValueFn));
 
+
     // Compile time optimization: Bypass the ValueFn constructor for huge
     // savings. Risky but worth it.
     new (&ptr->fn) Fn(std::move(fn));
 
+    printf("@@@ construct: this=%p, ValueFn=%p\n", 
+            (void*) &makeValueFunction, (void*) ptr);
+
     return ptr;
 }
 
+struct ValueFunctionDestructor
+{
+    void operator() (void* ptr) const;
+};
+
 template<typename Fn>
 auto makeValueFunctionSafe(Fn fn) ->
-    std::unique_ptr<typename MakeValueFunction<Fn>::type>
+    std::unique_ptr<
+        typename MakeValueFunction<Fn>::type, 
+        ValueFunctionDestructor>
 {
     typedef typename MakeValueFunction<Fn>::type ValueFn;
+    typedef std::unique_ptr<ValueFn, ValueFunctionDestructor> Ptr;
 
-    reflectError("\todo unique_ptr should have a custom destructor");
-    return std::unique_ptr<ValueFn>(makeValueFunction(std::move(fn)));
+    return Ptr(makeValueFunction(std::move(fn)));
 }
 
 
