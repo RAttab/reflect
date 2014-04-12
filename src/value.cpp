@@ -6,7 +6,6 @@
 */
 
 #include "reflect.h"
-#include "types/void.h"
 
 namespace reflect {
 

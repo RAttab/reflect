@@ -40,8 +40,8 @@ const T&
 Value::
 get() const
 {
-    if (!type()->isConvertibleTo<T>()) {
-        reflectError("<%s> is not convertible to <%s>",
+    if (!type()->isChildOf<T>()) {
+        reflectError("<%s> is not a base of <%s>",
                 type()->id(), reflect::type<T>()->id());
     }
 
@@ -52,10 +52,9 @@ get() const
 template<typename T>
 bool
 Value::
-castable() const
+isCastable() const
 {
-    typedef typename CleanRef<T>::type Target;
-    return !isVoid() && arg.isConvertibleTo<Target>();
+    return arg.isConvertibleTo<T>();
 }
 
 template<typename T>
@@ -63,10 +62,12 @@ auto
 Value::
 cast() const -> typename CleanRef<T>::type
 {
-    if (!castable<T>()) {
+    if (!isCastable<T>()) {
         reflectError("<%s> is not castable to <%s>",
                 arg.print(), printArgument<T>());
     }
+
+    // no conversion can take place if we're returning a ref.
 
     typedef typename std::decay<T>::type CleanT;
     return *static_cast<CleanT*>(value_);
@@ -74,14 +75,26 @@ cast() const -> typename CleanRef<T>::type
 
 
 template<typename T>
+T
+Value::
+convert() const
+{
+    reflectStaticAssert((std::is_same< T, typename std::decay<T>::type>::value));
+
+    auto& converter = type()->converter<T>();
+    return converter.call<T>(*this);
+}
+
+
+template<typename T>
 bool
 Value::
-copiable() const
+isCopiable() const
 {
-    typedef typename CleanValue<T>::type Target;
-    return !isVoid()
-        && type()->isCopiable()
-        && arg.isConvertibleTo<Target>();
+    typedef typename std::decay<T>::type CleanT;
+
+    return type()->isCopiable()
+        && (type()->isChildOf<CleanT>() || type()->hasConverter<CleanT>());
 }
 
 template<typename T>
@@ -89,26 +102,31 @@ auto
 Value::
 copy() const -> typename CleanValue<T>::type
 {
-    if (!copiable<T>()) {
+    if (!isCopiable<T>()) {
         reflectError("<%s> is not copiable to <%s>",
                 arg.print(), printArgument<T>());
     }
 
-    typedef typename std::decay<T>::type CleanT;
-    return *static_cast<CleanT*>(value_);
+    typedef typename std::remove_const<T>::type CleanT;
+
+    if (type()->isChildOf<CleanT>())
+        return *static_cast<CleanT*>(value_);
+
+    return convert<CleanT>();
 }
 
 
 template<typename T>
 bool
 Value::
-movable() const
+isMovable() const
 {
-    typedef typename CleanValue<T>::type Target;
-    return !isVoid()
-        && type()->isMovable()
+    reflectStaticAssert(!std::is_lvalue_reference<T>::value);
+    typedef typename std::decay<T>::type CleanT;
+
+    return type()->isMovable()
         && !isConst()
-        && arg.isConvertibleTo<Target>();
+        && (type()->isChildOf<CleanT>() || type()->hasConverter<CleanT>());
 }
 
 template<typename T>
@@ -116,16 +134,19 @@ auto
 Value::
 move() -> typename CleanValue<T>::type
 {
-    if (!movable<T>()) {
+    if (!isMovable<T>()) {
         reflectError("<%s> is not movable to <%s>",
                 arg.print(), printArgument<T>());
     }
 
     typedef typename std::decay<T>::type CleanT;
 
-    CleanT value = std::move(*static_cast<CleanT*>(value_));
+    CleanT value = type()->isChildOf<CleanT>() ?
+        std::move(*static_cast<CleanT*>(value_)) :
+        convert<CleanT>();
+
     *this = Value();
-    return value;
+    return std::move(value);
 }
 
 

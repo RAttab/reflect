@@ -19,7 +19,7 @@ namespace reflect {
 struct Argument
 {
     Argument();
-    Argument(Type* type, RefType refType, bool isConst);
+    Argument(const Type* type, RefType refType, bool isConst);
 
     template<typename T>
     static Argument make();
@@ -27,7 +27,7 @@ struct Argument
     template<typename T>
     static Argument make(T&&);
 
-    Type* type() const { return type_; }
+    const Type* type() const { return type_; }
     RefType refType() const { return refType_; }
     bool isConst() const { return isConst_; }
     bool isVoid() const;
@@ -42,7 +42,7 @@ struct Argument
     bool isConvertibleTo(const Argument& other) const;
 
 private:
-    Type* type_;
+    const Type* type_;
     RefType refType_;
     bool isConst_;
 };

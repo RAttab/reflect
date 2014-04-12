@@ -34,16 +34,23 @@ struct Type
     const Functions& field(const std::string& field) const;
 
     template<typename T>
-    bool isConvertibleTo()
-    {
-        return isConvertibleTo(type<T>());
-    }
-    bool isConvertibleTo(Type* other);
+    bool isParentOf() const { return isParentOf(type<T>()); }
+    bool isParentOf(const Type* other) const;
 
+    template<typename T>
+    bool isChildOf() const { return isChildOf(type<T>()); }
+    bool isChildOf(const Type* other) const;
 
-    // \todo implement
-    bool isCopiable() const { return true; }
-    bool isMovable() const { return true; }
+    template<typename T>
+    bool hasConverter() const { return hasConverter(type<T>()); }
+    bool hasConverter(const Type* other) const;
+
+    template<typename T>
+    const Function& converter() const { return converter(type<T>()); }
+    const Function& converter(const Type* other) const;
+
+    bool isCopiable() const;
+    bool isMovable() const;
 
     template<typename... Args>
     Value construct(Args&&... args) const;

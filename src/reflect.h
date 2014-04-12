@@ -47,5 +47,5 @@
 
 #include "reflect/class.h"
 
-#include "types/void.h"
+#include "types/primitives.h"
 #include "types/value.h"

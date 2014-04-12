@@ -18,11 +18,62 @@ namespace reflect {
 
 bool
 Type::
-isConvertibleTo(Type* other)
+isChildOf(const Type* other) const
+{
+    return other->isParentOf(this);
+}
+
+bool
+Type::
+isParentOf(const Type* other) const
 {
     return this == other
-        || (parent_ && parent_->isConvertibleTo(other));
+        || (parent_ && parent_->isParentOf(other));
 }
+
+bool
+Type::
+hasConverter(const Type* other) const
+{
+    return hasField("operator " + other->id() + "()");
+}
+
+const Function&
+Type::
+converter(const Type* other) const
+{
+    auto& fns = field("operator " + other->id() + "()");
+
+    if (fns.size() > 1) {
+        reflectError("<%s> has too many converters for <%s>",
+                id_, other->id());
+    }
+
+    return fns[0];
+}
+
+bool
+Type::
+isCopiable() const
+{
+    std::string name = id_ + "()";
+    if (!hasField(name)) return false;
+
+    auto& fns = field(name);
+    return fns.test(Argument(), { Argument(this, RefType::LValue, true) });
+}
+
+bool
+Type::
+isMovable() const
+{
+    std::string name = id_ + "()";
+    if (!hasField(name)) return false;
+
+    auto& fns = field(name);
+    return fns.test(Argument(), { Argument(this, RefType::RValue, false) });
+}
+
 
 void
 Type::

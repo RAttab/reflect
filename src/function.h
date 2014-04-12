@@ -38,8 +38,8 @@ struct Function
 
     template<typename Fn>
     bool test() const;
-
     bool test(const Function& other) const;
+    bool test(const Argument& ret, const std::vector<Argument>& args) const;
 
     template<typename Ret, typename... Args>
     Ret call(Args&&... args) const;
@@ -96,7 +96,8 @@ struct Functions
 
     template<typename Fn>
     bool test() const;
-    bool test(Function fn) const;
+    bool test(const Function& fn) const;
+    bool test(const Argument& ret, const std::vector<Argument>& args) const;
 
     template<typename Ret, typename... Args>
     Ret call(Args&&... args) const;

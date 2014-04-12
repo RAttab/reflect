@@ -6,7 +6,6 @@
 */
 
 #include "reflect.h"
-#include "types/void.h"
 
 #include <sstream>
 
@@ -20,7 +19,7 @@ Argument::
 Argument() : type_(reflect::type<void>()) {}
 
 Argument::
-Argument(Type* type, RefType refType, bool isConst) :
+Argument(const Type* type, RefType refType, bool isConst) :
     type_(type), refType_(refType), isConst_(isConst)
 {}
 
@@ -70,7 +69,12 @@ isConvertibleTo(const Argument& target) const
         if (refType() == RefType::LValue) return false;
     }
 
-    return type()->isConvertibleTo(target.type());
+    if (type()->hasConverter(target.type())) {
+        if (target.refType() == RefType::LValue && !target.isConst())
+            return false;
+        return true;
+    }
+    else return target.type()->isParentOf(type());
 }
 
 

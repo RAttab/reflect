@@ -35,25 +35,25 @@ BOOST_AUTO_TEST_CASE(lValue)
     BOOST_CHECK_EQUAL(lValue.get<unsigned>(), u);
 
     // copy
-    BOOST_CHECK(lValue.copiable<unsigned>());
+    BOOST_CHECK(lValue.isCopiable<unsigned>());
     BOOST_CHECK_EQUAL(lValue.copy<unsigned>(), u);
 
     // l-ref
-    BOOST_CHECK(lValue.castable<unsigned>());
+    BOOST_CHECK(lValue.isCastable<unsigned>());
     {
         auto& value = lValue.cast<unsigned>();
         BOOST_CHECK_EQUAL(&value, &u);
     }
 
     // const l-ref
-    BOOST_CHECK(lValue.castable<const unsigned>());
+    BOOST_CHECK(lValue.isCastable<const unsigned>());
     {
         const auto& value = lValue.cast<const unsigned>();
         BOOST_CHECK_EQUAL(&value, &u);
     }
 
     // r-ref
-    BOOST_CHECK(lValue.movable<unsigned>());
+    BOOST_CHECK(lValue.isMovable<unsigned>());
     {
         auto value = lValue.move<unsigned>();
         BOOST_CHECK_EQUAL(value, 10);
@@ -74,22 +74,22 @@ BOOST_AUTO_TEST_CASE(constLValue)
     BOOST_CHECK_EQUAL(lValue.get<unsigned>(), u);
 
     // copy
-    BOOST_CHECK(lValue.copiable<unsigned>());
+    BOOST_CHECK(lValue.isCopiable<unsigned>());
     BOOST_CHECK_EQUAL(lValue.copy<unsigned>(), u);
 
     // l-ref
-    BOOST_CHECK(!lValue.castable<unsigned>());
+    BOOST_CHECK(!lValue.isCastable<unsigned>());
     BOOST_CHECK_THROW(lValue.cast<unsigned>(), ReflectError);
 
     // const l-ref
-    BOOST_CHECK(lValue.castable<const unsigned>());
+    BOOST_CHECK(lValue.isCastable<const unsigned>());
     {
         const auto& value = lValue.cast<const unsigned>();
         BOOST_CHECK_EQUAL(&value, &u);
     }
 
     // r-ref
-    BOOST_CHECK(!lValue.movable<unsigned>());
+    BOOST_CHECK(!lValue.isMovable<unsigned>());
     BOOST_CHECK_THROW(lValue.move<unsigned>(), ReflectError);
 }
 
@@ -104,15 +104,15 @@ BOOST_AUTO_TEST_CASE(rValue)
     BOOST_CHECK_EQUAL(rValue.get<unsigned>(), 10);
 
     // copy
-    BOOST_CHECK(rValue.copiable<unsigned>());
+    BOOST_CHECK(rValue.isCopiable<unsigned>());
     BOOST_CHECK_EQUAL(rValue.copy<unsigned>(), 10);
 
     // l-ref
-    BOOST_CHECK(rValue.castable<unsigned>());
+    BOOST_CHECK(rValue.isCastable<unsigned>());
     BOOST_CHECK_EQUAL(rValue.cast<unsigned>(), 10);
 
     // const l-ref
-    BOOST_CHECK( rValue.castable<const unsigned>());
+    BOOST_CHECK( rValue.isCastable<const unsigned>());
     {
         const auto& value = rValue.cast<const unsigned>();
         BOOST_CHECK_NE(&value, &u);
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(rValue)
     }
 
     // r-ref
-    BOOST_CHECK(rValue.movable<unsigned>());
+    BOOST_CHECK(rValue.isMovable<unsigned>());
     BOOST_CHECK_EQUAL(rValue.move<unsigned>(), 10);
     BOOST_CHECK(rValue.isVoid());
 }

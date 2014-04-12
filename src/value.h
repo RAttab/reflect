@@ -80,7 +80,7 @@ struct Value
     Value& operator=(Value&& other);
 
     void* value() const { return value_; }
-    Type* type() const { return arg.type(); }
+    const Type* type() const { return arg.type(); }
     RefType refType() const { return arg.refType(); }
     bool isConst() const { return arg.isConst(); }
     bool isVoid() const { return arg.isVoid(); }
@@ -91,15 +91,16 @@ struct Value
     template<typename T> const T& get() const;
 
     template<typename T> auto cast() const -> typename CleanRef<T>::type;
-    template<typename T> bool castable() const;
+    template<typename T> bool isCastable() const;
+
+    template<typename T> auto copy() const -> typename CleanValue<T>::type;
+    template<typename T> bool isCopiable() const;
+
+    template<typename T> auto move() -> typename CleanValue<T>::type;
+    template<typename T> bool isMovable() const;
 
     Value copy() const;
-    template<typename T> auto copy() const -> typename CleanValue<T>::type;
-    template<typename T> bool copiable() const;
-
     Value move();
-    template<typename T> auto move() -> typename CleanValue<T>::type;
-    template<typename T> bool movable() const;
 
     template<typename Ret, typename... Args>
     Ret call(const std::string& fn, Args&&... args) const;
@@ -156,6 +157,10 @@ struct Value
     reflectValueOpBinary(operator->*)
 
 private:
+
+    template<typename T>
+    T convert() const;
+
     Argument arg;
     void* value_;
     std::shared_ptr<void> storage;

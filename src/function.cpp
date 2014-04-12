@@ -6,8 +6,6 @@
 */
 
 #include "reflect.h"
-#include "types/void.h"
-#include "types/value.h"
 
 #include <sstream>
 
@@ -56,6 +54,14 @@ test(const Function& other) const
 {
     return testReturn(other.ret, ret)
         && testArguments(other.args, args);
+}
+
+bool
+Function::
+test(const Argument& ret, const std::vector<Argument>& args) const
+{
+    return testReturn(ret, this->ret)
+        && testArguments(args, this->args);
 }
 
 
@@ -109,10 +115,20 @@ add(Function fn)
 
 bool
 Functions::
-test(Function fn) const
+test(const Function& fn) const
 {
     for (const auto& other : overloads) {
         if (fn.test(other)) return true;
+    }
+    return false;
+}
+
+bool
+Functions::
+test(const Argument& ret, const std::vector<Argument>& args) const
+{
+    for (const auto& fn : overloads) {
+        if (fn.test(ret, args)) return true;
     }
     return false;
 }
