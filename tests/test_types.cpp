@@ -65,13 +65,26 @@ reflectClassImpl(test::NotConstructible)
 
 
 /******************************************************************************/
+/* INTERFACE                                                                  */
+/******************************************************************************/
+
+reflectClassImpl(test::Interface)
+{
+    reflectFn(pureVirtual);
+}
+
+/******************************************************************************/
 /* PARENT                                                                     */
 /******************************************************************************/
 
 reflectClassImpl(test::Parent)
 {
+    reflectParent(test::Interface);
     reflectConsBasics();
     reflectField(value);
+    reflectField(shadowed);
+
+    reflectFn(normalVirtual);
 }
 
 
@@ -83,7 +96,11 @@ reflectClassImpl(test::Child)
 {
     reflectParent(test::Parent);
     reflectConsBasics();
+
     reflectField(childValue);
+    reflectField(shadowed);
+
+    reflectFn(normalVirtual);
 }
 
 
@@ -95,5 +112,6 @@ reflectClassImpl(test::Convertible)
 {
     reflectConsBasics();
     reflectField(value);
+    reflectOpCast(int);
     reflectOpCast(test::Parent);
 }

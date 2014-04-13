@@ -115,12 +115,26 @@ private:
 
 
 /******************************************************************************/
+/* INTERFACE                                                                  */
+/******************************************************************************/
+
+struct Interface
+{
+    virtual void pureVirtual() = 0;
+};
+
+
+/******************************************************************************/
 /* PARENT                                                                     */
 /******************************************************************************/
 
-struct Parent
+struct Parent : public Interface
 {
     Object value;
+    int shadowed;
+
+    virtual void pureVirtual() {}
+    virtual void normalVirtual() {}
 };
 
 
@@ -131,6 +145,9 @@ struct Parent
 struct Child : public Parent
 {
     Object childValue;
+    int shadowed;
+
+    virtual void normalVirtual() {}
 };
 
 
@@ -142,10 +159,12 @@ struct Convertible
 {
     Object value;
 
+    operator int() { return value.value(); }
     operator Parent()
     {
         Parent p;
         p.value = value;
+        p.shadowed = value.value();
         return std::move(p);
     }
 };
@@ -163,6 +182,7 @@ reflectClassDecl(test::NotCopiable)
 reflectClassDecl(test::NotMovable)
 reflectClassDecl(test::NotConstructible)
 
+reflectClassDecl(test::Interface)
 reflectClassDecl(test::Parent)
 reflectClassDecl(test::Child)
 reflectClassDecl(test::Convertible)
