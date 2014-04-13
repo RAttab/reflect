@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(functor)
     {
         Value ret = valueFn(Value(10u));
         BOOST_CHECK_EQUAL(ret.refType(), RefType::LValue);
-        BOOST_CHECK(ret.castable<unsigned>());
+        BOOST_CHECK(ret.isCastable<unsigned>());
         BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 10);
     }
 
@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE(memberFn)
     {
         Value ret = valueFn(Value(foo), Value(10u));
         BOOST_CHECK_EQUAL(ret.refType(), RefType::LValue);
-        BOOST_CHECK(ret.castable<unsigned>());
+        BOOST_CHECK(ret.isCastable<unsigned>());
         BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 10);
         BOOST_CHECK_EQUAL(foo.value, 10);
     }
