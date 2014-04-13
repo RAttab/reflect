@@ -54,6 +54,12 @@ isConvertibleTo(const Argument& target) const
     if ((type() == valueType) ^ (target.type() == valueType))
         return true;
 
+    if (type()->hasConverter(target.type())) {
+        if (target.refType() == RefType::LValue && !target.isConst())
+            return false;
+        return true;
+    }
+
     if (target.refType() != RefType::Copy) {
         if (!testConstConversion(isConst(), target.isConst()))
             return false;
@@ -69,12 +75,7 @@ isConvertibleTo(const Argument& target) const
         if (refType() == RefType::LValue) return false;
     }
 
-    if (type()->hasConverter(target.type())) {
-        if (target.refType() == RefType::LValue && !target.isConst())
-            return false;
-        return true;
-    }
-    else return target.type()->isParentOf(type());
+    return target.type()->isParentOf(type());
 }
 
 
