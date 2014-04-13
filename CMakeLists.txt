@@ -20,6 +20,16 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+#------------------------------------------------------------------------------#
+# UTILS
+#------------------------------------------------------------------------------#
+
+# Forces the library to be linked in. Useful when the library consist only of
+# static constructors.
+function(force_target_link_libraries target lib)
+    target_link_libraries(${target} -Wl,--no-as-needed ${lib} -Wl,--as-needed)
+endfunction()
+
 
 #------------------------------------------------------------------------------#
 # COMPILER TESTS
@@ -146,16 +156,19 @@ function(reflect_test name)
     if(CMAKE_SOURCE_DIR STREQUAL ${PROJECT_SOURCE_DIR})
         add_executable(${name}_test tests/${name}_test.cpp)
         target_link_libraries(${name}_test reflect)
-        target_link_libraries(${name}_test reflect_test)
+        force_target_link_libraries(${name}_test reflect_test)
         target_link_libraries(${name}_test boost_unit_test_framework)
         add_test(${name} bin/${name}_test)
     endif()
 endfunction()
 
 reflect_test(ref)
+reflect_test(type)
 reflect_test(value)
 reflect_test(value_function)
 reflect_test(function)
 reflect_test(reflection)
 
 reflect_test(cperf_type_lookup)
+
+# add_executable(blah_test tests/blah_test.cpp)

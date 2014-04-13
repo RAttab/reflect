@@ -8,16 +8,14 @@
 #include "test_types.h"
 
 #include "reflect/basics.h"
+#include "reflect/constructor.h"
 #include "reflect/field.h"
 #include "reflect/operators.h"
-// #include "types/primitives.h"
 
 
 /******************************************************************************/
 /* OBJECT                                                                     */
 /******************************************************************************/
-
-#if 0
 
 reflectClassImpl(test::Object)
 {
@@ -30,6 +28,40 @@ reflectClassImpl(test::Object)
 
     reflectOperators();
 }
+
+
+/******************************************************************************/
+/* NOT COPIABLE                                                               */
+/******************************************************************************/
+
+reflectClassImpl(test::NotCopiable)
+{
+    // \todo Doesn't compile
+    // reflectConsBasics();
+}
+
+
+/******************************************************************************/
+/* NOT MOVABLE                                                                */
+/******************************************************************************/
+
+reflectClassImpl(test::NotMovable)
+{
+    // \todo Doesn't compile
+    // reflectConsBasics();
+}
+
+
+/******************************************************************************/
+/* NOT CONSTRUCTIBLE                                                          */
+/******************************************************************************/
+
+reflectClassImpl(test::NotConstructible)
+{
+    // \todo Doesn't compile
+    // reflectConsBasics();
+}
+
 
 /******************************************************************************/
 /* PARENT                                                                     */
@@ -64,5 +96,3 @@ reflectClassImpl(test::Convertible)
     reflectField(value);
     reflectOpCast(test::Parent);
 }
-
-#endif

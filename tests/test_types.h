@@ -64,6 +64,57 @@ private:
 
 
 /******************************************************************************/
+/* NOT COPIABLE                                                               */
+/******************************************************************************/
+
+struct NotCopiable
+{
+    NotCopiable() {}
+
+    NotCopiable(const NotCopiable&) = delete;
+    NotCopiable& operator=(const NotCopiable&) = delete;
+
+    NotCopiable(NotCopiable&&) = default;
+    NotCopiable& operator=(NotCopiable&&) = default;
+};
+
+
+/******************************************************************************/
+/* NOT MOVABLE                                                                */
+/******************************************************************************/
+
+struct NotMovable
+{
+    NotMovable() {}
+
+    NotMovable(const NotMovable&) = delete;
+    NotMovable& operator=(const NotMovable&) = delete;
+
+    NotMovable(NotMovable&&) = delete;
+    NotMovable& operator=(NotMovable&&) = delete;
+};
+
+
+/******************************************************************************/
+/* NOT CONSTRUCTIBLE                                                          */
+/******************************************************************************/
+
+struct NotConstructible
+{
+    NotConstructible make() { return NotConstructible(); }
+
+    NotConstructible(const NotConstructible&) = delete;
+    NotConstructible& operator=(const NotConstructible&) = delete;
+
+    NotConstructible(NotConstructible&&) = default;
+    NotConstructible& operator=(NotConstructible&&) = default;
+
+private:
+    NotConstructible() {}
+};
+
+
+/******************************************************************************/
 /* PARENT                                                                     */
 /******************************************************************************/
 
@@ -107,6 +158,11 @@ struct Convertible
 /******************************************************************************/
 
 reflectClassDecl(test::Object)
+
+reflectClassDecl(test::NotCopiable)
+reflectClassDecl(test::NotMovable)
+reflectClassDecl(test::NotConstructible)
+
 reflectClassDecl(test::Parent)
 reflectClassDecl(test::Child)
 reflectClassDecl(test::Convertible)
