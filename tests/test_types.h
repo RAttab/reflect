@@ -56,11 +56,20 @@ struct Object
     Object& operator++ () { value_++; return *this; }
     Object& operator++ (int) { value_++; return *this; }
     Object operator+ (int v) const { return Object(value_ + v); }
-    bool operator== (Object& other) const { return value_ == other.value_; }
+    bool operator== (const Object& other) const
+    {
+        return value_ == other.value_;
+    }
 
 private:
     int value_;
 };
+
+std::ostream& operator<<(std::ostream& stream, const test::Object& obj)
+{
+    stream << "<Object: " << obj.value() << ">";
+    return stream;
+}
 
 
 /******************************************************************************/
@@ -130,12 +139,27 @@ struct Interface
 
 struct Parent : public Interface
 {
+    Parent() : value(0), shadowed(0) {}
+    Parent(Object c, int s) : value(c), shadowed(s) {}
+
     Object value;
     int shadowed;
 
     virtual void pureVirtual() {}
     virtual void normalVirtual() {}
+
+    bool operator== (const Parent& other) const
+    {
+        return value == other.value
+            && shadowed == other.shadowed;
+    }
 };
+
+std::ostream& operator<<(std::ostream& stream, const Parent& obj)
+{
+    stream << "<Parent: " << obj.value << ", " << obj.shadowed << ">";
+    return stream;
+}
 
 
 /******************************************************************************/
@@ -144,11 +168,30 @@ struct Parent : public Interface
 
 struct Child : public Parent
 {
+    Child() : childValue(0), shadowed(0) {}
+    Child(Object c, int s) : childValue(c), shadowed(s) {}
+
     Object childValue;
     int shadowed;
 
     virtual void normalVirtual() {}
+
+    bool operator== (const Child& other) const
+    {
+        return Parent::operator==(other)
+            && childValue == other.childValue
+            && shadowed == other.shadowed;
+    }
 };
+
+std::ostream& operator<<(std::ostream& stream, const Child& obj)
+{
+    stream << "<Child: "
+        << ((const test::Parent&) obj)
+        << ", " << obj.childValue
+        << ", " << obj.shadowed << ">";
+    return stream;
+}
 
 
 /******************************************************************************/

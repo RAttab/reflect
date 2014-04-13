@@ -81,6 +81,8 @@ reflectClassImpl(test::Parent)
 {
     reflectParent(test::Interface);
     reflectConsBasics();
+    reflectCons(test::Object, int);
+
     reflectField(value);
     reflectField(shadowed);
 
@@ -96,6 +98,7 @@ reflectClassImpl(test::Child)
 {
     reflectParent(test::Parent);
     reflectConsBasics();
+    reflectCons(test::Object, int);
 
     reflectField(childValue);
     reflectField(shadowed);
