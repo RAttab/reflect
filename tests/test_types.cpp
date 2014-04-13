@@ -20,6 +20,7 @@
 reflectClassImpl(test::Object)
 {
     reflectConsBasics();
+    reflectCons(int);
 
     reflectField(value);
     reflectField(ref);
