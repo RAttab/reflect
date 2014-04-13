@@ -294,6 +294,8 @@ BOOST_AUTO_TEST_CASE(constLValue_call)
     BOOST_CHECK_THROW(fn.call<const int&>(Value()), ReflectError);
 
     // copy
+    BOOST_CHECK_NO_THROW(fn.call<const int&>(i));
+    BOOST_CHECK_NO_THROW(fn.call<const int&>(i));
     BOOST_CHECK_EQUAL(fn.call<int>(c), foo(c));
     BOOST_CHECK_EQUAL(fn.call<int>(constLValue), foo(c));
 
