@@ -356,7 +356,7 @@ BOOST_AUTO_TEST_CASE(rValue_test)
     BOOST_CHECK(!fn.test<void()>());
 
     // copy
-    BOOST_CHECK( fn.test<void(int)>());
+    BOOST_CHECK(!fn.test<void(int)>());
 
     // l-ref
     BOOST_CHECK(!fn.test<void(int&)>());
@@ -383,6 +383,8 @@ BOOST_AUTO_TEST_CASE(rValue_call)
     BOOST_CHECK_THROW(fn.call<const int&>(Value()), ReflectError);
 
     // copy
+    int v = 10;
+    BOOST_CHECK_THROW(fn.call<int>(v), ReflectError);
     BOOST_CHECK_EQUAL(fn.call<int>(10), foo(10));
 
     // l-ref
@@ -426,69 +428,183 @@ BOOST_AUTO_TEST_CASE(rValue_call)
 
 
 /******************************************************************************/
+/* CHILD PARENT                                                               */
+/******************************************************************************/
+
+// The test cases for this are less complicated so stuff everything in one test.
+BOOST_AUTO_TEST_CASE(childParent_test)
+{
+    using test::Parent;
+    using test::Child;
+
+    Child child(10, 0);
+
+    auto doCopy = [] (Parent p) { return Child(p.value + 1, 0); };
+    Function copyFn("doCopy", doCopy);
+
+    auto doLRef = [&] (Parent&) -> Child& { return child; };
+    Function lrefFn("doLRef", doLRef);
+
+    auto doConstLRef = [&] (const Parent&) -> const Child& { return child; };
+    Function clrefFn("doConstLRef", doConstLRef);
+
+    auto doRRef = [] (Parent&& p) { return p.value.value() + 1; };
+    Function rrefFn("doRRef", doRRef);
+
+    BOOST_CHECK( copyFn.test<void(Child)>());
+    BOOST_CHECK( copyFn.test<void(Child&)>());
+    BOOST_CHECK( copyFn.test<void(const Child&)>());
+    BOOST_CHECK( copyFn.test<void(Child&&)>());
+    BOOST_CHECK( copyFn.test<Parent(Parent)>());
+    BOOST_CHECK(!copyFn.test<Parent&(Parent)>());
+    BOOST_CHECK(!copyFn.test<const Parent&(Parent)>());
+
+    BOOST_CHECK(!lrefFn.test<void(Child)>());
+    BOOST_CHECK( lrefFn.test<void(Child&)>());
+    BOOST_CHECK(!lrefFn.test<void(const Child&)>());
+    BOOST_CHECK(!lrefFn.test<void(Child&&)>());
+    BOOST_CHECK( lrefFn.test<Parent(Parent&)>());
+    BOOST_CHECK( lrefFn.test<Parent&(Parent&)>());
+    BOOST_CHECK( lrefFn.test<const Parent&(Parent&)>());
+
+    BOOST_CHECK( clrefFn.test<void(Child)>());
+    BOOST_CHECK( clrefFn.test<void(Child&)>());
+    BOOST_CHECK( clrefFn.test<void(const Child&)>());
+    BOOST_CHECK( clrefFn.test<void(Child&&)>());
+    BOOST_CHECK( clrefFn.test<Parent(const Parent&)>());
+    BOOST_CHECK(!clrefFn.test<Parent&(const Parent&)>());
+    BOOST_CHECK( clrefFn.test<const Parent&(const Parent&)>());
+
+    BOOST_CHECK(!rrefFn.test<void(Child)>());
+    BOOST_CHECK(!rrefFn.test<void(Child&)>());
+    BOOST_CHECK(!rrefFn.test<void(const Child&)>());
+    BOOST_CHECK( rrefFn.test<void(Child&&)>());
+}
+
+
+BOOST_AUTO_TEST_CASE(childParent_call)
+{
+    using test::Parent;
+    using test::Child;
+    using test::Object;
+
+    Child child(10, 0);
+
+    auto doCopy = [] (Parent p) { return Child(p.value + 1, 0); };
+    Function copyFn("doCopy", doCopy);
+
+    auto doLRef = [&] (Parent&) -> Child& { return child; };
+    Function lrefFn("doLRef", doLRef);
+
+    auto doConstLRef = [&] (const Parent&) -> const Child& { return child; };
+    Function clrefFn("doConstLRef", doConstLRef);
+
+    auto doRRef = [] (Parent&& p) { return p.value + 1; };
+    Function rrefFn("doRRef", doRRef);
+
+    Parent copy(10, 0);
+    Parent& lref = copy;
+    const Parent& clref = copy;
+    (void) copy; (void) lref; (void) clref;
+
+    Child childCopy(10, 0);
+    auto& childLRef = childCopy;
+    const auto& childConstLRef = childCopy;
+    (void) childCopy; (void) childLRef; (void) childConstLRef;
+
+    BOOST_CHECK_EQUAL(copyFn.call<Child>(childLRef), doCopy(childLRef));
+    BOOST_CHECK_EQUAL(copyFn.call<Child>(childConstLRef), doCopy(childConstLRef));
+    BOOST_CHECK_EQUAL(copyFn.call<Child>(Child(10, 0)), doCopy(Child(10, 0)));
+    BOOST_CHECK_EQUAL(copyFn.call<Parent>(copy), (Parent) doCopy(copy));
+    BOOST_CHECK_THROW(copyFn.call<Parent&>(copy), ReflectError);
+    BOOST_CHECK_THROW(copyFn.call<const Parent&>(copy), ReflectError);
+
+    BOOST_CHECK_EQUAL(lrefFn.call<Child&>(childLRef), doLRef(lref));
+    BOOST_CHECK_THROW(lrefFn.call<Child&>(childConstLRef), ReflectError);
+    BOOST_CHECK_THROW(lrefFn.call<Child&>(Child(10, 0)), ReflectError);
+    BOOST_CHECK_EQUAL(lrefFn.call<Parent>(lref), (Parent) doLRef(lref));
+    BOOST_CHECK_EQUAL(lrefFn.call<Parent&>(lref), (Parent&) doLRef(lref));
+    BOOST_CHECK_EQUAL(lrefFn.call<const Parent&>(lref), (const Parent&) doLRef(lref));
+
+    BOOST_CHECK_EQUAL(clrefFn.call<const Child&>(childLRef), doConstLRef(childLRef));
+    BOOST_CHECK_EQUAL(clrefFn.call<const Child&>(childConstLRef), doConstLRef(childConstLRef));
+    BOOST_CHECK_EQUAL(clrefFn.call<const Child&>(Child(10, 0)), doConstLRef(Child(10, 0)));
+    BOOST_CHECK_EQUAL(clrefFn.call<Parent>(clref), (Parent) doConstLRef(clref));
+    BOOST_CHECK_THROW(clrefFn.call<Parent&>(clref), ReflectError);
+    BOOST_CHECK_EQUAL(clrefFn.call<const Parent&>(clref), (const Parent&) doConstLRef(clref));
+
+    BOOST_CHECK_THROW(rrefFn.call<Object>(childLRef), ReflectError);
+    BOOST_CHECK_THROW(rrefFn.call<Object>(childConstLRef), ReflectError);
+    BOOST_CHECK_EQUAL(rrefFn.call<Object>(Child(10, 0)), doRRef(Child(10, 0)));
+}
+
+
+/******************************************************************************/
 /* CONVERTERS                                                                 */
 /******************************************************************************/
 
 // The test cases for this are less complicated so stuff everything in one test.
 BOOST_AUTO_TEST_CASE(converters_test)
 {
-    test::Convertible conv(10);
+    typedef test::Convertible Conv;
 
-    auto doCopy = [] (int i) { return test::Convertible(i + 1); };
+    Conv conv(113);
+
+    auto doCopy = [] (int i) { return Conv(i + 1); };
     Function copyFn("doCopy", doCopy);
 
-    auto doLRef = [&] (int&) { return conv; };
+    auto doLRef = [&] (int&) -> Conv& { return conv; };
     Function lrefFn("doLRef", doLRef);
 
-    auto doConstLRef = [&] (const int&) { return conv; };
+    auto doConstLRef = [&] (const int&) -> const Conv& { return conv; };
     Function clrefFn("doConstLRef", doConstLRef);
 
     auto doRRef = [] (int&& i) { return i + 1; };
     Function rrefFn("doRRef", doRRef);
 
-    BOOST_CHECK( copyFn.test<void(test::Convertible)>());
-    BOOST_CHECK( copyFn.test<void(test::Convertible&)>());
-    BOOST_CHECK( copyFn.test<void(const test::Convertible&)>());
-    BOOST_CHECK( copyFn.test<void(test::Convertible&&)>());
+    BOOST_CHECK( copyFn.test<void(Conv)>());
+    BOOST_CHECK( copyFn.test<void(Conv&)>());
+    BOOST_CHECK( copyFn.test<void(const Conv&)>());
+    BOOST_CHECK( copyFn.test<void(Conv&&)>());
     BOOST_CHECK( copyFn.test<int(int)>());
     BOOST_CHECK(!copyFn.test<int&(int)>());
     BOOST_CHECK(!copyFn.test<const int&(int)>());
 
-    BOOST_CHECK(!lrefFn.test<void(test::Convertible)>());
-    BOOST_CHECK(!lrefFn.test<void(test::Convertible&)>());
-    BOOST_CHECK(!lrefFn.test<void(const test::Convertible&)>());
-    BOOST_CHECK(!lrefFn.test<void(test::Convertible&&)>());
+    BOOST_CHECK(!lrefFn.test<void(Conv)>());
+    BOOST_CHECK(!lrefFn.test<void(Conv&)>());
+    BOOST_CHECK(!lrefFn.test<void(const Conv&)>());
+    BOOST_CHECK(!lrefFn.test<void(Conv&&)>());
     BOOST_CHECK( lrefFn.test<int(int&)>());
     BOOST_CHECK(!lrefFn.test<int&(int&)>());
-    BOOST_CHECK(!lrefFn.test<const int&(int&)>());
+    BOOST_CHECK( lrefFn.test<const int&(int&)>());
 
-    BOOST_CHECK( clrefFn.test<void(test::Convertible)>());
-    BOOST_CHECK( clrefFn.test<void(test::Convertible&)>());
-    BOOST_CHECK( clrefFn.test<void(const test::Convertible&)>());
-    BOOST_CHECK( clrefFn.test<void(test::Convertible&&)>());
+    BOOST_CHECK( clrefFn.test<void(Conv)>());
+    BOOST_CHECK( clrefFn.test<void(Conv&)>());
+    BOOST_CHECK( clrefFn.test<void(const Conv&)>());
+    BOOST_CHECK( clrefFn.test<void(Conv&&)>());
     BOOST_CHECK( clrefFn.test<int(const int&)>());
     BOOST_CHECK(!clrefFn.test<int&(const int&)>());
-    BOOST_CHECK(!clrefFn.test<const int&(const int&)>());
+    BOOST_CHECK( clrefFn.test<const int&(const int&)>());
 
-    BOOST_CHECK( rrefFn.test<void(test::Convertible)>());
-    BOOST_CHECK( rrefFn.test<void(test::Convertible&)>());
-    BOOST_CHECK( rrefFn.test<void(const test::Convertible&)>());
-    BOOST_CHECK( rrefFn.test<void(test::Convertible&&)>());
+    BOOST_CHECK( rrefFn.test<void(Conv)>());
+    BOOST_CHECK( rrefFn.test<void(Conv&)>());
+    BOOST_CHECK( rrefFn.test<void(const Conv&)>());
+    BOOST_CHECK( rrefFn.test<void(Conv&&)>());
 }
 
 BOOST_AUTO_TEST_CASE(converters_call)
 {
     typedef test::Convertible Conv;
 
-    Conv conv(10);
+    Conv conv(113);
 
-    auto doCopy = [] (int i) { return test::Convertible(i + 1); };
+    auto doCopy = [] (int i) { return Conv(i + 1); };
     Function copyFn("doCopy", doCopy);
 
-    auto doLRef = [&] (int&) { return conv; };
+    auto doLRef = [&] (int&) -> Conv& { return conv; };
     Function lrefFn("doLRef", doLRef);
 
-    auto doConstLRef = [&] (const int&) { return conv; };
+    auto doConstLRef = [&] (const int&) -> const Conv& { return conv; };
     Function clrefFn("doConstLRef", doConstLRef);
 
     auto doRRef = [] (int&& i) { return i + 1; };
@@ -497,15 +613,13 @@ BOOST_AUTO_TEST_CASE(converters_call)
     int copy = 10;
     int& lref = copy;
     const int& clref = copy;
-    int rref = 22;
-    (void) copy; (void) lref; (void) clref; (void) rref;
+    (void) copy; (void) lref; (void) clref;
 
     Conv convCopy(10);
     auto& convLRef = convCopy;
     const auto& convConstLRef = convCopy;
     (void) convCopy; (void) convLRef; (void) convConstLRef;
 
-    BOOST_CHECK_EQUAL(copyFn.call<Conv>(convCopy), doCopy(convCopy));
     BOOST_CHECK_EQUAL(copyFn.call<Conv>(convLRef), doCopy(convLRef));
     BOOST_CHECK_EQUAL(copyFn.call<Conv>(convConstLRef), doCopy(convConstLRef));
     BOOST_CHECK_EQUAL(copyFn.call<Conv>(Conv(10)), doCopy(Conv(10)));
@@ -513,23 +627,20 @@ BOOST_AUTO_TEST_CASE(converters_call)
     BOOST_CHECK_THROW(copyFn.call<int&>(copy), ReflectError);
     BOOST_CHECK_THROW(copyFn.call<const int&>(copy), ReflectError);
 
-    BOOST_CHECK_THROW(lrefFn.call<Conv>(convCopy), ReflectError);
-    BOOST_CHECK_THROW(lrefFn.call<Conv>(convLRef), ReflectError);
-    BOOST_CHECK_THROW(lrefFn.call<Conv>(convConstLRef), ReflectError);
-    BOOST_CHECK_THROW(lrefFn.call<Conv>(Conv(10)), ReflectError);
+    BOOST_CHECK_THROW(lrefFn.call<Conv&>(convLRef), ReflectError);
+    BOOST_CHECK_THROW(lrefFn.call<Conv&>(convConstLRef), ReflectError);
+    BOOST_CHECK_THROW(lrefFn.call<Conv&>(Conv(10)), ReflectError);
     BOOST_CHECK_EQUAL(lrefFn.call<int>(lref), (int) doLRef(lref));
     BOOST_CHECK_THROW(lrefFn.call<int&>(lref), ReflectError);
-    BOOST_CHECK_THROW(lrefFn.call<const int&>(lref), ReflectError);
+    BOOST_CHECK_EQUAL(lrefFn.call<const int&>(lref), (const int&) doLRef(lref));
 
-    BOOST_CHECK_EQUAL(clrefFn.call<Conv>(convCopy), doConstLRef(convCopy));
-    BOOST_CHECK_EQUAL(clrefFn.call<Conv>(convLRef), doConstLRef(convLRef));
-    BOOST_CHECK_EQUAL(clrefFn.call<Conv>(convConstLRef), doConstLRef(convConstLRef));
-    BOOST_CHECK_EQUAL(clrefFn.call<Conv>(Conv(10)), doConstLRef(Conv(10)));
+    BOOST_CHECK_EQUAL(clrefFn.call<const Conv&>(convLRef), doConstLRef(convLRef));
+    BOOST_CHECK_EQUAL(clrefFn.call<const Conv&>(convConstLRef), doConstLRef(convConstLRef));
+    BOOST_CHECK_EQUAL(clrefFn.call<const Conv&>(Conv(10)), doConstLRef(Conv(10)));
     BOOST_CHECK_EQUAL(clrefFn.call<int>(clref), (int) doConstLRef(clref));
     BOOST_CHECK_THROW(clrefFn.call<int&>(clref), ReflectError);
-    BOOST_CHECK_THROW(clrefFn.call<const int&>(clref), ReflectError);
+    BOOST_CHECK_EQUAL(clrefFn.call<const int&>(clref), (const int&) doConstLRef(clref));
 
-    BOOST_CHECK_EQUAL(rrefFn.call<int>(convCopy), doRRef(convCopy));
     BOOST_CHECK_EQUAL(rrefFn.call<int>(convLRef), doRRef(convLRef));
     BOOST_CHECK_EQUAL(rrefFn.call<int>(convConstLRef), doRRef(convConstLRef));
     BOOST_CHECK_EQUAL(rrefFn.call<int>(Conv(10)), doRRef(Conv(10)));
