@@ -208,5 +208,26 @@ BOOST_AUTO_TEST_CASE(child)
 
 BOOST_AUTO_TEST_CASE(convertible)
 {
+    test::Object o(10);
+    test::Convertible c(o);
+    Value value(c);
 
+    BOOST_CHECK_EQUAL(&value.get<test::Convertible>(), &c);
+    BOOST_CHECK_THROW(value.get<test::Parent>(), ReflectError);
+
+    BOOST_CHECK( value.isCastable<test::Convertible>());
+    BOOST_CHECK(!value.isCastable<test::Parent>());
+    BOOST_CHECK_EQUAL(&value.cast<test::Convertible>(), &c);
+    BOOST_CHECK_THROW(value.cast<test::Parent>(), ReflectError);
+
+    BOOST_CHECK( value.isCopiable<test::Convertible>());
+    BOOST_CHECK( value.isCopiable<test::Parent>());
+    BOOST_CHECK_EQUAL(value.copy<test::Convertible>().value, o);
+    BOOST_CHECK_EQUAL(value.copy<test::Parent>().value, o);
+
+    BOOST_CHECK( value.isMovable<test::Convertible>());
+    BOOST_CHECK( value.isMovable<test::Parent>());
+    BOOST_CHECK_EQUAL(value.move<test::Convertible>().value, o);
+    value = Value(test::Convertible(o)); // previous test cleared it.
+    BOOST_CHECK_EQUAL(value.move<test::Parent>().value, o);
 }

@@ -200,6 +200,8 @@ std::ostream& operator<<(std::ostream& stream, const Child& obj)
 
 struct Convertible
 {
+    Convertible(Object v) : value(v) {}
+
     Object value;
 
     operator int() { return value.value(); }
