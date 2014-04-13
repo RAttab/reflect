@@ -246,7 +246,8 @@ BOOST_AUTO_TEST_CASE(lValue_call)
         int r = i;
         // \todo Inconsistent. Value-ing an r-ref turns it into an l-ref to
         // Value's internal storage which means that the call is now valid.
-        BOOST_CHECK_EQUAL(fn.call<int&>(Value(std::move(r))), i + 1);
+        // Returns a reference to a temporary so can't check the return value.
+        BOOST_CHECK_NO_THROW(fn.call<int&>(Value(std::move(r))));
     }
 }
 
@@ -310,8 +311,8 @@ BOOST_AUTO_TEST_CASE(constLValue_call)
     // r-ref
     int r = i;
     // We return a value to a temporary here so it's not safe to check it.
-    fn.call<const int&>(std::move(r));
-    fn.call<const int&>(Value(std::move(r)));
+    BOOST_CHECK_NO_THROW(fn.call<const int&>(std::move(r)));
+    BOOST_CHECK_NO_THROW(fn.call<const int&>(Value(std::move(r))));
 }
 
 
