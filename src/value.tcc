@@ -124,9 +124,10 @@ isMovable() const
     reflectStaticAssert(!std::is_lvalue_reference<T>::value);
 
     Type* target = reflect::type<T>();
-    return target->isMovable()
-        && !isConst()
-        && (type()->isChildOf(target) || type()->hasConverter(target));
+
+    if (!target->isMovable()) return false;
+    if (type()->isChildOf(target)) return !isConst();
+    return type()->hasConverter(target);
 }
 
 template<typename T>
