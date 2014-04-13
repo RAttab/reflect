@@ -20,15 +20,15 @@ bool
 Type::
 isChildOf(const Type* other) const
 {
-    return other->isParentOf(this);
+    return this == other
+        || (parent_ && parent_->isChildOf(other));
 }
 
 bool
 Type::
 isParentOf(const Type* other) const
 {
-    return this == other
-        || (parent_ && parent_->isParentOf(other));
+    return other->isChildOf(this);
 }
 
 bool
