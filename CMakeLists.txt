@@ -126,6 +126,7 @@ install(
     src/types/void.h
     src/types/bool.h
     src/types/int.h
+    src/types/pointer.h
     src/types/primitives.h
     src/types/value.h
 

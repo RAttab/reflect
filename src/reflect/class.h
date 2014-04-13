@@ -20,7 +20,8 @@ namespace reflect {
     struct Reflect<_type_>                                              \
     {                                                                   \
         typedef _type_ T_;                                              \
-        static constexpr const char* id = reflectStringify(_type_);     \
+        static std::string id() { return reflectStringify(_type_); }    \
+        static void loader() {}                                         \
                                                                         \
         static void reflect(Type*);                                     \
     };                                                                  \
@@ -35,13 +36,7 @@ namespace reflect {
     template<>                                                  \
     struct Loader<_type_>                                       \
     {                                                           \
-        Loader()                                                \
-        {                                                       \
-            typedef Reflect<_type_> type;                       \
-            Registry::add(type::id, [] (Type* type_) {          \
-                        type::reflect(type_);                   \
-                    });                                         \
-        }                                                       \
+        Loader() { Registry::add<_type_>(); }                   \
     };                                                          \
     namespace { Loader<_type_> reflectUniqueName(loader); }     \
     } // namespace reflect
@@ -57,5 +52,19 @@ namespace reflect {
 #define reflectClass(_type_)                  \
     reflectClassDecl(_type_)                  \
     reflectClassImpl(_type_)
+
+
+/******************************************************************************/
+/* REFLECT TEMPLATE                                                           */
+/******************************************************************************/
+
+#define reflectTemplateLoader()                 \
+    static void loader()                        \
+    {                                           \
+        static bool loaded = false;             \
+        if (loaded) return;                     \
+        loaded = true;                          \
+        Registry::add<T_>();                    \
+    }
 
 } // reflect

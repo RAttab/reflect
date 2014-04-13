@@ -9,6 +9,7 @@
 
 #include "reflect.h"
 #include "reflect/class.h"
+#include "pointer.h"
 
 /******************************************************************************/
 /* REFLECT PRIMITIVES                                                         */
