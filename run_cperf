@@ -8,6 +8,6 @@
 
 TEST_NAME=cperf_$1_test
 
-nice make -kj8 reflect \
+nice make -kj8 reflect reflect_test \
     && touch tests/$TEST_NAME.cpp \
     && time make $TEST_NAME \

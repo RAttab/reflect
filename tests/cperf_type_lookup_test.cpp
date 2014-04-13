@@ -78,5 +78,6 @@ reflectClass(Target) {}
 
 int main(int, char**)
 {
-    (void) type<Target>();
+    const Type* tTarget = type<Target>();
+    std::cerr << tTarget->print() << std::endl;
 }
