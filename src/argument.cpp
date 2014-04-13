@@ -72,7 +72,7 @@ isConvertibleTo(const Argument& target) const
     }
 
     else if (target.refType() == RefType::RValue) {
-        if (refType() == RefType::LValue) return false;
+        if (refType() != RefType::RValue) return false;
     }
 
     return target.type()->isParentOf(type());
