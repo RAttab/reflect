@@ -143,8 +143,8 @@ BOOST_AUTO_TEST_CASE(basics)
     std::cerr << typeFoo->print() << std::endl;
 
     BOOST_CHECK_EQUAL(typeFoo->parent(), typeBar);
-    BOOST_CHECK( typeFoo->isConvertibleTo(typeBar));
-    BOOST_CHECK(!typeBar->isConvertibleTo(typeFoo));
+    BOOST_CHECK( typeFoo->isChildOf(typeBar));
+    BOOST_CHECK(!typeBar->isChildOf(typeFoo));
 
     BOOST_CHECK( typeBar->hasField("bar"));
     BOOST_CHECK(!typeBar->hasField("field"));
