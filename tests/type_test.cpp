@@ -111,18 +111,32 @@ BOOST_AUTO_TEST_CASE(parentChild)
     BOOST_CHECK(!tInt->isParentOf<unsigned>());
     BOOST_CHECK(!tInt->isParentOf<test::Object>());
 
+    Type* tInterface = type<test::Interface>();
+    BOOST_CHECK( tInterface->isParentOf<test::Interface>());
+    BOOST_CHECK( tInterface->isParentOf<test::Parent>());
+    BOOST_CHECK( tInterface->isParentOf<test::Child>());
+    BOOST_CHECK(!tInterface->isParentOf<test::Object>());
+    BOOST_CHECK( tInterface->isChildOf<test::Interface>());
+    BOOST_CHECK(!tInterface->isChildOf<test::Parent>());
+    BOOST_CHECK(!tInterface->isChildOf<test::Child>());
+    BOOST_CHECK(!tInterface->isChildOf<test::Object>());
+
     Type* tParent = type<test::Parent>();
+    BOOST_CHECK(!tParent->isParentOf<test::Interface>());
     BOOST_CHECK( tParent->isParentOf<test::Parent>());
     BOOST_CHECK( tParent->isParentOf<test::Child>());
     BOOST_CHECK(!tParent->isParentOf<test::Object>());
+    BOOST_CHECK( tParent->isChildOf<test::Interface>());
     BOOST_CHECK( tParent->isChildOf<test::Parent>());
     BOOST_CHECK(!tParent->isChildOf<test::Child>());
     BOOST_CHECK(!tParent->isChildOf<test::Object>());
 
     Type* tChild = type<test::Child>();
+    BOOST_CHECK(!tChild->isParentOf<test::Interface>());
     BOOST_CHECK(!tChild->isParentOf<test::Parent>());
     BOOST_CHECK( tChild->isParentOf<test::Child>());
     BOOST_CHECK(!tChild->isParentOf<test::Object>());
+    BOOST_CHECK( tChild->isChildOf<test::Interface>());
     BOOST_CHECK( tChild->isChildOf<test::Parent>());
     BOOST_CHECK( tChild->isChildOf<test::Child>());
     BOOST_CHECK(!tChild->isChildOf<test::Object>());
