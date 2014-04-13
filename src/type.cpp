@@ -56,22 +56,24 @@ bool
 Type::
 isCopiable() const
 {
-    std::string name = id_ + "()";
-    if (!hasField(name)) return false;
+    if (!hasField(id_)) return false;
 
-    auto& fns = field(name);
-    return fns.test(Argument(), { Argument(this, RefType::LValue, true) });
+    auto& fns = field(id_);
+    return fns.test(
+            Argument(this, RefType::Copy, false),
+            { Argument(this, RefType::Copy, false) });
 }
 
 bool
 Type::
 isMovable() const
 {
-    std::string name = id_ + "()";
-    if (!hasField(name)) return false;
+    if (!hasField(id_)) return false;
 
-    auto& fns = field(name);
-    return fns.test(Argument(), { Argument(this, RefType::RValue, false) });
+    auto& fns = field(id_);
+    return fns.test(
+            Argument(this, RefType::Copy, false),
+            { Argument(this, RefType::RValue, false) });
 }
 
 
