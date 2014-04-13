@@ -92,10 +92,9 @@ bool
 Value::
 isCopiable() const
 {
-    typedef typename std::decay<T>::type CleanT;
-
-    return type()->isCopiable()
-        && (type()->isChildOf<CleanT>() || type()->hasConverter<CleanT>());
+    Type* target = reflect::type<T>();
+    return target->isCopiable()
+        && (type()->isChildOf(target) || type()->hasConverter(target));
 }
 
 template<typename T>
@@ -108,9 +107,9 @@ copy() const -> typename CleanValue<T>::type
                 arg.print(), printArgument<T>());
     }
 
-    typedef typename std::remove_const<T>::type CleanT;
+    typedef typename std::decay<T>::type CleanT;
 
-    if (type()->isChildOf<CleanT>())
+    if (type()->isChildOf<T>())
         return *static_cast<CleanT*>(value_);
 
     return convert<CleanT>();
@@ -123,11 +122,11 @@ Value::
 isMovable() const
 {
     reflectStaticAssert(!std::is_lvalue_reference<T>::value);
-    typedef typename std::decay<T>::type CleanT;
 
-    return type()->isMovable()
+    Type* target = reflect::type<T>();
+    return target->isMovable()
         && !isConst()
-        && (type()->isChildOf<CleanT>() || type()->hasConverter<CleanT>());
+        && (type()->isChildOf(target) || type()->hasConverter(target));
 }
 
 template<typename T>
