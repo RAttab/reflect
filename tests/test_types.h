@@ -204,15 +204,27 @@ struct Convertible
 
     Object value;
 
-    operator int() { return value.value(); }
-    operator Parent()
+    operator int() const { return value.value(); }
+    operator Parent() const
     {
         Parent p;
         p.value = value;
         p.shadowed = value.value();
         return std::move(p);
     }
+
+    bool operator== (const Convertible& other) const
+    {
+        return value == other.value;
+    }
 };
+
+std::ostream& operator<<(std::ostream& stream, const Convertible& obj)
+{
+    stream << "<Conv: " << obj.value << ">";
+    return stream;
+}
+
 
 } // namespace test
 
