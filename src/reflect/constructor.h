@@ -18,10 +18,23 @@ namespace reflect {
 /******************************************************************************/
 
 template<typename T,
-    class = typename std::enable_if<std::is_default_constructible<T>::value>::type>
+    class = typename std::enable_if<
+        std::is_default_constructible<T>::value &&
+        std::is_move_constructible<T>::value>::type>
 void reflectConsDefault(Type* type)
 {
     type->add(type->id(), [] { return T(); });
+    type->add("new", [] { return new T; });
+}
+
+
+template<typename T,
+    class = typename std::enable_if<
+        std::is_default_constructible<T>::value &&
+        !std::is_move_constructible<T>::value>::type>
+void reflectConsDefault(Type* type, int=0)
+{
+    type->add("new", [] { return new T; });
 }
 
 template<typename>
@@ -33,10 +46,23 @@ void reflectConsDefault(...) {}
 /******************************************************************************/
 
 template<typename T,
-    class = typename std::enable_if<std::is_copy_constructible<T>::value>::type>
+    class = typename std::enable_if<
+        std::is_copy_constructible<T>::value &&
+        std::is_move_constructible<T>::value>::type>
 void reflectConsCopy(Type* type)
 {
     type->add(type->id(), [] (const T& other) { return T(other); });
+    type->add("new", [] (const T& other) { return new T(other); });
+}
+
+
+template<typename T,
+    class = typename std::enable_if<
+        std::is_copy_constructible<T>::value &&
+        !std::is_move_constructible<T>::value>::type>
+void reflectConsCopy(Type* type, int=0)
+{
+    type->add("new", [] (const T& other) { return new T(other); });
 }
 
 template<typename>
@@ -51,7 +77,9 @@ template<typename T,
     class = typename std::enable_if<std::is_move_constructible<T>::value>::type>
 void reflectConsMove(Type* type)
 {
-    type->add(type->id(), [] (T&& other) { return T(std::move(other)); });
+    type->add(type->id(), [] (T&& other) { 
+                return T(std::move(other)); 
+            });
 }
 
 template<typename>
@@ -66,7 +94,9 @@ template<typename T,
     class = typename std::enable_if<std::is_copy_assignable<T>::value>::type>
 void reflectOpAssignCopy(Type* type)
 {
-    type->add("operator=", [] (T& obj, const T& other) { return obj = other; });
+    type->add("operator=", [] (T& obj, const T& other) -> T& {
+                return obj = other; 
+            });
 }
 
 template<typename>
@@ -81,7 +111,7 @@ template<typename T,
     class = typename std::enable_if<std::is_move_assignable<T>::value>::type>
 void reflectOpAssignMove(Type* type)
 {
-    type->add("operator=", [] (T& obj, T&& other) {
+    type->add("operator=", [] (T& obj, T&& other) -> T& {
                 return obj = std::move(other);
             });
 }

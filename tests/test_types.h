@@ -96,8 +96,8 @@ struct NotMovable
 {
     NotMovable() {}
 
-    NotMovable(const NotMovable&) = delete;
-    NotMovable& operator=(const NotMovable&) = delete;
+    NotMovable(const NotMovable&) = default;
+    NotMovable& operator=(const NotMovable&) = default;
 
     NotMovable(NotMovable&&) = delete;
     NotMovable& operator=(NotMovable&&) = delete;
@@ -110,16 +110,18 @@ struct NotMovable
 
 struct NotConstructible
 {
-    NotConstructible make() { return NotConstructible(); }
+    NotConstructible() = delete;
 
     NotConstructible(const NotConstructible&) = delete;
     NotConstructible& operator=(const NotConstructible&) = delete;
 
-    NotConstructible(NotConstructible&&) = default;
-    NotConstructible& operator=(NotConstructible&&) = default;
+    NotConstructible(NotConstructible&&) = delete;
+    NotConstructible& operator=(NotConstructible&&) = delete;
+
+    NotConstructible* make() { return new NotConstructible(0); }
 
 private:
-    NotConstructible() {}
+    NotConstructible(int) {}
 };
 
 

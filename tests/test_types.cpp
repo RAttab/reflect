@@ -37,8 +37,7 @@ reflectClassImpl(test::Object)
 
 reflectClassImpl(test::NotCopiable)
 {
-    // \todo Doesn't compile
-    // reflectConsBasics();
+    reflectConsBasics();
 }
 
 
@@ -48,8 +47,7 @@ reflectClassImpl(test::NotCopiable)
 
 reflectClassImpl(test::NotMovable)
 {
-    // \todo Doesn't compile
-    // reflectConsBasics();
+    reflectConsBasics();
 }
 
 
@@ -59,8 +57,7 @@ reflectClassImpl(test::NotMovable)
 
 reflectClassImpl(test::NotConstructible)
 {
-    // \todo Doesn't compile
-    // reflectConsBasics();
+    reflectConsBasics();
 }
 
 

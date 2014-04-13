@@ -10,10 +10,61 @@
 
 namespace reflect {
 
+/******************************************************************************/
+/* UTILS                                                                      */
+/******************************************************************************/
+
+template<typename T>
+struct IsCopyStore
+{
+    typedef typename std::decay<T>::type CleanT;
+
+    static constexpr bool value =
+        !std::is_rvalue_reference<T>::value &&
+        std::is_copy_constructible<CleanT>::value;
+};
+
+
+template<typename T>
+struct IsMoveStore
+{
+    typedef typename std::decay<T>::type CleanT;
+
+    static constexpr bool value =
+        std::is_rvalue_reference<T>::value && (
+                std::is_copy_constructible<CleanT>::value ||
+                std::is_move_constructible<CleanT>::value);
+};
+
 
 /******************************************************************************/
 /* VALUE                                                                      */
 /******************************************************************************/
+
+template<typename T,
+    class = typename std::enable_if<IsCopyStore<T>::value>::type>
+void store(std::shared_ptr<void>& storage, T&& value)
+{
+    typedef typename std::decay<T>::type CleanT;
+    storage.reset(new CleanT(value));
+}
+
+
+template<typename T,
+    class = typename std::enable_if<IsMoveStore<T>::value>::type>
+void store(std::shared_ptr<void>& storage, T&& value, int=0)
+{
+    typedef typename std::decay<T>::type CleanT;
+    storage.reset(new CleanT(std::forward<T>(value)));
+}
+
+template<typename T, typename... Rest>
+void store(Rest&&...)
+{
+    reflectError(
+            "<%s> cannot be stored (no move/copy constructor)",
+            printArgument<T>());
+}
 
 template<typename T>
 Value::
@@ -23,12 +74,8 @@ Value(T&& value) :
 {
     if (refType() != RefType::RValue) return;
 
-    typedef typename std::decay<T>::type CleanT;
-    reflectStaticAssert(
-            std::is_copy_constructible<CleanT>::value ||
-            std::is_move_constructible<CleanT>::value);
-
-    storage.reset(value_ = new CleanT(std::forward<T>(value)));
+    store<T>(storage, std::forward<T>(value));
+    value_ = storage.get();
 
     // We now own the value so we're now l-ref-ing our internal storage.
     arg = Argument(arg.type(), RefType::LValue, false);
@@ -97,6 +144,20 @@ isCopiable() const
         && (type()->isChildOf(target) || type()->hasConverter(target));
 }
 
+
+template<typename T,
+    class = typename std::enable_if<std::is_copy_constructible<T>::value>::type>
+T copy(const void* ptr)
+{
+    return *static_cast<const T*>(ptr);
+}
+
+template<typename T>
+T copy(...)
+{
+    reflectError("<%s> can't be copied", printArgument<T>());
+}
+
 template<typename T>
 auto
 Value::
@@ -110,7 +171,7 @@ copy() const -> typename CleanValue<T>::type
     typedef typename std::decay<T>::type CleanT;
 
     if (type()->isChildOf<T>())
-        return *static_cast<CleanT*>(value_);
+        return reflect::copy<T>(value_);
 
     return convert<CleanT>();
 }
