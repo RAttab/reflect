@@ -54,7 +54,8 @@ bool
 Value::
 isCastable() const
 {
-    return arg.isConvertibleTo<T>();
+    typedef typename CleanRef<T>::type RefT;
+    return arg.isConvertibleTo<RefT>();
 }
 
 template<typename T>
