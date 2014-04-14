@@ -25,6 +25,29 @@ BOOST_AUTO_TEST_CASE(void_)
     BOOST_CHECK_EQUAL(Value().type(), val.type());
 }
 
+// Make sure that Value compiles regardless of whether the copy/move
+// constructors are there or not. We should instead break at runtime IF they are
+// used.
+BOOST_AUTO_TEST_CASE(construct)
+{
+    BOOST_TEST_CHECKPOINT("construct-int");
+    Value(0);
+
+    BOOST_TEST_CHECKPOINT("construct-ncp");
+    test::NotCopiable ncp;
+    Value(std::move(ncp));
+
+    BOOST_TEST_CHECKPOINT("construct-nmv");
+    test::NotMovable nmv;
+    Value(std::move(nmv));
+
+    BOOST_TEST_CHECKPOINT("construct-ncs");
+    std::unique_ptr<test::NotConstructible> ncs(test::NotConstructible::make());
+    BOOST_CHECK_THROW(Value(std::move(*ncs)), ReflectError);
+
+    BOOST_TEST_CHECKPOINT("construct-done");
+}
+
 BOOST_AUTO_TEST_CASE(lValue)
 {
     unsigned u = 10;

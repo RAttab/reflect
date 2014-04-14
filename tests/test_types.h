@@ -118,7 +118,7 @@ struct NotConstructible
     NotConstructible(NotConstructible&&) = delete;
     NotConstructible& operator=(NotConstructible&&) = delete;
 
-    NotConstructible* make() { return new NotConstructible(0); }
+    static NotConstructible* make() { return new NotConstructible(0); }
 
 private:
     NotConstructible(int) {}

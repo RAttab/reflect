@@ -48,6 +48,7 @@ template<typename Target>
 struct Cast<Value, Target>
 {
     typedef typename details::TargetRef<Target>::type TargetRef;
+    typedef typename std::decay<Target>::type CleanTarget;
 
     static TargetRef cast(Value& value)
     {
@@ -61,8 +62,8 @@ private:
     static TargetRef cast(Value& value, std::false_type, std::false_type)
     {
         if (value.refType() == RefType::RValue)
-            return value.move<Target>();
-        return value.copy<Target>();
+            return move(value);
+        return copy(value);
     }
 
     static TargetRef cast(Value& value, std::true_type, std::false_type)
@@ -74,6 +75,51 @@ private:
     {
         return value.move<Target>();
     }
+
+
+
+    static TargetRef copy(Value& value)
+    {
+        return copy(value,
+                typename std::is_copy_constructible<CleanTarget>::type());
+    }
+
+    static TargetRef copy(Value& value, std::true_type)
+    {
+        return value.copy<Target>();
+    }
+
+    static TargetRef copy(Value& value, std::false_type)
+    {
+        reflectError("<%s> cannot be copied to <%s>",
+                value.argument().print(), printArgument<Target>);
+    }
+
+
+    static TargetRef move(Value& value)
+    {
+        return move(value,
+                typename std::is_move_constructible<CleanTarget>::type(),
+                typename std::is_copy_constructible<CleanTarget>::type());
+    }
+
+    template<typename Meh>
+    static TargetRef move(Value& value, std::true_type, Meh)
+    {
+        return value.move<Target>();
+    }
+
+    static TargetRef move(Value& value, std::false_type, std::true_type)
+    {
+        return value.copy<Target>();
+    }
+
+    static TargetRef copy(Value& value, std::false_type, std::false_type)
+    {
+        reflectError("<%s> cannot be moved to <%s>",
+                value.argument().print(), printArgument<Target>);
+    }
+
 };
 
 template<typename T>
