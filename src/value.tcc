@@ -77,7 +77,7 @@ Value::
 isCastable() const
 {
     typedef typename CleanRef<T>::type RefT;
-    return arg.isConvertibleTo<RefT>();
+    return arg.isConvertibleTo<RefT>() != Match::None;
 }
 
 template<typename T>

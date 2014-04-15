@@ -37,9 +37,12 @@ struct Function
     const Argument& argument(size_t index) const { return args[index]; }
 
     template<typename Fn>
-    bool test() const;
-    bool test(const Function& other) const;
-    bool test(const Argument& ret, const std::vector<Argument>& args) const;
+    Match test() const;
+    Match test(const Function& other) const;
+    Match test(const Argument& ret, const std::vector<Argument>& args) const;
+
+    template<typename Ret, typename... Args>
+    Match testParams(Args&&... args) const;
 
     template<typename Ret, typename... Args>
     Ret call(Args&&... args) const;
@@ -51,14 +54,11 @@ private:
     template<typename Ret, typename... Args>
     void initFn(std::function<Ret(Args...)> fn);
 
-    bool test(const Argument& value, const Argument& target) const;
-    bool testReturn(const Argument& value, const Argument& target) const;
-    bool testArguments(
+    Match test(const Argument& value, const Argument& target) const;
+    Match testReturn(const Argument& value, const Argument& target) const;
+    Match testArguments(
             const std::vector<Argument>& value,
             const std::vector<Argument>& target) const;
-
-    template<typename Ret, typename... Args>
-    bool testParams(Args&&... args) const;
 
     VoidFn fn;
     std::string name_;

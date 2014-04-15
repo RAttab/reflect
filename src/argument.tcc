@@ -44,7 +44,7 @@ make(T&& value)
 
 
 template<typename T>
-bool
+Match
 Argument::
 isConvertibleTo() const
 {

@@ -123,27 +123,29 @@ initFn(std::function<Ret(Args...)> rawFn)
 
 
 template<typename Fn>
-bool
+Match
 Function::
 test() const
 {
     auto otherRet = reflectReturn<Fn>();
     auto otherArgs = reflectArguments<Fn>();
 
-    return testReturn(otherRet, ret)
-        && testArguments(otherArgs, args);
+    return combine(
+            testReturn(otherRet, ret),
+            testArguments(otherArgs, args));
 }
 
 template<typename Ret, typename... Args>
-bool
+Match
 Function::
 testParams(Args&&... args) const
 {
     auto otherRet = reflectReturn<Ret(Args...)>();
     auto otherArgs = reflectArguments(std::forward<Args>(args)...);
 
-    return testReturn(otherRet, ret)
-        && testArguments(otherArgs, this->args);
+    return combine(
+            testReturn(otherRet, ret),
+            testArguments(otherArgs, this->args));
 }
 
 template<typename Ret, typename... Args>
@@ -151,7 +153,7 @@ Ret
 Function::
 call(Args&&... args) const
 {
-    if (!testParams<Ret>(std::forward<Args>(args)...)) {
+    if (testParams<Ret>(std::forward<Args>(args)...) == Match::None) {
         reflectError("<%s> is not convertible to <%s>",
                 signature<Ret(Args...)>(), signature(*this));
     }
@@ -174,7 +176,7 @@ Functions::
 test() const
 {
     for (const auto& fn : overloads) {
-        if (fn.test<Fn>()) return true;
+        if (fn.test<Fn>() != Match::None) return true;
     }
     return false;
 
@@ -185,13 +187,38 @@ Ret
 Functions::
 call(Args&&... args) const
 {
-    for (const auto& fn : overloads) {
-        if (!fn.test<Ret(Args...)>()) continue;
+    const Function* bestFn = nullptr;
+    bool ambiguous = false;
 
-        return fn.call<Ret>(std::forward<Args>(args)...);
+    for (const auto& fn : overloads) {
+
+        Match match = fn.testParams<Ret>(std::forward<Args>(args)...);
+        if (match == Match::None) continue;
+
+        if (bestFn && match == Match::Partial) {
+            ambiguous = true;
+            continue;
+        }
+
+        bestFn = &fn;
+
+        if (match == Match::Exact) {
+            ambiguous = false;
+            break;
+        }
     }
 
-    reflectError("no overloads available for <%s>", signature<Ret(Args...)>());
+    if (!bestFn) {
+        reflectError("no overloads available for <%s>",
+                signature<Ret(Args...)>());
+    }
+
+    if (ambiguous) {
+        reflectError("ambiguous function call for <%s>",
+                signature<Ret(Args...)>());
+    }
+
+    return bestFn->call<Ret>(std::forward<Args>(args)...);
 }
 
 } // reflect

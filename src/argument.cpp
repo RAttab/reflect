@@ -12,6 +12,31 @@
 namespace reflect {
 
 /******************************************************************************/
+/* MATCH                                                                      */
+/******************************************************************************/
+
+Match combine(Match a, Match b)
+{
+    if (a == Match::None || b == Match::None) return Match::None;
+    if (a == Match::Partial || b == Match::Partial) return Match::Partial;
+    return Match::Exact;
+}
+
+std::ostream& operator<<(std::ostream& stream, Match match)
+{
+    switch(match)
+    {
+    case Match::None:    stream << "None"; break;
+    case Match::Partial: stream << "Partial"; break;
+    case Match::Exact:   stream << "Exact"; break;
+    default: reflectError("unknown match value");
+    };
+
+    return stream;
+}
+
+
+/******************************************************************************/
 /* ARGUMENT                                                                   */
 /******************************************************************************/
 
@@ -47,35 +72,49 @@ isTemporary() const
 
 bool
 Argument::
+operator==(const Argument& other) const
+{
+    return type_ == other.type_
+        && refType_ == other.refType_
+        && isConst_ == other.isConst_;
+}
+
+Match
+Argument::
 isConvertibleTo(const Argument& target) const
 {
     static Type* valueType = reflect::type<Value>();
 
+    std::cerr << "\t- " << print() << " -> " << target.print() << std::endl;
+
+    if (*this == target) return Match::Exact;
+
     if ((type() == valueType) ^ (target.type() == valueType))
-        return true;
+        return Match::Exact;
 
     if (type()->hasConverter(target.type())) {
         if (target.refType() == RefType::LValue && !target.isConst())
-            return false;
-        return true;
+            return Match::None;
+        return Match::Partial;
     }
 
     if (target.refType() != RefType::Copy) {
         if (!testConstConversion(isConst(), target.isConst()))
-            return false;
+            return Match::None;
     }
 
     if (target.refType() == RefType::LValue) {
         if (target.isConst()) {}
-        else if (isConst()) return false;
-        else if (refType() != RefType::LValue) return false;
+        else if (isConst()) return Match::None;
+        else if (refType() != RefType::LValue) return Match::None;
     }
 
     else if (target.refType() == RefType::RValue) {
-        if (refType() != RefType::RValue) return false;
+        if (refType() != RefType::RValue) return Match::None;
     }
 
-    return target.type()->isParentOf(type());
+    return target.type()->isParentOf(type()) ? Match::Partial : Match::None;
+
 }
 
 

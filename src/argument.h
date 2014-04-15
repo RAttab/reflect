@@ -13,6 +13,21 @@
 namespace reflect {
 
 /******************************************************************************/
+/* MATCH                                                                      */
+/******************************************************************************/
+
+enum struct Match
+{
+    None,
+    Partial,
+    Exact
+};
+
+Match combine(Match a, Match b);
+
+std::ostream& operator<<(std::ostream& stream, Match match);
+
+/******************************************************************************/
 /* ARGUMENT                                                                   */
 /******************************************************************************/
 
@@ -38,8 +53,10 @@ struct Argument
     std::string print() const;
 
     template<typename T>
-    bool isConvertibleTo() const;
-    bool isConvertibleTo(const Argument& other) const;
+    Match isConvertibleTo() const;
+    Match isConvertibleTo(const Argument& other) const;
+
+    bool operator==(const Argument& other) const;
 
 private:
     const Type* type_;
