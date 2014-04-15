@@ -29,9 +29,16 @@ struct Type
     Type* parent() const { return parent_; }
     void parent(Type* parent) { parent_ = parent; }
 
+    template<typename Fn>
+    void add(const std::string& name, Fn rawFn);
+
     std::vector<std::string> fields() const;
     bool hasField(const std::string& field) const;
     const Functions& field(const std::string& field) const;
+
+    void addTrait(std::string trait);
+    bool is(const std::string& trait) const;
+    std::vector<std::string> traits() const;
 
     template<typename T>
     bool isParentOf() const { return isParentOf(type<T>()); }
@@ -58,10 +65,6 @@ struct Type
     template<typename Ret, typename... Args>
     Ret call(const std::string& field, Args&&... args) const;
 
-
-    template<typename Fn>
-    void add(const std::string& name, Fn rawFn);
-
     std::string print(size_t indent = 0) const;
 
 private:
@@ -71,6 +74,7 @@ private:
     std::string id_;
     Type* parent_;
 
+    std::unordered_set<std::string> traits_;
     std::unordered_map<std::string, Functions> fields_;
 };
 

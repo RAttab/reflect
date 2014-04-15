@@ -34,4 +34,12 @@ void reflectParent_(Type* type)
 #define reflectAlias(type) \
     reflect::Registry::alias<type>(#type)
 
+
+/******************************************************************************/
+/* REFLECT TRAIT                                                              */
+/******************************************************************************/
+
+#define reflectTrait(trait) \
+    type_->addTrait(#trait)
+
 } // reflect

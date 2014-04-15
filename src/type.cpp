@@ -16,6 +16,27 @@ namespace reflect {
 /* TYPE                                                                       */
 /******************************************************************************/
 
+void
+Type::
+addTrait(std::string trait)
+{
+    traits_.emplace(std::move(trait));
+}
+
+bool
+Type::
+is(const std::string& trait) const
+{
+    return traits_.count(trait);
+}
+
+std::vector<std::string>
+Type::
+traits() const
+{
+    return std::vector<std::string>(traits_.begin(), traits_.end());
+}
+
 bool
 Type::
 isChildOf(const Type* other) const
