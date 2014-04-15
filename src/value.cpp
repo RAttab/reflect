@@ -65,8 +65,7 @@ copy() const
     if (!type()->isCopiable())
         reflectError("<%s> is not copiable", type()->id());
 
-    reflectError("Value::copy() is not implemented yet.");
-    return Value();
+    return type()->construct(*this);
 }
 
 Value
@@ -76,8 +75,18 @@ move()
     if (!type()->isMovable())
         reflectError("<%s> is not movable", type()->id());
 
-    reflectError("Value::move() is not implemented yet.");
-    return Value();
+    Value arg = rvalue();
+    *this = Value();
+    return arg.type()->construct(arg);
+}
+
+Value
+Value::
+rvalue() const
+{
+    Value result(*this);
+    result.arg = Argument(type(), RefType::RValue, isConst());
+    return result;
 }
 
 

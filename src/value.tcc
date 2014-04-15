@@ -198,5 +198,13 @@ set(const std::string& field, Arg&& arg) const
     call<void>(field, std::forward<Arg>(arg));
 }
 
+template<typename Arg>
+void
+Value::
+assign(Arg&& arg) const
+{
+    call<void>("operator=", *this, std::forward<Arg>(arg));
+}
+
 
 } // reflect

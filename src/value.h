@@ -99,6 +99,7 @@ struct Value
     template<typename T> auto move() -> typename CleanValue<T>::type;
     template<typename T> bool isMovable() const;
 
+    Value rvalue() const;
     Value copy() const;
     Value move();
 
@@ -110,6 +111,10 @@ struct Value
 
     template<typename Arg>
     void set(const std::string& field, Arg&& arg) const;
+
+    // operator= for the contained value.
+    template<typename Arg>
+    void assign(Arg&& arg) const;
 
     reflectValueOpBinary(operator+=)
     reflectValueOpBinary(operator-=)

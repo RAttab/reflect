@@ -254,3 +254,23 @@ BOOST_AUTO_TEST_CASE(convertible)
     value = Value(test::Convertible(o)); // previous test cleared it.
     BOOST_CHECK_EQUAL(value.move<test::Parent>().value, o);
 }
+
+BOOST_AUTO_TEST_CASE(copyMove)
+{
+    test::Object obj(10);
+    Value vObj(obj);
+
+    {
+        Value copy = vObj.copy();
+        BOOST_CHECK_EQUAL(copy.get<int>("value"), 10);
+        BOOST_CHECK_EQUAL(vObj.get<int>("value"), 10);
+        BOOST_CHECK_EQUAL(obj.value(), 10);
+    }
+
+    {
+        Value moved = vObj.move();
+        BOOST_CHECK_EQUAL(moved.get<int>("value"), 10);
+        BOOST_CHECK(vObj.isVoid());
+        BOOST_CHECK_EQUAL(obj.value(), 0);
+    }
+}
