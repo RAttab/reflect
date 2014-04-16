@@ -84,8 +84,9 @@ endif()
 
 include_directories("${PROJECT_SOURCE_DIR}/src")
 
-add_library(reflect SHARED
-    src/reflect.cpp
+add_library(reflect SHARED src/reflect.cpp)
+
+add_library(reflect_primitives SHARED
     src/types/primitives.cpp
     src/types/primitive_void.cpp
     src/types/primitive_bool.cpp
@@ -95,6 +96,8 @@ add_library(reflect SHARED
     src/types/primitive_long.cpp
     src/types/primitive_long_long.cpp
     src/types/value.cpp)
+force_target_link_libraries(reflect reflect_primitives)
+
 
 install(TARGETS reflect DESTINATION lib)
 
