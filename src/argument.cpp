@@ -85,8 +85,6 @@ isConvertibleTo(const Argument& target) const
 {
     static Type* valueType = reflect::type<Value>();
 
-    std::cerr << "\t- " << print() << " -> " << target.print() << std::endl;
-
     if (*this == target) return Match::Exact;
 
     if ((type() == valueType) ^ (target.type() == valueType))
