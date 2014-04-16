@@ -23,6 +23,7 @@ struct RegistryState
     std::unordered_map<std::string, Type*> types;
     std::unordered_map<std::string, std::string> aliases;
     std::unordered_map<std::string, std::function<void(Type*)> > loaders;
+    Namespace ns;
 };
 
 RegistryState* registry_ = nullptr;
@@ -39,6 +40,13 @@ RegistryState& getRegistry()
 /******************************************************************************/
 /* REGISTRY                                                                   */
 /******************************************************************************/
+
+Namespace*
+Registry::
+globalNamespace()
+{
+    return &getRegistry().ns;
+}
 
 Type*
 Registry::
@@ -105,6 +113,7 @@ add(const std::string& id, std::function<void(Type*)> loader)
 
     // If we already have a loader then too-bad.
     registry.loaders.emplace(std::move(id), std::move(loader));
+    registry.ns.addType(id);
 }
 
 void
@@ -124,5 +133,19 @@ alias(const std::string& id, const std::string& alias)
                 alias, id, ret.first->second);
     }
 }
+
+
+/******************************************************************************/
+/* UTILS                                                                      */
+/******************************************************************************/
+
+Namespace* namespace_(const std::string& name)
+{
+    Namespace* global = Registry::globalNamespace();
+    const Namespace* cglobal = global;
+    return name.empty() ? global : cglobal->sub(name);
+
+}
+
 
 } // reflect

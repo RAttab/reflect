@@ -16,6 +16,7 @@ namespace reflect {
 
 struct Namespace
 {
+    Namespace();
     Namespace(const std::string& name, Namespace* parent = nullptr);
 
     Namespace(const Namespace&) = delete;
@@ -32,7 +33,6 @@ struct Namespace
     std::vector<std::string> subs() const;
     bool hasSub(const std::string& name) const;
     Namespace* sub(const std::string& name) const;
-    Namespace* sub(const std::string& name);
 
     std::vector<std::string> types(bool includeSubs = false) const;
     bool hasType(const std::string& name);
@@ -54,6 +54,8 @@ struct Namespace
     std::string print(int indent = 0) const;
 
 private:
+
+    Namespace* sub(const std::string& name);
 
     static std::string join(const std::string& head, const std::string& tail);
     static std::pair<std::string, std::string> head(const std::string& name);

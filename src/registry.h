@@ -54,6 +54,8 @@ struct Registry
     }
     static void alias(const std::string& id, const std::string& alias);
 
+    static Namespace* globalNamespace();
+
 private:
     static void add(const std::string& id, Type* type);
     static Type* load(const std::string& id);
@@ -75,5 +77,11 @@ inline Type* type(const std::string& id)
     return Registry::get(id);
 }
 
+
+/******************************************************************************/
+/* NAMESPACE                                                                  */
+/******************************************************************************/
+
+Namespace* namespace_(const std::string& name = "");
 
 } // reflect

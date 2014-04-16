@@ -54,6 +54,10 @@ join(const std::string& head, const std::string& tail)
 /******************************************************************************/
 
 Namespace::
+Namespace() : parent_(nullptr)
+{}
+
+Namespace::
 Namespace(const std::string& name, Namespace* parent) :
     name_(name), parent_(parent)
 {}
@@ -85,10 +89,13 @@ print(int indent) const
         ss << fn.second.print(indent + PadInc);
     }
 
-    ss << pad0 << "\n";
+    if (!functions_.empty() && (!types_.empty() || !subs_.empty()))
+        ss << pad0 << "\n";
 
     for (auto& type : types_)
-        ss << pad0 << "struct " << type.first << ";\n";
+        ss << pad1 << "struct " << type.first << ";\n";
+
+    if (!types_.empty() && !subs_.empty()) ss << pad0 << "\n";
 
     for (auto& sub : subs_)
         ss << sub.second->print(indent) << "\n";
