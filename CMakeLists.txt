@@ -106,6 +106,7 @@ install(
     src/function.h
     src/function.tcc
     src/function_traits.h
+    src/namespace.h
     src/reflect.h
     src/ref_type.h
     src/registry.h

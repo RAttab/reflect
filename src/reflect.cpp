@@ -15,3 +15,4 @@
 #include "value.cpp"
 #include "function.cpp"
 #include "type.cpp"
+#include "namespace.cpp"

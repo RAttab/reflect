@@ -33,6 +33,16 @@
 #include "type_name.h"
 #include "make_function.h"
 
+namespace reflect {
+
+struct Namespace;
+struct Type;
+struct Function;
+struct Functions;
+struct Value;
+
+} // namespace reflect
+
 #include "registry.h"
 #include "argument.h"
 #include "value.h"
@@ -40,6 +50,7 @@
 #include "value_function.h"
 #include "function.h"
 #include "type.h"
+#include "namespace.h"
 
 #include "argument.tcc"
 #include "value.tcc"
