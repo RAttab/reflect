@@ -113,23 +113,26 @@ BOOST_AUTO_TEST_CASE(void_call)
     // copy
     BOOST_CHECK_THROW(fn.call<void>(10), ReflectError);
     BOOST_CHECK_THROW(fn.call<int>(), ReflectError);
+    BOOST_CHECK(fn.call<Value>().isVoid());
 
     // l-ref
     int i = 0; Value lValue(i);
     BOOST_CHECK_THROW(fn.call<void>(i), ReflectError);
     BOOST_CHECK_THROW(fn.call<void>(lValue), ReflectError);
     BOOST_CHECK_THROW(fn.call<int&>(), ReflectError);
+    BOOST_CHECK_THROW(fn.call<Value&>(), ReflectError);
 
     // const l-ref
     const int& c = i; Value constLValue(c);
     BOOST_CHECK_THROW(fn.call<void>(c), ReflectError);
     BOOST_CHECK_THROW(fn.call<void>(constLValue), ReflectError);
     BOOST_CHECK_THROW(fn.call<const int&>(), ReflectError);
+    BOOST_CHECK_THROW(fn.call<const Value&>(), ReflectError);
 
     // r-ref
     int r = i;
     BOOST_CHECK_THROW(fn.call<void>(std::move(r)), ReflectError);
-    BOOST_CHECK_THROW(fn.call<void>(Value(std::move(r))), ReflectError);
+    BOOST_CHECK_THROW(fn.call<void>(Value(r).rvalue()), ReflectError);
 }
 
 
@@ -194,7 +197,7 @@ BOOST_AUTO_TEST_CASE(copy_call)
     // r-ref
     int r = i;
     BOOST_CHECK_EQUAL(fn.call<int>(std::move(r)), foo(10));
-    BOOST_CHECK_EQUAL(fn.call<int>(Value(std::move(r))), foo(10));
+    BOOST_CHECK_EQUAL(fn.call<int>(Value(r).rvalue()), foo(10));
 }
 
 
@@ -271,7 +274,7 @@ BOOST_AUTO_TEST_CASE(lValue_call)
         // \todo Inconsistent. Value-ing an r-ref turns it into an l-ref to
         // Value's internal storage which means that the call is now valid.
         // Returns a reference to a temporary so can't check the return value.
-        BOOST_CHECK_NO_THROW(fn.call<int&>(Value(std::move(r))));
+        BOOST_CHECK_THROW(fn.call<int&>(Value(r).rvalue()), ReflectError);
     }
 }
 
@@ -343,7 +346,7 @@ BOOST_AUTO_TEST_CASE(constLValue_call)
     int r = i;
     // We return a value to a temporary here so it's not safe to check it.
     BOOST_CHECK_NO_THROW(fn.call<const int&>(std::move(r)));
-    BOOST_CHECK_NO_THROW(fn.call<const int&>(Value(std::move(r))));
+    BOOST_CHECK_NO_THROW(fn.call<const int&>(Value(r).rvalue()));
 }
 
 
@@ -404,7 +407,7 @@ BOOST_AUTO_TEST_CASE(rValue_call)
     }
     {
         int r = i;
-        BOOST_CHECK_THROW(fn.call<int&>(Value(std::move(r))), ReflectError);
+        BOOST_CHECK_THROW(fn.call<int&>(Value(r).rvalue()), ReflectError);
     }
 
     // const l-ref
@@ -417,7 +420,7 @@ BOOST_AUTO_TEST_CASE(rValue_call)
     }
     {
         int r = i;
-        BOOST_CHECK_THROW(fn.call<const int&>(Value(std::move(r))), ReflectError);
+        BOOST_CHECK_THROW(fn.call<const int&>(Value(r).rvalue()), ReflectError);
     }
 
     // r-ref
@@ -427,9 +430,7 @@ BOOST_AUTO_TEST_CASE(rValue_call)
     }
     {
         int r = i;
-        // \todo Inconsistent. Value-ing an r-ref turns it into an l-ref to
-        // Value's internal storage which means that the call is now invalid.
-        BOOST_CHECK_THROW(fn.call<int>(Value(std::move(r))), ReflectError);
+        BOOST_CHECK_NO_THROW(fn.call<int>(Value(r).rvalue()));
     }
 }
 
