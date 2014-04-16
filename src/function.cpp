@@ -23,6 +23,12 @@ testReturn(const Argument& value, const Argument& target) const
     // If our caller doesn't want a return value then we can just discard it.
     if (value.type() == type<void>()) return Match::Exact;
 
+    if (target.type() == type<void>()) {
+        if (value.type() != type<Value>()) return Match::None;
+        if (value.refType() == RefType::LValue) return Match::None;
+        return Match::Exact;
+    }
+
     if (target.isConvertibleTo(value) == Match::None) return Match::None;
 
     // While this is valid C++, it doesn't quite work through the reflection

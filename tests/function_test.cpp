@@ -82,18 +82,25 @@ BOOST_AUTO_TEST_CASE(void_test)
 
     // copy
     BOOST_CHECK_EQUAL(fn.test<void(int)>(), Match::None);
+    BOOST_CHECK_EQUAL(fn.test<void(Value)>(), Match::None);
     BOOST_CHECK_EQUAL(fn.test<int(void)>(), Match::None);
+    BOOST_CHECK_EQUAL(fn.test<Value(void)>(), Match::Exact);
 
     // l-ref
     BOOST_CHECK_EQUAL(fn.test<void(int&)>(), Match::None);
+    BOOST_CHECK_EQUAL(fn.test<void(Value&)>(), Match::None);
     BOOST_CHECK_EQUAL(fn.test<int&(void)>(), Match::None);
+    BOOST_CHECK_EQUAL(fn.test<Value&(void)>(), Match::None);
 
     // const l-ref
     BOOST_CHECK_EQUAL(fn.test<void(const int&)>(), Match::None);
+    BOOST_CHECK_EQUAL(fn.test<void(const Value&)>(), Match::None);
     BOOST_CHECK_EQUAL(fn.test<const int&(void)>(), Match::None);
+    BOOST_CHECK_EQUAL(fn.test<const Value&(void)>(), Match::None);
 
     // r-ref
     BOOST_CHECK_EQUAL(fn.test<void(int&&)>(), Match::None);
+    BOOST_CHECK_EQUAL(fn.test<void(Value&&)>(), Match::None);
 }
 
 BOOST_AUTO_TEST_CASE(void_call)
