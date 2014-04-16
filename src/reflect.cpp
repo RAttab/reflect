@@ -14,5 +14,6 @@
 #include "argument.cpp"
 #include "value.cpp"
 #include "function.cpp"
+#include "overloads.cpp"
 #include "type.cpp"
 #include "namespace.cpp"

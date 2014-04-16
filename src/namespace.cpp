@@ -297,7 +297,7 @@ hasFunction(const std::string& name) const
     return it != functions_.end();
 }
 
-const Functions&
+const Overloads&
 Namespace::
 function(const std::string& name) const
 {

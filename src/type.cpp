@@ -130,7 +130,7 @@ hasField(const std::string& field) const
     return parent_ ? parent_->hasField(field) : false;
 }
 
-const Functions&
+const Overloads&
 Type::
 field(const std::string& field) const
 {

@@ -42,7 +42,7 @@ struct Namespace
 
     std::vector<std::string> functions(bool includeSubs = false) const;
     bool hasFunction(const std::string& name) const;
-    const Functions& function(const std::string& name) const;
+    const Overloads& function(const std::string& name) const;
 
     template<typename Fn>
     void addFunction(const std::string& name, Fn&& fn)
@@ -65,7 +65,7 @@ private:
     std::unordered_map<std::string, Namespace*> subs_;
 
     std::unordered_map<std::string, const Type*> types_;
-    std::unordered_map<std::string, Functions> functions_;
+    std::unordered_map<std::string, Overloads> functions_;
 };
 
 } // reflect

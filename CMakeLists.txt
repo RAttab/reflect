@@ -110,6 +110,7 @@ install(
     src/function.tcc
     src/function_traits.h
     src/namespace.h
+    src/overloads.h
     src/reflect.h
     src/ref_type.h
     src/registry.h
@@ -176,4 +177,4 @@ reflect_test(reflection)
 
 reflect_test(cperf_type_lookup)
 
-# add_executable(blah_test tests/blah_test.cpp)
+add_executable(blah_test tests/blah_test.cpp)

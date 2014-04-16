@@ -34,7 +34,7 @@ struct Type
 
     std::vector<std::string> fields() const;
     bool hasField(const std::string& field) const;
-    const Functions& field(const std::string& field) const;
+    const Overloads& field(const std::string& field) const;
 
     void addTrait(std::string trait);
     bool is(const std::string& trait) const;
@@ -75,7 +75,7 @@ private:
     Type* parent_;
 
     std::unordered_set<std::string> traits_;
-    std::unordered_map<std::string, Functions> fields_;
+    std::unordered_map<std::string, Overloads> fields_;
 };
 
 
