@@ -33,10 +33,11 @@ Namespace::
 tail(const std::string& name)
 {
     size_t pos = name.rfind("::");
-    size_t next = pos - 2;
+    size_t next = pos;
 
     if (pos == std::string::npos)
         pos = next = 0;
+    else pos += 2;
 
     return std::make_pair(name.substr(pos), name.substr(0, next));
 }
@@ -45,7 +46,7 @@ std::string
 Namespace::
 join(const std::string& head, const std::string& tail)
 {
-    return head + "::" + tail;
+    return head.empty() ? tail : (head + "::" + tail);
 }
 
 
@@ -66,6 +67,7 @@ std::string
 Namespace::
 id() const
 {
+    if (!parent_) return "";
     return join(parent_->id(), name_);
 }
 

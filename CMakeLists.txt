@@ -169,6 +169,7 @@ function(reflect_test name)
 endfunction()
 
 reflect_test(ref)
+reflect_test(namespace)
 reflect_test(type)
 reflect_test(value)
 reflect_test(value_function)

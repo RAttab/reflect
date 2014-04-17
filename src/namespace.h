@@ -33,6 +33,7 @@ struct Namespace
     std::vector<std::string> subs() const;
     bool hasSub(const std::string& name) const;
     Namespace* sub(const std::string& name) const;
+    Namespace* sub(const std::string& name);
 
     std::vector<std::string> types(bool includeSubs = false) const;
     bool hasType(const std::string& name);
@@ -47,15 +48,13 @@ struct Namespace
     template<typename Fn>
     void addFunction(const std::string& name, Fn&& fn)
     {
-        addFunction(name, Function(tail(name), std::forward<Fn>(fn)));
+        addFunction(name, Function(tail(name).first, std::forward<Fn>(fn)));
     }
     void addFunction(const std::string& name, Function fn);
 
     std::string print(int indent = 0) const;
 
 private:
-
-    Namespace* sub(const std::string& name);
 
     static std::string join(const std::string& head, const std::string& tail);
     static std::pair<std::string, std::string> head(const std::string& name);
