@@ -18,6 +18,7 @@ struct Type;
 /******************************************************************************/
 
 template<typename T, typename Enable = void> struct Reflect;
+template<typename T, typename Enable = void> struct ReflectNamespace;
 template<typename T, typename Enable = void> struct Loader;
 
 
