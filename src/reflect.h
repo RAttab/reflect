@@ -58,6 +58,7 @@ struct Value;
 #include "function.tcc"
 #include "overloads.tcc"
 #include "type.tcc"
+#include "namespace.tcc"
 
 #include "reflect/class.h"
 

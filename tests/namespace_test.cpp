@@ -11,6 +11,8 @@
 
 #include "reflect.h"
 #include "reflect/namespace.h"
+#include "reflect/class.h"
+#include "reflect/constructor.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -22,7 +24,7 @@ using namespace reflect;
 
 namespace foo {
 
-void fooFn() {}
+int fooFn(int i) { return i + 1; }
 struct Foo {};
 
 }
@@ -31,14 +33,18 @@ reflectNamespace(foo)
 {
     reflectGlobalFn(foo::fooFn);
 }
-reflectClass(foo::Foo) {}
+
+reflectClass(foo::Foo)
+{
+    reflectConsBasics();
+}
 
 
 /******************************************************************************/
 /* BAR                                                                        */
 /******************************************************************************/
 
-namespace foo {namespace bar {
+namespace foo { namespace bar {
 
 struct Bar {};
 int barFn(int i) { return i + 1; }
@@ -49,7 +55,11 @@ reflectNamespace(foo::bar)
 {
     reflectGlobalFn(foo::bar::barFn);
 }
-reflectClass(foo::bar::Bar) {}
+
+reflectClass(foo::bar::Bar)
+{
+    reflectConsBasics();
+}
 
 
 /******************************************************************************/
@@ -76,5 +86,20 @@ reflectNamespace(foo::baz)
 
 BOOST_AUTO_TEST_CASE(basics)
 {
-    std::cerr << namespace_("foo")->print() << std::endl;
+    Namespace* nFoo = namespace_("foo");
+
+    std::cerr << nFoo->print() << std::endl;
+
+    BOOST_CHECK(nFoo->hasType("Foo"));
+    BOOST_CHECK(nFoo->type("Foo")->hasField("foo::Foo"));
+
+    BOOST_CHECK(nFoo->type("bar::Bar")->hasField("foo::bar::Bar"));
+    BOOST_CHECK(nFoo->hasType("bar::Bar"));
+
+    BOOST_CHECK_EQUAL(nFoo->call<int>("fooFn", 10), foo::fooFn(10));
+    BOOST_CHECK_EQUAL(nFoo->call<int>("bar::barFn", 10), foo::bar::barFn(10));
+
+    nFoo->call<void>("baz::i", 10);
+    BOOST_CHECK_EQUAL(foo::baz::i, 10);
+    BOOST_CHECK_EQUAL(nFoo->call<int>("baz::i"), foo::baz::i);
 }

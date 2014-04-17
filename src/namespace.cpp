@@ -233,7 +233,7 @@ type(const std::string& name)
 
     // lazy load the type.
     if (!it->second)
-        it->second = type(join(id(), split.first));
+        it->second = reflect::type(join(id(), split.first));
 
     if (!split.second.empty())
         reflectError("Type doesn't support inner classes yet");

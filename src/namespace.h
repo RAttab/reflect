@@ -46,11 +46,11 @@ struct Namespace
     const Overloads& function(const std::string& name) const;
 
     template<typename Fn>
-    void addFunction(const std::string& name, Fn&& fn)
-    {
-        addFunction(name, Function(tail(name).first, std::forward<Fn>(fn)));
-    }
+    void addFunction(const std::string& name, Fn&& fn);
     void addFunction(const std::string& name, Function fn);
+
+    template<typename Ret, typename... Args>
+    Ret call(const std::string& fn, Args&&... args) const;
 
     std::string print(int indent = 0) const;
 
