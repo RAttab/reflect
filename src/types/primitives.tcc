@@ -37,7 +37,10 @@ void reflectNumberImpl(Type* type_)
 
     reflectTrait(primitive);
 
-    if (std::numeric_limits<T_>::is_integer) {
+    if (std::is_same<T_, bool>::value)
+        reflectTrait(bool);
+
+    else if (std::numeric_limits<T_>::is_integer) {
         reflectTrait(integer);
 
         if (std::numeric_limits<T_>::is_signed)
