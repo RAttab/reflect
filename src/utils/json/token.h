@@ -7,7 +7,10 @@
 
 #pragma once
 
+#include <string>
+
 namespace reflect {
+namespace json {
 
 /******************************************************************************/
 /* TOKEN                                                                      */
@@ -27,7 +30,7 @@ struct Token
     Token(Type type, bool value);
     Token(Type type, std::string value = "");
 
-    Type type() const { return Type; }
+    Type type() const { return type_; }
 
     std::string stringValue() const;
 
@@ -52,4 +55,5 @@ Token nextToken(std::istream& json);
 void expectToken(Token token, Token::Type expected);
 
 
+} // namespace json
 } // reflect

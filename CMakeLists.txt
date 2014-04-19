@@ -105,9 +105,9 @@ add_library(reflect_std SHARED
     src/types/std/string.cpp)
 
 
-# add_library(reflect_json SHARED
-#     src/utils/json/token.cpp
-#     src/utils/json/parser.cpp)
+add_library(reflect_json SHARED
+    src/utils/json/token.cpp
+    src/utils/json/parser.cpp)
 
 
 #------------------------------------------------------------------------------#

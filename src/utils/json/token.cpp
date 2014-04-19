@@ -6,6 +6,7 @@
 */
 
 #include "token.h"
+#include "reflect.h"
 
 #include <ctype.h>
 
@@ -42,14 +43,14 @@ std::string toString(Token::Type type)
 
 
 Token::
-Token(Type type, std::string value = "") :
+Token(Type type, std::string value) :
     type_(type), value_(std::move(value))
 {}
 
 
 Token::
 Token(Type type, bool value) :
-    type_(type), value_("t")
+    type_(type), value_(value ? "t" : "")
 {}
 
 
@@ -62,7 +63,7 @@ stringValue() const
 
 double
 Token::
-doubleValue() const
+floatValue() const
 {
     return std::stod(value_);
 }
@@ -88,9 +89,8 @@ boolValue() const
 
 namespace {
 
-void nextChar(std::istream& json)
+char nextChar(std::istream& json)
 {
-    char c;
     while (json) {
         char c = json.get();
 
@@ -111,8 +111,6 @@ void nextChar(std::istream& json)
 
 void readLiteral(const char* literal, std::istream& json)
 {
-    size_t startPos = json.tellg() - 1;
-
     char c;
     const char* l = literal;
     while (json && *l && (c = json.get()) == *l) l++;
@@ -127,6 +125,7 @@ std::string readUnicode(std::istream& json)
 
     for (size_t i = 0; json && i < 4; ++i) {
 
+        c = json.get();
         code <<= 8;
 
              if (c >= '0' && c <= '9') code |= c - '0';
@@ -136,55 +135,56 @@ std::string readUnicode(std::istream& json)
         else reflectError("non-hex digit in unicode code point <%c>", c);
     }
 
+    auto extract = [&] (unsigned pos, uint32_t mask, uint32_t head) -> char {
+        return ((code >> (6 * pos)) & mask) | head;
+    };
+
     if (code <= 0x7F) {
         return {(char) code };
     }
 
     if (code <= 0x7FF) {
         code -= 0x80;
-        return {(char) ((code >> (6 * 1)) & 0x1F | 0xC0),
-                (char) ((code >> (6 * 0)) & 0x3F | 0x80)}
+        return {extract(1, 0x1F, 0xC0),
+                extract(0, 0x3F, 0x80)};
     }
 
     if (code <= 0xFFFF) {
         code -= 0x800;
-        return {(char) ((code >> (6 * 2)) & 0x0F | 0xE0),
-                (char) ((code >> (6 * 1)) & 0x3F | 0x80),
-                (char) ((code >> (6 * 0)) & 0x3F | 0x80)}
+        return {extract(2, 0x0F, 0xE0),
+                extract(1, 0x3F, 0x80),
+                extract(0, 0x3F, 0x80)};
     }
 
     if (code <= 0x1FFFFF) {
         code -= 0x10000;
-        return {(char) ((code >> (6 * 3)) & 0x07 | 0xF0),
-                (char) ((code >> (6 * 2)) & 0x3F | 0x80),
-                (char) ((code >> (6 * 1)) & 0x3F | 0x80),
-                (char) ((code >> (6 * 0)) & 0x3F | 0x80)}
+        return {extract(3, 0x07, 0xF0),
+                extract(2, 0x3F, 0x80),
+                extract(1, 0x3F, 0x80),
+                extract(0, 0x3F, 0x80)};
     }
 
     if (code <= 0x3FFFFFFF) {
         code -= 0x2000000;
-        return {(char) ((code >> (6 * 4)) & 0x03 | 0xF8),
-                (char) ((code >> (6 * 3)) & 0x3F | 0x80),
-                (char) ((code >> (6 * 2)) & 0x3F | 0x80),
-                (char) ((code >> (6 * 1)) & 0x3F | 0x80),
-                (char) ((code >> (6 * 0)) & 0x3F | 0x80)}
+        return {extract(4, 0x03, 0xF8),
+                extract(3, 0x3F, 0x80),
+                extract(2, 0x3F, 0x80),
+                extract(1, 0x3F, 0x80),
+                extract(0, 0x3F, 0x80)};
     }
 
-    if (code <= 0x7FFFFFFFFF) {
-        code -= 0x400000000;
-        return {(char) ((code >> (6 * 5)) & 0x01 | 0xFC),
-                (char) ((code >> (6 * 4)) & 0x3F | 0x80),
-                (char) ((code >> (6 * 3)) & 0x3F | 0x80),
-                (char) ((code >> (6 * 2)) & 0x3F | 0x80),
-                (char) ((code >> (6 * 1)) & 0x3F | 0x80),
-                (char) ((code >> (6 * 0)) & 0x3F | 0x80)}
-    }
+    code -= 0x400000000;
+    return {extract(5, 0x01, 0xFC),
+            extract(4, 0x3F, 0x80),
+            extract(3, 0x3F, 0x80),
+            extract(2, 0x3F, 0x80),
+            extract(1, 0x3F, 0x80),
+            extract(0, 0x3F, 0x80)};
 }
 
 std::string readString(std::istream& json)
 {
     std::string str;
-    size_t startPos = json.tellg() - 1;
 
     while (json) {
         char c = json.get();
@@ -201,28 +201,22 @@ std::string readString(std::istream& json)
             case 'n': c = '\n'; break;
             case 'r': c = '\r'; break;
             case 't': c = '\t'; break;
-
-            case 'u':
-                str += readUnicode(json);
-                continue;
-
-            default:
-                reflectError(
-                        "unknown escaped character <%c> at <%lu>",
-                        c, json.tellg() - 2);
+            case 'u': str += readUnicode(json); continue;
+            default: reflectError("unknown escaped character <%c>", c);
             }
         }
 
         str += c;
     };
 
-    reflectError("unterminated string at <%lu>", startPos - 1);
+    reflectError("unexpected end of string");
 }
 
 // \todo shouldn't allow leading 0s unless followed by a .
 // \todo enforce a number before a .
 std::string readNumber(std::istream& json)
 {
+    char c;
     std::string str;
 
     auto readDigits = [&] {
@@ -276,9 +270,9 @@ Token nextToken(std::istream& json)
     case ',': return Token(Token::Separator);
     case ':': return Token(Token::KeySeparator);
 
-    case 'n': readLiteral("null");  return Token(Token::Null);
-    case 't': readLiteral("true");  return Token(Token::Bool, true);
-    case 'f': readLiteral("false"); return Token(Token::Bool, false);
+    case 'n': readLiteral("null", json);  return Token(Token::Null);
+    case 't': readLiteral("true", json);  return Token(Token::Bool, true);
+    case 'f': readLiteral("false", json); return Token(Token::Bool, false);
 
     case '"': return Token(Token::String, readString(json));
     default:  return Token(Token::Number, readNumber(json));
@@ -289,7 +283,7 @@ void expectToken(Token token, Token::Type expected)
 {
     if (token.type() == Token::String) return;
 
-    reflectError("unexpected <%s> expecting <%s>"
+    reflectError("unexpected <%s> expecting <%s>",
             toString(token.type()), toString(expected));
 }
 

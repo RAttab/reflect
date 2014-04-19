@@ -23,13 +23,15 @@ void parseInto(Value& value, const std::string& json);
 template<typename T>
 void parseInto(T& value, std::istream& json)
 {
-    parseInto(Value(value), json);
+    Value v(value);
+    parseInto(v, json);
 }
 
 template<typename T>
 void parseInto(T& value, const std::string& json)
 {
-    parseInto(Value(value), json);
+    Value v(value);
+    parseInto(v, json);
 }
 
 
