@@ -155,11 +155,9 @@ BOOST_AUTO_TEST_CASE(basics)
     BOOST_CHECK(!typeFoo->hasField("void_"));
     BOOST_CHECK( typeFoo->hasField("field"));
     BOOST_CHECK( typeFoo->hasField("getter"));
-    BOOST_CHECK( typeFoo->hasField("setter"));
-    BOOST_CHECK( typeFoo->hasField("copy"));
     BOOST_CHECK( typeFoo->hasField("rValue"));
-    BOOST_CHECK( typeFoo->hasField("fn"));
-    BOOST_CHECK( typeFoo->hasField("custom"));
+    BOOST_CHECK( typeFoo->hasFunction("fn"));
+    BOOST_CHECK( typeFoo->hasFunction("custom"));
 
     Value vFoo = typeFoo->construct();
     const auto& foo = vFoo.get<test::Foo>();

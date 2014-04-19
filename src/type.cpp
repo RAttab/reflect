@@ -100,11 +100,59 @@ isMovable() const
 
 void
 Type::
+functions(std::vector<std::string>& result) const
+{
+    result.reserve(result.size() + fns_.size());
+    for (const auto& f : fns_)
+        result.push_back(f.first);
+
+    if (parent_) parent_->functions(result);
+}
+
+std::vector<std::string>
+Type::
+functions() const
+{
+    std::vector<std::string> result;
+    functions(result);
+
+    std::sort(result.begin(), result.end());
+    result.erase(std::unique(result.begin(), result.end()), result.end());
+
+    return result;
+}
+
+bool
+Type::
+hasFunction(const std::string& function) const
+{
+    if (fns_.find(function) != fns_.end()) return true;
+    return parent_ ? parent_->hasFunction(function) : false;
+}
+
+const Overloads&
+Type::
+function(const std::string& function) const
+{
+    auto it = fns_.find(function);
+    if (it != fns_.end()) return it->second;
+
+    if (!parent_)
+        reflectError("<%s> doesn't have a function <%s>", id_, function);
+
+    return parent_->function(function);
+}
+
+
+void
+Type::
 fields(std::vector<std::string>& result) const
 {
-    result.reserve(result.size() + fields_.size());
-    for (const auto& f : fields_)
+    result.reserve(result.size() + fns_.size());
+    for (const auto& f : fns_) {
+        if (!f.second.isField()) continue;
         result.push_back(f.first);
+    }
 
     if (parent_) parent_->fields(result);
 }
@@ -126,7 +174,8 @@ bool
 Type::
 hasField(const std::string& field) const
 {
-    if (fields_.find(field) != fields_.end()) return true;
+    auto it = fns_.find(field);
+    if (it != fns_.end() && it->second.isField()) return true;
     return parent_ ? parent_->hasField(field) : false;
 }
 
@@ -134,13 +183,21 @@ const Overloads&
 Type::
 field(const std::string& field) const
 {
-    auto it = fields_.find(field);
-    if (it != fields_.end()) return it->second;
+    auto it = fns_.find(field);
+    if (it != fns_.end() && it->second.isField()) return it->second;
 
     if (!parent_)
         reflectError("<%s> doesn't have a field <%s>", id_, field);
 
     return parent_->field(field);
+}
+
+const Type*
+Type::
+fieldType(const std::string& field) const
+{
+    auto& f = this->field(field);
+    return f.fieldType();
 }
 
 
@@ -161,7 +218,7 @@ print(size_t indent) const
 
     if (parent_) ss << parent_->print(indent) << "\n";
 
-    for (const auto& field : fields_) {
+    for (const auto& field : fns_) {
         ss << pad1 << field.first << ":\n";
         ss << field.second.print(indent + PadInc);
     }

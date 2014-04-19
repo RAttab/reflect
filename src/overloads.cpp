@@ -48,6 +48,51 @@ test(const Argument& ret, const std::vector<Argument>& args) const
     return false;
 }
 
+bool
+Overloads::
+isField() const
+{
+    return hasGetter() || hasSetter();
+}
+
+const Type*
+Overloads::
+fieldType() const
+{
+    const Type* type = nullptr;
+
+    for (const auto& fn : overloads) {
+        if (fn.isGetter()) return fn.getterType();
+        if (fn.isSetter()) type = fn.setterType();
+    }
+
+    if (type) return type;
+
+    reflectError("overload has no getter or setter");
+}
+
+bool
+Overloads::
+hasGetter() const
+{
+    for (const auto& fn : overloads) {
+        if (fn.isGetter()) return true;
+    }
+
+    return false;
+}
+
+bool
+Overloads::
+hasSetter() const
+{
+    for(const auto& fn : overloads) {
+        if (fn.isSetter()) return true;
+    }
+
+    return false;
+}
+
 std::string
 Overloads::
 print(size_t indent) const

@@ -174,7 +174,7 @@ struct Child : public Parent
     Child(Object c, int s) : childValue(c), shadowed(s) {}
 
     Object childValue;
-    int shadowed;
+    bool shadowed;
 
     virtual void normalVirtual() {}
 

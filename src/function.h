@@ -47,6 +47,12 @@ struct Function
     template<typename Ret, typename... Args>
     Ret call(Args&&... args) const;
 
+    bool isGetter() const;
+    const Type* getterType() const;
+
+    bool isSetter() const;
+    const Type* setterType() const;
+
 private:
 
     typedef std::function<void()> VoidFn;

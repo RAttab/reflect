@@ -27,7 +27,7 @@ Ret
 Type::
 call(const std::string& fn, Args&&... args) const
 {
-    return field(fn).call<Ret>(std::forward<Args>(args)...);
+    return function(fn).call<Ret>(std::forward<Args>(args)...);
 }
 
 
@@ -37,7 +37,7 @@ Type::
 add(const std::string& name, Fn rawFn)
 {
     Function fn(name, std::move(rawFn));
-    fields_[name].add(std::move(fn));
+    fns_[name].add(std::move(fn));
 }
 
 } // namespace reflect

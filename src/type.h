@@ -32,9 +32,14 @@ struct Type
     template<typename Fn>
     void add(const std::string& name, Fn rawFn);
 
+    std::vector<std::string> functions() const;
+    bool hasFunction(const std::string& fn) const;
+    const Overloads& function(const std::string& fn) const;
+
     std::vector<std::string> fields() const;
     bool hasField(const std::string& field) const;
     const Overloads& field(const std::string& field) const;
+    const Type* fieldType(const std::string& field) const;
 
     void addTrait(std::string trait);
     bool is(const std::string& trait) const;
@@ -69,13 +74,14 @@ struct Type
 
 private:
 
+    void functions(std::vector<std::string>& result) const;
     void fields(std::vector<std::string>& result) const;
 
     std::string id_;
     Type* parent_;
 
     std::unordered_set<std::string> traits_;
-    std::unordered_map<std::string, Overloads> fields_;
+    std::unordered_map<std::string, Overloads> fns_;
 };
 
 

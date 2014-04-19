@@ -193,8 +193,8 @@ Ret
 Value::
 call(const std::string& fn, Args&&... args) const
 {
-    const auto& field = type()->field(fn);
-    return field.call<Ret>(*this, std::forward<Args>(args)...);
+    const auto& f = type()->function(fn);
+    return f.call<Ret>(*this, std::forward<Args>(args)...);
 }
 
 template<typename Ret>

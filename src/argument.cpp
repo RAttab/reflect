@@ -72,6 +72,15 @@ isTemporary() const
 
 bool
 Argument::
+isLValueRef() const
+{
+    return !isConst()
+        && refType_ == RefType::LValue;
+}
+
+
+bool
+Argument::
 operator==(const Argument& other) const
 {
     return type_ == other.type_

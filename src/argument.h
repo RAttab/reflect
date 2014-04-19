@@ -49,6 +49,7 @@ struct Argument
 
     bool isConstRef() const;
     bool isTemporary() const;
+    bool isLValueRef() const;
 
     std::string print() const;
 

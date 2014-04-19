@@ -36,10 +36,12 @@ struct Reflect< std::vector<T> >
         reflectPlumbing();
 
         reflectTrait(container);
+        reflectFn(size);
+        reflectCustom("containedType") () -> std::vector<const Type*> {
+            return { type<T>() };
+        };
+
         reflectTrait(list);
-
-        reflectCustom("containedType") { return type<T>(); };
-
         reflectOp(operator[],  Array);
         reflectFnTyped(push_back, void (T_::*) (const T&));
     }

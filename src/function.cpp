@@ -75,6 +75,49 @@ test(const Argument& ret, const std::vector<Argument>& args) const
 }
 
 
+bool
+Function::
+isGetter() const
+{
+    return !ret.isVoid()
+        && args.size() == 1
+        && args[0].isConstRef();
+}
+
+const Type*
+Function::
+getterType() const
+{
+    if (!isGetter()) {
+        reflectError("function <%s, %s> is not a getter",
+                name_, signature(*this));
+    }
+
+    return ret.type();
+}
+
+bool
+Function::
+isSetter() const
+{
+    return ret.isVoid()
+        && args.size() == 2
+        && args[0].isLValueRef();
+}
+
+const Type*
+Function::
+setterType() const
+{
+    if (!isGetter()) {
+        reflectError("function <%s, %s> is not a setter",
+                name_, signature(*this));
+    }
+
+    return args[1].type();
+}
+
+
 /******************************************************************************/
 /* SIGNATURE                                                                  */
 /******************************************************************************/
