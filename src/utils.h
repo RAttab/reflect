@@ -67,6 +67,23 @@ enum { UseExceptions = REFLECT_USE_EXCEPTIONS };
 
 
 /******************************************************************************/
+/* PRINT TYPE                                                                 */
+/******************************************************************************/
+
+template<typename T>
+struct PrintType
+{
+    typedef typename T::_print type;
+};
+
+template<typename T>
+void printType()
+{
+    typedef typename PrintType<T>::type type;
+}
+
+
+/******************************************************************************/
 /* REFLECT ERROR                                                              */
 /******************************************************************************/
 
