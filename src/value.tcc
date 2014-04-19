@@ -179,7 +179,7 @@ move() -> typename CleanValue<T>::type
 
     typedef typename std::decay<T>::type CleanT;
 
-    CleanT value = type()->isChildOf<CleanT>() ?
+    CleanT value = type()->isChildOf<T>() ?
         std::move(*static_cast<CleanT*>(value_)) :
         convert<CleanT>();
 
