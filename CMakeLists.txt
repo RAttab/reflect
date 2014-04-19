@@ -84,7 +84,11 @@ endif()
 
 include_directories("${PROJECT_SOURCE_DIR}/src")
 
-add_library(reflect SHARED src/reflect.cpp)
+add_library(reflect SHARED
+    src/reflect.cpp
+    src/types/reflect/value.cpp
+    src/types/reflect/type.cpp)
+
 
 add_library(reflect_primitives SHARED
     src/types/primitives.cpp
@@ -94,13 +98,21 @@ add_library(reflect_primitives SHARED
     src/types/primitive_short.cpp
     src/types/primitive_int.cpp
     src/types/primitive_long.cpp
-    src/types/primitive_long_long.cpp
-    src/types/value.cpp)
+    src/types/primitive_long_long.cpp)
 force_target_link_libraries(reflect reflect_primitives)
 
+add_library(reflect_std SHARED
+    src/types/std/string.cpp)
 
-add_library(reflect_std SHARED src/types/std/string.cpp)
 
+# add_library(reflect_json SHARED
+#     src/utils/json/token.cpp
+#     src/utils/json/parser.cpp)
+
+
+#------------------------------------------------------------------------------#
+# INSTALL
+#------------------------------------------------------------------------------#
 
 install(TARGETS reflect DESTINATION lib)
 
@@ -128,7 +140,6 @@ install(
     src/value_function.h
     src/value.h
     src/value.tcc
-
     DESTINATION
     include/reflect)
 
@@ -142,15 +153,27 @@ install(
     src/reflect/namespace.h
     src/reflect/operators.h
     src/reflect/plumbing.h
-
     DESTINATION
     include/reflect/reflect)
 
 install(
     FILES
+    src/types/primitives.h
+    src/types/pointer.h
+    DESTINATION
+    include/reflect/types/reflect)
+
+install(
+    FILES
+    src/types/reflect/value.h
+    src/types/reflect/type.h
+    DESTINATION
+    include/reflect/types/reflect)
+
+install(
+    FILES
     src/types/std/string.h
     src/types/std/vector.h
-
     DESTINATION
     include/reflect/types/std)
 
