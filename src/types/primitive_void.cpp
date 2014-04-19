@@ -6,9 +6,14 @@
 */
 
 #include "primitives.h"
+#include "reflect/basics.h"
 
 /******************************************************************************/
 /* REFLECT VOID                                                               */
 /******************************************************************************/
 
-reflectClassImpl(void) {}
+reflectClassImpl(void)
+{
+    reflectTrait(primitive);
+    reflectTrait(void);
+}

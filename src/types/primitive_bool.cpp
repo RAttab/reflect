@@ -6,13 +6,10 @@
 */
 
 #include "primitives.h"
-#include "reflect/plumbing.h"
+#include "primitives.tcc"
 
 /******************************************************************************/
 /* REFLECT BOOL                                                               */
 /******************************************************************************/
 
-reflectClassImpl(bool)
-{
-    reflectPlumbing();
-}
+reflectNumber(bool)

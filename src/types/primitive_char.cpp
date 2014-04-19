@@ -6,18 +6,11 @@
 */
 
 #include "primitives.h"
-#include "reflect/plumbing.h"
+#include "primitives.tcc"
 
 /******************************************************************************/
 /* REFLECT CHAR                                                               */
 /******************************************************************************/
 
-reflectClassImpl(signed char)
-{
-    reflectPlumbing();
-}
-
-reflectClassImpl(unsigned char)
-{
-    reflectPlumbing();
-}
+reflectNumber(signed char)
+reflectNumber(unsigned char)

@@ -6,18 +6,11 @@
 */
 
 #include "primitives.h"
-#include "reflect/plumbing.h"
+#include "primitives.tcc"
 
 /******************************************************************************/
 /* REFLECT LONG LONG                                                          */
 /******************************************************************************/
 
-reflectClassImpl(long long int)
-{
-    reflectPlumbing();
-}
-
-reflectClassImpl(unsigned long long int)
-{
-    reflectPlumbing();
-}
+reflectNumber(long long int)
+reflectNumber(unsigned long long int)
