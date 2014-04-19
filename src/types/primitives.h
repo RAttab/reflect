@@ -33,3 +33,7 @@ reflectClassDecl(unsigned long int)
 
 reflectClassDecl(long long int)
 reflectClassDecl(unsigned long long int)
+
+reflectClassDecl(float)
+reflectClassDecl(double)
+reflectClassDecl(long double)
