@@ -8,6 +8,9 @@
 #pragma once
 
 #include "reflect.h"
+#include "reflect/basics.h"
+#include "reflect/plumbing.h"
+#include "reflect/operators.h"
 
 namespace reflect {
 
@@ -19,12 +22,19 @@ template<typename T>
 struct Reflect<T*>
 {
     typedef T* T_;
-    static std::string id() { return Reflect<T>::id() + "*"; }
+    static std::string id() { return typeId<T>() + "*"; }
+
     reflectTemplateLoader()
 
     static void reflect(Type* type_)
     {
-        (void) type_; // \todo Implement pointer reflection.
+        reflectPlumbing();
+
+        reflectTrait(primitive);
+        reflectTrait(pointer);
+
+        reflectCustom("operator*") (T* & value) -> T& { return *value; };
+        reflectCustom("operator->") (T* & value) -> T* { return value; };
     }
 };
 

@@ -32,6 +32,7 @@ struct Registry
     static Type* get()
     {
         typedef typename std::decay<T>::type CleanT;
+
         Reflect<CleanT>::loader();
         return get(Reflect<CleanT>::id());
     }
@@ -41,8 +42,10 @@ struct Registry
     template<typename T>
     static void add()
     {
-        auto loader = [] (Type* type) { Reflect<T>::reflect(type); };
-        add(Reflect<T>::id(), std::move(loader));
+        typedef typename std::decay<T>::type CleanT;
+
+        auto loader = [] (Type* type) { Reflect<CleanT>::reflect(type); };
+        add(Reflect<CleanT>::id(), std::move(loader));
     }
     static void add(const std::string& id, std::function<void(Type*)> loader);
 
@@ -62,6 +65,17 @@ private:
     static Type* load(const std::string& id);
 };
 
+
+/******************************************************************************/
+/* TYPE ID                                                                    */
+/******************************************************************************/
+
+template<typename T>
+std::string typeId()
+{
+    typedef typename std::decay<T>::type CleanT;
+    return Reflect<CleanT>::id();
+}
 
 /******************************************************************************/
 /* TYPE                                                                       */

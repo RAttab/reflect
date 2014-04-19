@@ -64,14 +64,12 @@ private:
     std::string name;
 };
 
-AddLambdaToType reflectLambda(Type* type, std::string name)
+inline AddLambdaToType reflectLambda(Type* type, std::string name)
 {
     return AddLambdaToType(type, std::move(name));
 }
 
 #define reflectCustom(name)                     \
     reflect::reflectLambda(type_, #name) += []
-
-
 
 } // reflect
