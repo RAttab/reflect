@@ -27,6 +27,7 @@
 #include <iostream> // debug only
 
 #include "utils.h"
+#include "clean_type.h"
 #include "ref_type.h"
 #include "type_vector.h"
 #include "function_traits.h"
