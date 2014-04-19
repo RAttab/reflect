@@ -9,11 +9,12 @@
 
 #include <iostream>
 
-// #include "reflect.h"
+#include "reflect.h"
 // #include "reflect/all.h"
 // #include "types/primitives.h"
 
 using namespace std;
+using namespace reflect;
 
 struct Bar {};
 struct Foo
@@ -79,8 +80,24 @@ template<typename T>
 typename Blah<T>::Loader Blah<T>::loader = {};
 
 
+template<typename T>
+void bleh()
+{
+    std::cerr << "def cons:  " << std::is_default_constructible<T>() << std::endl;
+    std::cerr << "copy cons: " << std::is_copy_constructible<T>() << std::endl;
+    std::cerr << "copy assg: " << std::is_copy_assignable<T>() << std::endl;
+    std::cerr << "move cons: " << std::is_move_constructible<T>() << std::endl;
+    std::cerr << "move assg: " << std::is_move_assignable<T>() << std::endl;
+}
+
+
 int main(int, char**)
 {
+    printf("\ncopy:\n"); bleh<typename CleanType<int>::type>();
+    printf("\nlref:\n"); bleh<typename CleanType<int&>::type>();
+    printf("\ncref:\n"); bleh<typename CleanType<const int&>::type>();
+    printf("\nrref:\n"); bleh<typename CleanType<int&&>::type>();
+
     (void) Blah<int>::loader;
 
     {
