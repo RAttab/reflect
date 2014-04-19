@@ -12,9 +12,23 @@
 namespace reflect {
 namespace json {
 
+
+/******************************************************************************/
+/* UTILS                                                                      */
+/******************************************************************************/
+
+const Type* getContainerType(Value& value)
+{
+    Value typeVector = value.call<Value>("containedType");
+    return typeVector[0].get<const Type*>();
+}
+
 /******************************************************************************/
 /* PARSER                                                                     */
 /******************************************************************************/
+
+void parseInto(Value& value, Token token, std::istream& json);
+
 
 void parseNull(Value& value)
 {
@@ -70,23 +84,25 @@ void parseArray(Value& value, std::istream& json)
                 value.typeId());
     }
 
-    auto type = value.call<const Type*>("containedType");
+    Value typeVector = value.call<Value>("containedType");
+    auto type = typeVector[0].get<const Type*>();
 
     Token token = nextToken();
     if (token == Token::ArrayEnd) return;
 
-    while (true) {
+    while (json) {
         Value item = type.construct();
-        parseJson(item, token, json);
+        parseInto(item, token, json);
         value.call<void>("push_back", item.rvalue());
 
         token = nextToken();
         if (token.type() == Token::Separator) continue;
-        if (token.type() == Token::ArrayEnd) break;
 
-        reflectError("unknown token <> while parsing array");
+        expectToken(token, Token::ArrayEnd);
+        return;
     }
 
+    reflectError("unexpected end of array");
 }
 
 void parseObject(Value& value, std::istream& json)
@@ -99,12 +115,36 @@ void parseObject(Value& value, std::istream& json)
     Token token = nextToken();
     if (token == Token::ObjectEnd) return;
 
-    while (true) {
+    bool isDictionnary = value.is("dictionnary");
+
+    while (json) {
+
+        expectToken(token, Token::String);
+        std::string key = token.stringValue();
+        expectToken(nextToken(), Token::KeySeparator);
+
+        const Type* type = isDictionnary ?
+            containedType(value) : value.type()->fieldType(key);
+
+        Value item = type->construct();
+        parseInto(item, json);
+
+        if (isDictionnary)
+            value[key] = item;
+        else value.set(key, item);
+
+        token = nextToken();
+        if (token.type() == Token::Separator) continue;
+
+        expectToken(token, Token::ArrayEnd);
+        return;
     }
+
+    reflectError("unexpected end of object");
 }
 
 
-void parseJson(Value& value, Token token, std::istream& json)
+void parseInto(Value& value, Token token, std::istream& json)
 {
     switch (token.type())
     {
@@ -115,7 +155,7 @@ void parseJson(Value& value, Token token, std::istream& json)
     case Token::ArrayStart: parseArray(value, json); break;
     case Token::ObjectStart: parseObject(value, json); break;
 
-    default: reflectError("Unknown token type <>");
+    default: reflectError("unexpected token <%s>", toString(token.type());
     }
 }
 
@@ -124,11 +164,6 @@ void parseInto(Value& value, std::istream& json)
 {
     parseJson(value, nextToken(json), json);
 }
-
-
-/******************************************************************************/
-/* INTERFACE                                                                  */
-/******************************************************************************/
 
 void parseInto(Value& value, const std::string& json)
 {

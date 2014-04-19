@@ -7,7 +7,7 @@
 
 #include "token.h"
 
-#include <ctype>
+#include <ctype.h>
 
 namespace reflect {
 namespace json {
@@ -18,7 +18,26 @@ namespace json {
 
 std::string toString(Token::Type type)
 {
+    switch (type)
+    {
+    case Token::ObjectStart: return "{";
+    case Token::ObjectEnd:   return "}";
 
+    case Token::ArrayStart: return "[";
+    case Token::ArrayEnd:   return "]";
+
+    case Token::Separator:    return ",";
+    case Token::KeySeparator: return ":";
+
+    case Token::String: return "string";
+    case Token::Number: return "number";
+    case Token::Bool:   return "bool";
+    case Token::Null:   return "null";
+
+    case Token::EOS: return "eos";
+
+    default: reflectError("unknown token type");
+    }
 }
 
 
@@ -38,23 +57,22 @@ std::string
 Token::
 stringValue() const
 {
-
+    return value_;
 }
 
 double
 Token::
 doubleValue() const
 {
-
+    return std::stod(value_);
 }
 
 long
 Token::
 intValue() const
 {
-
+    return std::stol(value_);
 }
-
 
 bool
 Token::
@@ -102,6 +120,66 @@ void readLiteral(const char* literal, std::istream& json)
     if (*l) reflectError("expected literal <%s>", literal);
 }
 
+std::string readUnicode(std::istream& json)
+{
+    char c;
+    uint32_t code = 0;
+
+    for (size_t i = 0; json && i < 4; ++i) {
+
+        code <<= 8;
+
+             if (c >= '0' && c <= '9') code |= c - '0';
+        else if (c >= 'a' && c <= 'f') code |= c - 'a' + 10;
+        else if (c >= 'A' && c <= 'F') code |= c - 'A' + 10;
+
+        else reflectError("non-hex digit in unicode code point <%c>", c);
+    }
+
+    if (code <= 0x7F) {
+        return {(char) code };
+    }
+
+    if (code <= 0x7FF) {
+        code -= 0x80;
+        return {(char) ((code >> (6 * 1)) & 0x1F | 0xC0),
+                (char) ((code >> (6 * 0)) & 0x3F | 0x80)}
+    }
+
+    if (code <= 0xFFFF) {
+        code -= 0x800;
+        return {(char) ((code >> (6 * 2)) & 0x0F | 0xE0),
+                (char) ((code >> (6 * 1)) & 0x3F | 0x80),
+                (char) ((code >> (6 * 0)) & 0x3F | 0x80)}
+    }
+
+    if (code <= 0x1FFFFF) {
+        code -= 0x10000;
+        return {(char) ((code >> (6 * 3)) & 0x07 | 0xF0),
+                (char) ((code >> (6 * 2)) & 0x3F | 0x80),
+                (char) ((code >> (6 * 1)) & 0x3F | 0x80),
+                (char) ((code >> (6 * 0)) & 0x3F | 0x80)}
+    }
+
+    if (code <= 0x3FFFFFFF) {
+        code -= 0x2000000;
+        return {(char) ((code >> (6 * 4)) & 0x03 | 0xF8),
+                (char) ((code >> (6 * 3)) & 0x3F | 0x80),
+                (char) ((code >> (6 * 2)) & 0x3F | 0x80),
+                (char) ((code >> (6 * 1)) & 0x3F | 0x80),
+                (char) ((code >> (6 * 0)) & 0x3F | 0x80)}
+    }
+
+    if (code <= 0x7FFFFFFFFF) {
+        code -= 0x400000000;
+        return {(char) ((code >> (6 * 5)) & 0x01 | 0xFC),
+                (char) ((code >> (6 * 4)) & 0x3F | 0x80),
+                (char) ((code >> (6 * 3)) & 0x3F | 0x80),
+                (char) ((code >> (6 * 2)) & 0x3F | 0x80),
+                (char) ((code >> (6 * 1)) & 0x3F | 0x80),
+                (char) ((code >> (6 * 0)) & 0x3F | 0x80)}
+    }
+}
 
 std::string readString(std::istream& json)
 {
@@ -124,7 +202,9 @@ std::string readString(std::istream& json)
             case 'r': c = '\r'; break;
             case 't': c = '\t'; break;
 
-            case 'u': reflectError("\\u is not currently supported");
+            case 'u':
+                str += readUnicode(json);
+                continue;
 
             default:
                 reflectError(
@@ -203,6 +283,14 @@ Token nextToken(std::istream& json)
     case '"': return Token(Token::String, readString(json));
     default:  return Token(Token::Number, readNumber(json));
     }
+}
+
+void expectToken(Token token, Token::Type expected)
+{
+    if (token.type() == Token::String) return;
+
+    reflectError("unexpected <%s> expecting <%s>"
+            toString(token.type()), toString(expected));
 }
 
 

@@ -49,6 +49,7 @@ std::string toString(Token::Type type);
 /******************************************************************************/
 
 Token nextToken(std::istream& json);
+void expectToken(Token token, Token::Type expected);
 
 
 } // reflect
