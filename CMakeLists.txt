@@ -99,6 +99,9 @@ add_library(reflect_primitives SHARED
 force_target_link_libraries(reflect reflect_primitives)
 
 
+add_library(reflect_std SHARED src/types/std/string.cpp)
+
+
 install(TARGETS reflect DESTINATION lib)
 
 install(
@@ -131,15 +134,6 @@ install(
 
 install(
     FILES
-    src/types/pointer.h
-    src/types/primitives.h
-    src/types/value.h
-
-    DESTINATION
-    include/reflect/types)
-
-install(
-    FILES
     src/reflect/all.h
     src/reflect/basics.h
     src/reflect/class.h
@@ -151,6 +145,14 @@ install(
 
     DESTINATION
     include/reflect/reflect)
+
+install(
+    FILES
+    src/types/std/string.h
+    src/types/std/vector.h
+
+    DESTINATION
+    include/reflect/types/std)
 
 
 #------------------------------------------------------------------------------#
