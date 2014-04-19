@@ -109,8 +109,11 @@ install(
     src/function.h
     src/function.tcc
     src/function_traits.h
+    src/make_function.h
     src/namespace.h
+    src/namespace.tcc
     src/overloads.h
+    src/overloads.tcc
     src/reflect.h
     src/ref_type.h
     src/registry.h
@@ -128,9 +131,6 @@ install(
 
 install(
     FILES
-    src/types/void.h
-    src/types/bool.h
-    src/types/int.h
     src/types/pointer.h
     src/types/primitives.h
     src/types/value.h
@@ -140,12 +140,14 @@ install(
 
 install(
     FILES
+    src/reflect/all.h
     src/reflect/basics.h
-    src/reflect/constructors.h
     src/reflect/class.h
     src/reflect/field.h
     src/reflect/function.h
+    src/reflect/namespace.h
     src/reflect/operators.h
+    src/reflect/plumbing.h
 
     DESTINATION
     include/reflect/reflect)

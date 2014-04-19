@@ -100,7 +100,7 @@ reflectClass(test::Foo)
     reflectParent(test::Bar);
 
     reflectCons(int);
-    reflectConsBasics();
+    reflectPlumbing();
 
     reflectOpAssign();
     reflectOpArithmetic();

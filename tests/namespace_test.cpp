@@ -12,7 +12,7 @@
 #include "reflect.h"
 #include "reflect/namespace.h"
 #include "reflect/class.h"
-#include "reflect/constructor.h"
+#include "reflect/plumbing.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -36,7 +36,7 @@ reflectNamespace(foo)
 
 reflectClass(foo::Foo)
 {
-    reflectConsBasics();
+    reflectPlumbing();
 }
 
 
@@ -58,7 +58,7 @@ reflectNamespace(foo::bar)
 
 reflectClass(foo::bar::Bar)
 {
-    reflectConsBasics();
+    reflectPlumbing();
 }
 
 

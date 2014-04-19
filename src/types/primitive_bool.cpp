@@ -6,7 +6,7 @@
 */
 
 #include "primitives.h"
-#include "reflect/constructor.h"
+#include "reflect/plumbing.h"
 
 /******************************************************************************/
 /* REFLECT BOOL                                                               */
@@ -14,5 +14,5 @@
 
 reflectClassImpl(bool)
 {
-    reflectConsBasics();
+    reflectPlumbing();
 }

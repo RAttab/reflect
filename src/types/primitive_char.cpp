@@ -6,7 +6,7 @@
 */
 
 #include "primitives.h"
-#include "reflect/constructor.h"
+#include "reflect/plumbing.h"
 
 /******************************************************************************/
 /* REFLECT CHAR                                                               */
@@ -14,10 +14,10 @@
 
 reflectClassImpl(signed char)
 {
-    reflectConsBasics();
+    reflectPlumbing();
 }
 
 reflectClassImpl(unsigned char)
 {
-    reflectConsBasics();
+    reflectPlumbing();
 }

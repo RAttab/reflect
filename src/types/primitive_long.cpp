@@ -6,7 +6,7 @@
 */
 
 #include "primitives.h"
-#include "reflect/constructor.h"
+#include "reflect/plumbing.h"
 
 /******************************************************************************/
 /* REFLECT LONG                                                               */
@@ -14,10 +14,10 @@
 
 reflectClassImpl(long int)
 {
-    reflectConsBasics();
+    reflectPlumbing();
 }
 
 reflectClassImpl(unsigned long int)
 {
-    reflectConsBasics();
+    reflectPlumbing();
 }

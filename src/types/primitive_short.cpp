@@ -6,7 +6,7 @@
 */
 
 #include "primitives.h"
-#include "reflect/constructor.h"
+#include "reflect/plumbing.h"
 
 /******************************************************************************/
 /* REFLECT SHORT                                                              */
@@ -14,10 +14,10 @@
 
 reflectClassImpl(short int)
 {
-    reflectConsBasics();
+    reflectPlumbing();
 }
 
 reflectClassImpl(unsigned short int)
 {
-    reflectConsBasics();
+    reflectPlumbing();
 }

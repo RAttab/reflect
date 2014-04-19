@@ -10,6 +10,22 @@
 
 namespace reflect {
 
+
+/******************************************************************************/
+/* CONS                                                                       */
+/******************************************************************************/
+
+template<typename T, typename... Args>
+void reflectConstructor(Type* type)
+{
+    type->add(type->id(), [] (Args... args) {
+                return T(std::forward<Args>(args)...);
+            });
+}
+
+#define reflectCons(...)                        \
+    reflect::reflectConstructor<T_, __VA_ARGS__>(type_);
+
 /******************************************************************************/
 /* REFLECT FN                                                                 */
 /******************************************************************************/
@@ -55,6 +71,7 @@ AddLambdaToType reflectLambda(Type* type, std::string name)
 
 #define reflectCustom(name)                     \
     reflect::reflectLambda(type_, #name) += []
+
 
 
 } // reflect

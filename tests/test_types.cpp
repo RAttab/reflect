@@ -8,7 +8,7 @@
 #include "test_types.h"
 
 #include "reflect/basics.h"
-#include "reflect/constructor.h"
+#include "reflect/plumbing.h"
 #include "reflect/field.h"
 #include "reflect/operators.h"
 
@@ -19,7 +19,7 @@
 
 reflectClassImpl(test::Object)
 {
-    reflectConsBasics();
+    reflectPlumbing();
     reflectCons(int);
 
     reflectField(value);
@@ -37,7 +37,7 @@ reflectClassImpl(test::Object)
 
 reflectClassImpl(test::NotCopiable)
 {
-    reflectConsBasics();
+    reflectPlumbing();
 }
 
 
@@ -47,7 +47,7 @@ reflectClassImpl(test::NotCopiable)
 
 reflectClassImpl(test::NotMovable)
 {
-    reflectConsBasics();
+    reflectPlumbing();
 }
 
 
@@ -57,7 +57,7 @@ reflectClassImpl(test::NotMovable)
 
 reflectClassImpl(test::NotConstructible)
 {
-    reflectConsBasics();
+    reflectPlumbing();
 }
 
 
@@ -77,7 +77,7 @@ reflectClassImpl(test::Interface)
 reflectClassImpl(test::Parent)
 {
     reflectParent(test::Interface);
-    reflectConsBasics();
+    reflectPlumbing();
     reflectCons(test::Object, int);
 
     reflectField(value);
@@ -94,7 +94,7 @@ reflectClassImpl(test::Parent)
 reflectClassImpl(test::Child)
 {
     reflectParent(test::Parent);
-    reflectConsBasics();
+    reflectPlumbing();
     reflectCons(test::Object, int);
 
     reflectField(childValue);
@@ -110,7 +110,7 @@ reflectClassImpl(test::Child)
 
 reflectClassImpl(test::Convertible)
 {
-    reflectConsBasics();
+    reflectPlumbing();
     reflectField(value);
     reflectOpCast(int);
     reflectOpCast(test::Parent);

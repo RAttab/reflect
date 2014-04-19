@@ -1,11 +1,10 @@
-/* constructors.h                                 -*- C++ -*-
+/* plumbing.h                                 -*- C++ -*-
    Rémi Attab (remi.attab@gmail.com), 30 Mar 2014
    FreeBSD-style copyright and disclaimer apply
 
-   Constructor reflection.
+   General class plumbing.
 
-   Also contains the copy assignment and move assignment operators because it
-   makes sense to group em with their respective constructors.
+   Autoom
 */
 
 #include "reflect.h"
@@ -77,8 +76,8 @@ template<typename T,
     class = typename std::enable_if<std::is_move_constructible<T>::value>::type>
 void reflectConsMove(Type* type)
 {
-    type->add(type->id(), [] (T&& other) { 
-                return T(std::move(other)); 
+    type->add(type->id(), [] (T&& other) {
+                return T(std::move(other));
             });
 }
 
@@ -95,7 +94,7 @@ template<typename T,
 void reflectOpAssignCopy(Type* type)
 {
     type->add("operator=", [] (T& obj, const T& other) -> T& {
-                return obj = other; 
+                return obj = other;
             });
 }
 
@@ -121,10 +120,10 @@ void reflectOpAssignMove(...) {}
 
 
 /******************************************************************************/
-/* CONS BASICS                                                                */
+/* PLUMBING                                                                   */
 /******************************************************************************/
 
-#define reflectConsBasics()                             \
+#define reflectPlumbing()                               \
     do {                                                \
         reflect::reflectConsDefault<T_>(type_);         \
         reflect::reflectConsCopy<T_>(type_);            \
@@ -133,20 +132,5 @@ void reflectOpAssignMove(...) {}
         reflect::reflectOpAssignMove<T_>(type_);        \
     } while(false)
 
-
-/******************************************************************************/
-/* CONS                                                                       */
-/******************************************************************************/
-
-template<typename T, typename... Args>
-void reflectCons_(Type* type)
-{
-    type->add(type->id(), [] (Args... args) {
-                return T(std::forward<Args>(args)...);
-            });
-}
-
-#define reflectCons(...)                        \
-    reflect::reflectCons_<T_, __VA_ARGS__>(type_);
 
 } // reflect
