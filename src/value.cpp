@@ -62,7 +62,7 @@ Value::
 typeId() const
 {
     return type()->id();
-]
+}
 
 bool
 Value::

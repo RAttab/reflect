@@ -14,4 +14,5 @@
 /* REFLECT TYPE                                                               */
 /******************************************************************************/
 
-reflectClassTypeDecl(reflect::Type)
+reflectClassDecl(reflect::Type)
+
