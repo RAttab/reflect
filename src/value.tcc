@@ -11,6 +11,21 @@
 namespace reflect {
 
 /******************************************************************************/
+/* UTILS                                                                      */
+/******************************************************************************/
+
+template<typename T>
+struct IsMovable
+{
+    static constexpr bool value =
+        !std::is_const<typename std::remove_reference<T>::type>::value &&
+        std::is_move_constructible<typename std::decay<T>::type>::value;
+
+    typedef std::integral_constant<bool, value> type;
+};
+
+
+/******************************************************************************/
 /* VALUE                                                                      */
 /******************************************************************************/
 
@@ -47,7 +62,7 @@ Value(T&& value) :
     typedef typename std::decay<T>::type CleanT;
 
     value_ = store<T>(std::forward<T>(value),
-            typename std::is_move_constructible<CleanT>::type(),
+            typename IsMovable<T>::type(),
             typename std::is_copy_constructible<CleanT>::type());
 
     storage.reset(value_);
