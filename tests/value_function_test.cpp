@@ -29,7 +29,7 @@ void foo(unsigned& value, int other)
 
 BOOST_AUTO_TEST_CASE(fn)
 {
-    auto valueFn = makeValueFunction(&foo);
+    auto valueFn = makeValueFunction(makeFunction(&foo));
 
     unsigned value = 0;
 
@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(lambda)
         return value = x * x + std::move(z);
     };
 
-    auto valueFn = makeValueFunction(lambda);
+    auto valueFn = makeValueFunction(makeFunction(lambda));
 
     Value ret = valueFn(Value(10u), Value(10u));
     BOOST_CHECK_EQUAL(value, 110);
@@ -82,7 +82,7 @@ private:
 
 BOOST_AUTO_TEST_CASE(functor)
 {
-    auto valueFn = makeValueFunction(Functor());
+    auto valueFn = makeValueFunction(makeFunction(Functor()));
 
     {
         Value ret = valueFn(Value(10u));
@@ -120,7 +120,7 @@ reflectClass(Foo) {}
 BOOST_AUTO_TEST_CASE(memberFn)
 {
     Foo foo;
-    auto valueFn = makeValueFunction(&Foo::bar);
+    auto valueFn = makeValueFunction(makeFunction(&Foo::bar));
 
     {
         Value ret = valueFn(Value(foo), Value(10u));
@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE(constness)
         i += j;
         return i;
     };
-    auto valueFn = makeValueFunction(fn);
+    auto valueFn = makeValueFunction(makeFunction(fn));
 
     {
         unsigned i = 0;

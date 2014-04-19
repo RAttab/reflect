@@ -86,11 +86,4 @@ auto makeValueFunction(std::function<Ret(Args...)> fn) ->
     return typename MakeValueFunction<Ret, Args...>::type(std::move(fn));
 }
 
-template<typename Fn>
-auto makeValueFunction(Fn fn) ->
-    decltype(makeValueFunction(makeFunction(std::move(fn))))
-{
-    return makeValueFunction(makeFunction(std::move(fn)));
-}
-
 } // reflect
