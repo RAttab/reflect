@@ -81,11 +81,14 @@ struct Value
 
     void* value() const { return value_; }
     const Type* type() const { return arg.type(); }
+    const std::string& typeId() const;
     RefType refType() const { return arg.refType(); }
     bool isConst() const { return arg.isConst(); }
     bool isVoid() const { return arg.isVoid(); }
 
     const Argument& argument() const { return arg; }
+
+    bool is(const std::string& trait) const;
 
     // Get a reference to the value without any type checks.
     template<typename T> const T& get() const;

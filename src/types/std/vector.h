@@ -35,6 +35,8 @@ struct Reflect< std::vector<T> >
         reflectTrait(container);
         reflectTrait(list);
 
+        reflectCustom("containedType") { return type<T>(); };
+
         reflectOp(operator[],  Array);
         reflectFnTyped(push_back, void (T_::*) (const T&));
     }

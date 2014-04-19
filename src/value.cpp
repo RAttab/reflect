@@ -57,6 +57,20 @@ operator=(Value&& other)
     return *this;
 }
 
+const std::string&
+Value::
+typeId() const
+{
+    return type()->id();
+]
+
+bool
+Value::
+is(const std::string& trait) const
+{
+    return type()->is(trait);
+}
+
 
 Value
 Value::
