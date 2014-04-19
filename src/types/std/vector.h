@@ -8,6 +8,9 @@
 #pragma once
 
 #include "reflect.h"
+#include "reflect/basics.h"
+#include "reflect/function.h"
+#include "reflect/operators.h"
 
 #include <vector>
 
