@@ -37,8 +37,8 @@ namespace reflect {
 
 struct Namespace;
 struct Type;
-struct Function;
 struct Overloads;
+struct Function;
 struct Value;
 
 } // namespace reflect
@@ -63,4 +63,4 @@ struct Value;
 #include "reflect/class.h"
 
 #include "types/primitives.h"
-#include "types/value.h"
+#include "types/reflect/value.h"
