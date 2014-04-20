@@ -95,6 +95,14 @@ hasSetter() const
 
 std::string
 Overloads::
+name() const
+{
+    if (overloads.empty()) return "?";
+    return overloads.front().name();
+}
+
+std::string
+Overloads::
 print(size_t indent) const
 {
     std::stringstream ss;

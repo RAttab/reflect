@@ -16,6 +16,9 @@ namespace reflect {
 
 struct Overloads
 {
+    // For debugging purposes only.
+    std::string name() const;
+
     size_t size() const { return overloads.size(); }
     Function& operator[] (size_t i) { return overloads[i]; }
     const Function& operator[] (size_t i) const { return overloads[i]; }
