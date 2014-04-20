@@ -245,6 +245,17 @@ fieldType(const std::string& field) const
     return f.fieldType();
 }
 
+namespace {
+
+void printTraits(
+        std::stringstream& ss, const std::unordered_set<std::string>& traits)
+{
+    ss<< "traits: [ ";
+    for (auto& trait : traits) ss << trait << " ";
+    ss << "]\n";
+}
+
+} // namespace anonymous
 
 std::string
 Type::
@@ -257,14 +268,25 @@ print(size_t indent) const
 
     indent += PadInc;
     std::string pad1(indent, ' ');
+    std::string pad2(indent + PadInc, ' ');
 
     ss << pad0 << "struct " << id_ << "\n";
     ss << pad0 << "{\n";
 
     if (parent_) ss << parent_->print(indent) << "\n";
 
-    for (const auto& field : fns_) {
+    if (!traits_.empty()) {
+        ss << pad1; printTraits(ss, traits_);
+    }
+
+    for (auto& field : fns_) {
         ss << pad1 << field.first << ":\n";
+
+        auto it = fnTraits_.find(field.first);
+        if (it != fnTraits_.end()) {
+            ss << pad2; printTraits(ss, it->second);
+        }
+
         ss << field.second.print(indent + PadInc);
     }
 
