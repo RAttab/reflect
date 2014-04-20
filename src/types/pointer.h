@@ -34,9 +34,8 @@ struct Reflect<T*>
         reflectTrait(primitive);
 
         reflectTrait(pointer);
-        reflectCustom("operator*") (T* & value) -> T& { return *value; };
-        reflectCustom("operator->") (T* & value) -> T* { return value; };
-        reflectCustom("pointee") () -> const Type* { return type<T>(); };
+        reflectCustom(pointee) { return type<T>(); };
+        reflectCustom(operator*) (T* & value) -> T& { return *value; };
     }
 };
 

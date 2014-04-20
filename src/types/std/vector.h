@@ -36,7 +36,7 @@ struct Reflect< std::vector<T> >
         reflectPlumbing();
 
         reflectTrait(container);
-        reflectCustom("types") () -> std::vector<const Type*> {
+        reflectCustom(types) () -> std::vector<const Type*> {
             return { type<T>() };
         };
 
