@@ -35,15 +35,19 @@ struct Reflect< std::vector<T> >
     {
         reflectPlumbing();
 
-        reflectTrait(container);
-        reflectCustom(types) () -> std::vector<const Type*> {
-            return { type<T>() };
+        reflectTrait(list);
+        reflectCustom(valueType) { return type<T>(); };
+
+        reflectFn(size);
+        reflectFnTyped(push_back, void (T_::*) (const T&));
+
+        reflectCustom(operator[]) (const T_& value, size_t i) -> const T& {
+            return value[i];
+        };
+        reflectCustom(operator[]) (T_& value, size_t i) -> T& {
+            return value[i];
         };
 
-        reflectTrait(list);
-        reflectFn(size);
-        reflectOp(operator[],  Array);
-        reflectFnTyped(push_back, void (T_::*) (const T&));
     }
 };
 
