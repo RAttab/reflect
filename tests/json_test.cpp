@@ -12,6 +12,7 @@
 #include "reflect.h"
 #include "types/primitives.h"
 #include "types/std/string.h"
+#include "types/std/vector.h"
 #include "reflect/plumbing.h"
 #include "reflect/class.h"
 #include "reflect/field.h"
@@ -31,6 +32,8 @@ struct Bleh
 {
     long i;
     bool b;
+
+    Bleh() : i(0), b(false) {}
 };
 
 reflectClass(Bleh) 
@@ -48,7 +51,7 @@ reflectClass(Bleh)
 struct Blah
 {
     std::string str;
-    Bleh bleh;
+    std::vector<Bleh> bleh;
 };
 
 reflectClass(Blah)
@@ -70,7 +73,15 @@ BOOST_AUTO_TEST_CASE(parsing)
 
     auto blah = json::parse<Blah>(ifs);
 
-    BOOST_CHECK(!blah.bleh.b);
-    BOOST_CHECK_EQUAL(blah.bleh.i, 10);
+    auto checkBleh = [] (const Bleh& bleh, long i, bool b) {
+        BOOST_CHECK_EQUAL(bleh.i, i);
+        BOOST_CHECK_EQUAL(bleh.b, b);
+    };
+
     BOOST_CHECK_EQUAL(blah.str, "I like candy");
+
+    BOOST_CHECK_EQUAL(blah.bleh.size(), 3);
+    checkBleh(blah.bleh[0], 10, false);
+    checkBleh(blah.bleh[1], 0, true);
+    checkBleh(blah.bleh[2], 30, false);
 }

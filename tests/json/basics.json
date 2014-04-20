@@ -1,7 +1,8 @@
 {
-    "bleh": {
-        "i": 10,
-        "b": false
-    },
-    "str": "I like candy"
+    "bleh": [
+        {"i": 10,"b": false},
+        {"b":true},// {"i":20},
+        {"i":30}
+    ],
+    "str":"I like candy"
 }

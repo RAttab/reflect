@@ -24,10 +24,9 @@ namespace json {
 
 namespace {
 
-const Type* getContainerType(Value& value, size_t index)
+const Type* getValueType(Value& value)
 {
-    Value typeVector = value.call<Value>("types");
-    return typeVector[index].get<const Type*>();
+    return value.type()->call<const Type*>("valueType");
 }
 
 const Type* getFieldType(Value& value, const std::string& field)
@@ -99,18 +98,22 @@ void parseArray(Value& value, std::istream& json)
                 value.typeId());
     }
 
-    auto type = getContainerType(value, 0);
+    auto type = getValueType(value);
 
     Token token = nextToken(json);
     if (token.type() == Token::ArrayEnd) return;
 
     while (json) {
+
         Value item = type->construct();
         parseInto(item, token, json);
         value.call<void>("push_back", item.rvalue());
 
         token = nextToken(json);
-        if (token.type() == Token::Separator) continue;
+        if (token.type() == Token::Separator) {
+            token = nextToken(json);
+            continue;
+        }
 
         expectToken(token, Token::ArrayEnd);
         return;
@@ -129,10 +132,9 @@ void parseObject(Value& value, std::istream& json)
     Token token = nextToken(json);
     if (token.type() == Token::ObjectEnd) return;
 
+    bool isMap = value.is("map");
     const Type* tValue = nullptr;
-    bool isDictionary = value.is("dictionnary");
-    if (isDictionary)
-        tValue = getContainerType(value, 1);
+    if (isMap) tValue = getValueType(value);
 
     while (json) {
 
@@ -140,12 +142,12 @@ void parseObject(Value& value, std::istream& json)
         std::string key = token.stringValue();
         expectToken(nextToken(json), Token::KeySeparator);
 
-        const Type* type = isDictionary ? tValue : getFieldType(value, key);
+        const Type* type = isMap ? tValue : getFieldType(value, key);
+
         Value item = type->construct();
         parseInto(item, json);
 
-        if (isDictionary)
-            value[key] = item;
+        if (isMap) value[key] = item;
         else value.set(key, item);
 
         token = nextToken(json);
