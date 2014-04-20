@@ -92,7 +92,7 @@ Match
 Argument::
 isConvertibleTo(const Argument& target) const
 {
-    static Type* valueType = reflect::type<Value>();
+    static const Type* valueType = reflect::type<Value>();
 
     if (*this == target) return Match::Exact;
 
@@ -141,7 +141,7 @@ print() const
     return ss.str();
 }
 
-std::string printArgument(Type* type, RefType refType, bool isConst)
+std::string printArgument(const Type* type, RefType refType, bool isConst)
 {
     return Argument(type, refType, isConst).print();
 }

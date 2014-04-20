@@ -129,7 +129,7 @@ bool
 Value::
 isCopiable() const
 {
-    Type* target = reflect::type<T>();
+    const Type* target = reflect::type<T>();
     return target->isCopiable()
         && (type()->isChildOf(target) || type()->hasConverter(target));
 }
@@ -160,7 +160,7 @@ isMovable() const
 {
     reflectStaticAssert(!std::is_lvalue_reference<T>::value);
 
-    Type* target = reflect::type<T>();
+    const Type* target = reflect::type<T>();
 
     if (!target->isMovable()) return false;
     if (type()->isChildOf(target)) return !isConst();

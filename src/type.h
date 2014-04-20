@@ -16,7 +16,7 @@ namespace reflect {
 
 struct Type
 {
-    explicit Type(std::string id, Type* parent = nullptr) :
+    explicit Type(std::string id, const Type* parent = nullptr) :
         id_(std::move(id)), parent_(parent)
     {}
 
@@ -26,8 +26,8 @@ struct Type
     Type& operator=(const Type&) = delete;
 
     const std::string& id() const { return id_; }
-    Type* parent() const { return parent_; }
-    void parent(Type* parent) { parent_ = parent; }
+    const Type* parent() const { return parent_; }
+    void parent(const Type* parent) { parent_ = parent; }
 
     template<typename Fn>
     void add(const std::string& name, Fn rawFn);
@@ -84,7 +84,7 @@ private:
     void fields(std::vector<std::string>& result) const;
 
     std::string id_;
-    Type* parent_;
+    const Type* parent_;
 
     std::unordered_set<std::string> traits_;
     std::unordered_map<std::string, Overloads> fns_;

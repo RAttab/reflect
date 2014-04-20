@@ -29,7 +29,7 @@ template<typename T, typename Enable = void> struct Loader;
 struct Registry
 {
     template<typename T>
-    static Type* get()
+    static const Type* get()
     {
         typedef typename CleanType<T>::type CleanT;
 
@@ -37,7 +37,7 @@ struct Registry
         return get(Reflect<CleanT>::id());
     }
 
-    static Type* get(const std::string& id);
+    static const Type* get(const std::string& id);
 
     template<typename T>
     static void add()
@@ -61,8 +61,8 @@ struct Registry
     static Namespace* globalNamespace();
 
 private:
-    static void add(const std::string& id, Type* type);
-    static Type* load(const std::string& id);
+    static void add(const std::string& id, const Type* type);
+    static const Type* load(const std::string& id);
 };
 
 
@@ -82,12 +82,12 @@ std::string typeId()
 /******************************************************************************/
 
 template<typename T>
-Type* type()
+const Type* type()
 {
     return Registry::get<T>();
 }
 
-inline Type* type(const std::string& id)
+inline const Type* type(const std::string& id)
 {
     return Registry::get(id);
 }

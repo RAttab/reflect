@@ -19,7 +19,7 @@ using namespace reflect;
 
 BOOST_AUTO_TEST_CASE(void_)
 {
-    Type* t = type<void>();
+    const Type* t = type<void>();
 
     BOOST_CHECK(!t->parent());
     BOOST_CHECK(t->isParentOf<void>());
@@ -44,12 +44,12 @@ BOOST_AUTO_TEST_CASE(print)
 
 BOOST_AUTO_TEST_CASE(function_)
 {
-    Type* tInt = type<int>();
+    const Type* tInt = type<int>();
     BOOST_CHECK( tInt->hasFunction("int"));
     BOOST_CHECK( tInt->hasFunction("operator="));
     BOOST_CHECK(!tInt->hasFunction("bob"));
 
-    Type* tObject = type<test::Object>();
+    const Type* tObject = type<test::Object>();
     BOOST_CHECK( tObject->hasFunction("test::Object"));
     BOOST_CHECK(!tObject->hasFunction("Object"));
     BOOST_CHECK( tObject->hasFunction("value"));
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(function_)
     BOOST_CHECK( tObject->hasFunction("operator++"));
     BOOST_CHECK(!tObject->hasFunction("bob"));
 
-    Type* tParent = type<test::Parent>();
+    const Type* tParent = type<test::Parent>();
     BOOST_CHECK( tParent->hasFunction("test::Parent"));
     BOOST_CHECK(!tParent->hasFunction("test::Child"));
     BOOST_CHECK( tParent->hasFunction("value"));
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(function_)
     BOOST_CHECK( tParent->hasFunction("normalVirtual"));
     BOOST_CHECK( tParent->hasFunction("pureVirtual"));
 
-    Type* tChild = type<test::Child>();
+    const Type* tChild = type<test::Child>();
     BOOST_CHECK( tChild->hasFunction("test::Child"));
     BOOST_CHECK( tChild->hasFunction("test::Parent")); // \todo Do we want this?
     BOOST_CHECK( tChild->hasFunction("value"));
@@ -76,19 +76,19 @@ BOOST_AUTO_TEST_CASE(function_)
     BOOST_CHECK( tChild->hasFunction("normalVirtual"));
     BOOST_CHECK( tChild->hasFunction("pureVirtual"));
 
-    Type* tConvertible = type<test::Convertible>();
+    const Type* tConvertible = type<test::Convertible>();
     BOOST_CHECK( tConvertible->hasFunction("operator int()"));
     BOOST_CHECK( tConvertible->hasFunction("operator test::Parent()"));
 }
 
 BOOST_AUTO_TEST_CASE(field)
 {
-    Type* tInt = type<int>();
+    const Type* tInt = type<int>();
     BOOST_CHECK( tInt->hasField("int"));
     BOOST_CHECK(!tInt->hasField("operator="));
     BOOST_CHECK(!tInt->hasField("bob"));
 
-    Type* tObject = type<test::Object>();
+    const Type* tObject = type<test::Object>();
     BOOST_CHECK( tObject->hasField("test::Object"));
     BOOST_CHECK(!tObject->hasField("Object"));
     BOOST_CHECK( tObject->hasField("value"));
@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE(field)
     BOOST_CHECK(!tObject->hasField("operator++"));
     BOOST_CHECK(!tObject->hasField("bob"));
 
-    Type* tParent = type<test::Parent>();
+    const Type* tParent = type<test::Parent>();
     BOOST_CHECK( tParent->hasField("test::Parent"));
     BOOST_CHECK(!tParent->hasField("test::Child"));
     BOOST_CHECK( tParent->hasField("value"));
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE(field)
     BOOST_CHECK(!tParent->hasField("normalVirtual"));
     BOOST_CHECK(!tParent->hasField("pureVirtual"));
 
-    Type* tChild = type<test::Child>();
+    const Type* tChild = type<test::Child>();
     BOOST_CHECK( tChild->hasField("test::Child"));
     BOOST_CHECK( tChild->hasField("test::Parent")); // \todo Do we want this?
     BOOST_CHECK( tChild->hasField("value"));
@@ -115,68 +115,68 @@ BOOST_AUTO_TEST_CASE(field)
     BOOST_CHECK(!tChild->hasField("normalVirtual"));
     BOOST_CHECK(!tChild->hasField("pureVirtual"));
 
-    Type* tConvertible = type<test::Convertible>();
+    const Type* tConvertible = type<test::Convertible>();
     BOOST_CHECK( tConvertible->hasField("operator int()"));
     BOOST_CHECK( tConvertible->hasField("operator test::Parent()"));
 }
 
 BOOST_AUTO_TEST_CASE(fieldType)
 {
-    Type* tInt = type<int>();
+    const Type* tInt = type<int>();
     BOOST_CHECK_EQUAL(tInt->fieldType("int"), tInt);
 
-    Type* tObject = type<test::Object>();
+    const Type* tObject = type<test::Object>();
     BOOST_CHECK_EQUAL(tObject->fieldType("test::Object"), tObject);
     BOOST_CHECK_EQUAL(tObject->fieldType("value"), tInt);
 
-    Type* tParent = type<test::Parent>();
+    const Type* tParent = type<test::Parent>();
     BOOST_CHECK_EQUAL(tParent->fieldType("test::Parent"), tParent);
     BOOST_CHECK_EQUAL(tParent->fieldType("value"), tObject);
     BOOST_CHECK_EQUAL(tParent->fieldType("shadowed"), tInt);
 
-    Type* tChild = type<test::Child>();
+    const Type* tChild = type<test::Child>();
     BOOST_CHECK_EQUAL(tChild->fieldType("test::Child"), tChild);
     BOOST_CHECK_EQUAL(tChild->fieldType("test::Parent"), tParent);
     BOOST_CHECK_EQUAL(tChild->fieldType("value"), tObject);
     BOOST_CHECK_EQUAL(tChild->fieldType("childValue"), tObject);
     BOOST_CHECK_EQUAL(tChild->fieldType("shadowed"), type<bool>());
 
-    Type* tConvertible = type<test::Convertible>();
+    const Type* tConvertible = type<test::Convertible>();
     BOOST_CHECK_EQUAL(tConvertible->fieldType("operator int()"), tInt);
     BOOST_CHECK_EQUAL(tConvertible->fieldType("operator test::Parent()"), tParent);
 }
 
 BOOST_AUTO_TEST_CASE(moveCopy)
 {
-    Type* tInt = type<int>();
+    const Type* tInt = type<int>();
     BOOST_CHECK(tInt->isCopiable());
     BOOST_CHECK(tInt->isMovable());
 
-    Type* tObject = type<test::Object>();
+    const Type* tObject = type<test::Object>();
     BOOST_CHECK(tObject->isCopiable());
     BOOST_CHECK(tObject->isMovable());
 
-    Type* tNotCopiable = type<test::NotCopiable>();
+    const Type* tNotCopiable = type<test::NotCopiable>();
     BOOST_CHECK(!tNotCopiable->isCopiable());
     // BOOST_CHECK( tNotCopiable->isMovable()); // \todo
 
-    Type* tNotMovable = type<test::NotMovable>();
+    const Type* tNotMovable = type<test::NotMovable>();
     BOOST_CHECK(!tNotMovable->isCopiable());
     BOOST_CHECK(!tNotMovable->isMovable());
 
-    Type* tNotConstructible = type<test::NotConstructible>();
+    const Type* tNotConstructible = type<test::NotConstructible>();
     BOOST_CHECK(!tNotConstructible->isCopiable());
     // BOOST_CHECK( tNotConstructible->isMovable()); // \todo
 }
 
 BOOST_AUTO_TEST_CASE(parentChild)
 {
-    Type* tInt = type<int>();
+    const Type* tInt = type<int>();
     BOOST_CHECK( tInt->isParentOf<int>());
     BOOST_CHECK(!tInt->isParentOf<unsigned>());
     BOOST_CHECK(!tInt->isParentOf<test::Object>());
 
-    Type* tInterface = type<test::Interface>();
+    const Type* tInterface = type<test::Interface>();
     BOOST_CHECK( tInterface->isParentOf<test::Interface>());
     BOOST_CHECK( tInterface->isParentOf<test::Parent>());
     BOOST_CHECK( tInterface->isParentOf<test::Child>());
@@ -186,7 +186,7 @@ BOOST_AUTO_TEST_CASE(parentChild)
     BOOST_CHECK(!tInterface->isChildOf<test::Child>());
     BOOST_CHECK(!tInterface->isChildOf<test::Object>());
 
-    Type* tParent = type<test::Parent>();
+    const Type* tParent = type<test::Parent>();
     BOOST_CHECK(!tParent->isParentOf<test::Interface>());
     BOOST_CHECK( tParent->isParentOf<test::Parent>());
     BOOST_CHECK( tParent->isParentOf<test::Child>());
@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_CASE(parentChild)
     BOOST_CHECK(!tParent->isChildOf<test::Child>());
     BOOST_CHECK(!tParent->isChildOf<test::Object>());
 
-    Type* tChild = type<test::Child>();
+    const Type* tChild = type<test::Child>();
     BOOST_CHECK(!tChild->isParentOf<test::Interface>());
     BOOST_CHECK(!tChild->isParentOf<test::Parent>());
     BOOST_CHECK( tChild->isParentOf<test::Child>());
@@ -209,12 +209,12 @@ BOOST_AUTO_TEST_CASE(parentChild)
 
 BOOST_AUTO_TEST_CASE(converter)
 {
-    Type* tParent = type<test::Parent>();
+    const Type* tParent = type<test::Parent>();
     BOOST_CHECK(!tParent->hasConverter<int>());
     BOOST_CHECK(!tParent->hasConverter<test::Parent>());
     BOOST_CHECK(!tParent->hasConverter<test::Convertible>());
 
-    Type* tConvertible = type<test::Convertible>();
+    const Type* tConvertible = type<test::Convertible>();
     BOOST_CHECK( tConvertible->hasConverter<int>());
     BOOST_CHECK( tConvertible->hasConverter<test::Parent>());
     BOOST_CHECK(!tConvertible->hasConverter<test::Convertible>());

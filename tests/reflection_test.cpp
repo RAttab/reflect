@@ -133,8 +133,8 @@ reflectClass(test::Foo)
 
 BOOST_AUTO_TEST_CASE(basics)
 {
-    Type* typeBar = type("test::Bar");
-    Type* typeFoo = type("test::Foo");
+    const Type* typeBar = type("test::Bar");
+    const Type* typeFoo = type("test::Foo");
 
     BOOST_CHECK(typeBar);
     BOOST_CHECK(typeFoo);

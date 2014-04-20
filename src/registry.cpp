@@ -20,7 +20,7 @@ namespace {
 struct RegistryState
 {
     std::mutex lock;
-    std::unordered_map<std::string, Type*> types;
+    std::unordered_map<std::string, const Type*> types;
     std::unordered_map<std::string, std::string> aliases;
     std::unordered_map<std::string, std::function<void(Type*)> > loaders;
     Namespace ns;
@@ -48,7 +48,7 @@ globalNamespace()
     return &getRegistry().ns;
 }
 
-Type*
+const Type*
 Registry::
 get(const std::string& id)
 {
@@ -66,7 +66,7 @@ get(const std::string& id)
 }
 
 
-Type*
+const Type*
 Registry::
 load(const std::string& id)
 {
@@ -90,7 +90,7 @@ load(const std::string& id)
 
 void
 Registry::
-add(const std::string& id, Type* type)
+add(const std::string& id, const Type* type)
 {
     if (id.empty() || !type)
         reflectError("can't add type for <%s>", id);

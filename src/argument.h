@@ -67,6 +67,6 @@ private:
 
 template<typename T>
 std::string printArgument();
-std::string printArgument(Type* type, RefType refType, bool isConst);
+std::string printArgument(const Type* type, RefType refType, bool isConst);
 
 } // reflect
