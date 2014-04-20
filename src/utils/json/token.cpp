@@ -8,8 +8,9 @@
 #include "token.h"
 #include "reflect.h"
 
-#include <ctype.h>
+#include <array>
 #include <sstream>
+#include <ctype.h>
 
 namespace reflect {
 namespace json {
@@ -301,6 +302,37 @@ void expectToken(Token token, Token::Type expected)
             print(token.type()), print(expected));
 }
 
+
+/******************************************************************************/
+/* PRINTERS                                                                   */
+/******************************************************************************/
+
+void printNull(std::ostream& json)
+{
+    json << "null";
+}
+
+void printBool(bool value, std::ostream& json)
+{
+    json << (value ? "true" : "false");
+}
+
+void printString(const std::string& value, std::ostream& json)
+{
+    json << '"' << value << '"';
+}
+
+void printInteger(long value, std::ostream& json)
+{
+    json << value;
+}
+
+void printFloat(double value, std::ostream& json)
+{
+    std::array<char, 256> buffer;
+    (void) snprintf(buffer.data(), buffer.size(), "%e", value);
+    json << std::string(buffer.data());
+}
 
 } // namespace json
 } // reflect

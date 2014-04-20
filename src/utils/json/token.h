@@ -57,5 +57,16 @@ Token nextToken(std::istream& json);
 void expectToken(Token token, Token::Type expected);
 
 
+/******************************************************************************/
+/* PRINTERS                                                                   */
+/******************************************************************************/
+
+void printNull(std::ostream& json);
+void printBool(bool value, std::ostream& json);
+void printInteger(long value, std::ostream& json);
+void printFloat(double value, std::ostream& json);
+void printString(const std::string& value, std::ostream& json);
+
+
 } // namespace json
 } // reflect
