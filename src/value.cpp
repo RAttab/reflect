@@ -108,7 +108,7 @@ Value::
 operator!() const
 {
     if (type()->hasFunction("operator!"))
-        return call<bool>("operator!", *this);
+        return call<bool>("operator!");
     return !((bool) *this);
 }
 

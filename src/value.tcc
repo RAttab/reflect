@@ -218,7 +218,7 @@ void
 Value::
 assign(Arg&& arg) const
 {
-    call<void>("operator=", *this, std::forward<Arg>(arg));
+    call<void>("operator=", std::forward<Arg>(arg));
 }
 
 
