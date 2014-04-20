@@ -22,20 +22,25 @@ namespace reflect {
 /* REFLECT SMART PTR                                                          */
 /******************************************************************************/
 
+/** Half the members of std::shared_ptr are defined under a super-class in gcc
+    4.7 which means that infering the type of the this parameter will lead to
+    tears. Instead we use custom reflection to get around that problem.
+
+ */
 template<typename T_, typename InnerT>
 void reflectSmartPtr(Type* type_)
 {
     reflectPlumbing();
 
     reflectTrait(pointer);
-    reflectOp(operator*, Indirection);
-    reflectOp(operator->, MemberAccess);
-    reflectCustom("pointee") () -> const Type* { return type<InnerT>(); };
+    reflectCustom(pointee) { return type<InnerT>(); };
+    reflectCustom(operator*) (const T_& value) { return *value; };
 
-    reflectFn(get);
-    reflectFn(reset);
-    reflectOpCast(bool);
     reflectOp(operator==, EqComp);
+    reflectFnTyped(reset, void (T_::*) ());
+    reflectFnTyped(reset, void (T_::*) (InnerT*));
+    reflectCustom(get) (const T_& value) { return value.get(); };
+    reflectCustom(operator bool()) (const T_& value) { return !!value; };
 }
 
 
@@ -50,11 +55,8 @@ struct Reflect< std::shared_ptr<T> >
     static std::string id() { return "std::shared_ptr<" + typeId<T>() + ">"; }
 
     reflectTemplateLoader()
+    static void reflect(Type* type_) { reflectSmartPtr<T_, T>(type_); }
 
-    static void reflect(Type* type_)
-    {
-        reflectSmartPtr<T_, T>(type_);
-    }
 };
 
 
@@ -69,11 +71,7 @@ struct Reflect< std::unique_ptr<T> >
     static std::string id() { return "std::unique_ptr<" + typeId<T>() + ">"; }
 
     reflectTemplateLoader()
-
-    static void reflect(Type* type_)
-    {
-        reflectSmartPtr<T_, T>(type_);
-    }
+    static void reflect(Type* type_) { reflectSmartPtr<T_, T>(type_); }
 };
 
 } // reflect
