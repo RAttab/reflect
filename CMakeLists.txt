@@ -202,6 +202,7 @@ reflect_test(type)
 reflect_test(value)
 reflect_test(value_function)
 reflect_test(function)
+reflect_test(pointer)
 reflect_test(reflection)
 
 reflect_test(cperf_type_lookup)
