@@ -18,6 +18,7 @@
 #include "reflect/class.h"
 #include "reflect/field.h"
 #include "utils/json/parser.h"
+#include "utils/json/printer.h"
 
 #include <boost/test/unit_test.hpp>
 #include <fstream>
@@ -43,6 +44,9 @@ reflectClass(Bleh)
     reflectPlumbing();
     reflectField(i);
     reflectField(b);
+
+    reflectFieldTrait(i, printable);
+    reflectFieldTrait(b, printable);
 }
 
 
@@ -63,6 +67,10 @@ reflectClass(Blah)
     reflectField(str);
     reflectField(vec);
     reflectField(map);
+
+    reflectFieldTrait(str, printable);
+    reflectFieldTrait(vec, printable);
+    reflectFieldTrait(map, printable);
 }
 
 
@@ -92,4 +100,6 @@ BOOST_AUTO_TEST_CASE(parsing)
     BOOST_CHECK_EQUAL(blah.map.size(), 2);
     checkBleh(blah.map["foo"], 20, true);
     checkBleh(blah.map["bar"], 0, true);
+
+    json::print(blah, std::cerr, true);
 }
