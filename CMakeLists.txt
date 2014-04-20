@@ -172,6 +172,7 @@ install(
 
 install(
     FILES
+    src/types/std/smart_ptr.h
     src/types/std/string.h
     src/types/std/vector.h
     DESTINATION

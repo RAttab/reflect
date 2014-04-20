@@ -10,7 +10,7 @@
 #include "reflect.h"
 #include "reflect/basics.h"
 #include "reflect/plumbing.h"
-#include "reflect/operators.h"
+#include "reflect/function.h"
 
 namespace reflect {
 
@@ -31,8 +31,8 @@ struct Reflect<T*>
         reflectPlumbing();
 
         reflectTrait(primitive);
-        reflectTrait(pointer);
 
+        reflectTrait(pointer);
         reflectCustom("operator*") (T* & value) -> T& { return *value; };
         reflectCustom("operator->") (T* & value) -> T* { return value; };
     }
