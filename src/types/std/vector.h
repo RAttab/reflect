@@ -24,10 +24,7 @@ template<typename T>
 struct Reflect< std::vector<T> >
 {
     typedef std::vector<T> T_;
-    static std::string id()
-    {
-        return "std::vector<" + typeId<T>() + ">";
-    }
+    static std::string id() { return "std::vector<" + typeId<T>() + ">"; }
 
     reflectTemplateLoader()
 
@@ -40,6 +37,7 @@ struct Reflect< std::vector<T> >
 
         reflectFn(size);
         reflectFnTyped(push_back, void (T_::*) (const T&));
+        reflectFnTyped(push_back, void (T_::*) (T&&));
 
         reflectCustom(operator[]) (const T_& value, size_t i) -> const T& {
             return value[i];
