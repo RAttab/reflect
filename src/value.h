@@ -161,8 +161,6 @@ struct Value
     reflectValueOpNary  (operator())
     reflectValueOpBinary(operator[])
     reflectValueOpUnary (operator*)
-    reflectValueOpUnary (operator->)
-    reflectValueOpBinary(operator->*)
 
     operator bool() const { return call<bool>("operator bool()"); }
 
