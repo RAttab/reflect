@@ -164,6 +164,8 @@ struct Value
     reflectValueOpUnary (operator->)
     reflectValueOpBinary(operator->*)
 
+    operator bool() const { return call<bool>("operator bool()"); }
+
 private:
 
     template<typename T>
