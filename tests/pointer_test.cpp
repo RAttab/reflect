@@ -186,8 +186,46 @@ BOOST_AUTO_TEST_CASE(sharedPtr)
     BOOST_CHECK_NE(vSharedPtr.call<Obj*>("get"), po);
 
     vSharedPtr.call<void>("reset");
-    // BOOST_CHECK(!vSharedPtr); // operator bool()
+    BOOST_CHECK(!vSharedPtr); // operator bool()
     BOOST_CHECK(vSharedPtr.call<Obj*>("get") == nullptr);
+}
+
+
+/******************************************************************************/
+/* UNIQUE PTR                                                                 */
+/******************************************************************************/
+
+BOOST_AUTO_TEST_CASE(uniquePtr)
+{
+    typedef test::NotConstructible Obj;
+
+    const Type* tUniquePtr = type< std::unique_ptr<Obj> >();
+    std::cerr << tUniquePtr->print() << std::endl;
+
+    BOOST_CHECK(tUniquePtr->is("pointer"));
+    BOOST_CHECK_EQUAL(tUniquePtr->call<const Type*>("pointee"), type<Obj>());
+
+    Obj* po = Obj::make();
+    Value vUniquePtr = tUniquePtr->construct(po);
+    BOOST_CHECK_THROW(vUniquePtr.get< std::unique_ptr<int> >(), ReflectError);
+
+    auto& obj = (*vUniquePtr).get<Obj>();
+    auto& uniquePtr = vUniquePtr.get< std::unique_ptr<Obj> >();
+
+    BOOST_CHECK(vUniquePtr); // operator bool()
+    BOOST_CHECK(vUniquePtr == uniquePtr); // operator==
+    BOOST_CHECK_EQUAL(&obj, po);
+    BOOST_CHECK_EQUAL(uniquePtr.get(), po);
+    BOOST_CHECK_EQUAL(vUniquePtr.call<Obj*>("get"), po);
+
+    vUniquePtr.call<void>("reset", Obj::make());
+
+    BOOST_CHECK(vUniquePtr); // operator bool()
+    BOOST_CHECK_NE(vUniquePtr.call<Obj*>("get"), po);
+
+    vUniquePtr.call<void>("reset");
+    BOOST_CHECK(!vUniquePtr); // operator bool()
+    BOOST_CHECK(vUniquePtr.call<Obj*>("get") == nullptr);
 }
 
 

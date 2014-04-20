@@ -37,8 +37,6 @@ void reflectSmartPtr(Type* type_)
     reflectCustom(pointee) { return type<InnerT>(); };
     reflectCustom(operator*) (const T_& value) -> InnerT& { return *value; };
 
-    reflectFnTyped(reset, void (T_::*) ());
-    reflectFnTyped(reset, void (T_::*) (InnerT*));
     reflectCustom(get) (const T_& value) { return value.get(); };
     reflectCustom(operator bool()) (const T_& value) { return !!value; };
     reflectCustom(operator==) (const T_& value, const T_& other) {
@@ -58,7 +56,14 @@ struct Reflect< std::shared_ptr<T> >
     static std::string id() { return "std::shared_ptr<" + typeId<T>() + ">"; }
 
     reflectTemplateLoader()
-    static void reflect(Type* type_) { reflectSmartPtr<T_, T>(type_); }
+
+    static void reflect(Type* type_)
+    {
+        reflectSmartPtr<T_, T>(type_);
+
+        reflectFnTyped(reset, void (T_::*) ());
+        reflectFnTyped(reset, void (T_::*) (T*));
+    }
 
 };
 
@@ -74,7 +79,15 @@ struct Reflect< std::unique_ptr<T> >
     static std::string id() { return "std::unique_ptr<" + typeId<T>() + ">"; }
 
     reflectTemplateLoader()
-    static void reflect(Type* type_) { reflectSmartPtr<T_, T>(type_); }
+
+    static void reflect(Type* type_)
+    {
+        reflectSmartPtr<T_, T>(type_);
+
+        reflectFn(release);
+        reflectFnTyped(reset, void (T_::*) (T*));
+        reflectCustom(reset) (T_& value) { value.reset(); };
+    }
 };
 
 } // reflect
