@@ -37,6 +37,7 @@ void reflectSmartPtr(Type* type_)
     reflectCustom(pointee) { return type<InnerT>(); };
     reflectCustom(operator*) (const T_& value) -> InnerT& { return *value; };
 
+    reflectTrait(smartPtr);
     reflectCustom(get) (const T_& value) { return value.get(); };
     reflectCustom(operator bool()) (const T_& value) { return !!value; };
     reflectCustom(operator==) (const T_& value, const T_& other) {
@@ -64,7 +65,6 @@ struct Reflect< std::shared_ptr<T> >
         reflectFnTyped(reset, void (T_::*) ());
         reflectFnTyped(reset, void (T_::*) (T*));
     }
-
 };
 
 
