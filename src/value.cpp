@@ -103,5 +103,20 @@ rvalue() const
     return result;
 }
 
+bool
+Value::
+operator!() const
+{
+    if (type()->hasFunction("operator!"))
+        return call<bool>("operator!", *this);
+    return !((bool) *this);
+}
+
+Value::
+operator bool() const
+{
+    return call<bool>("operator bool()");
+}
+
 
 } // reflect

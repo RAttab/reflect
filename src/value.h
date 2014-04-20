@@ -54,6 +54,13 @@ struct CleanValue
         return call<Value>(#op, std::forward<Arg>(arg));        \
     }
 
+#define reflectValueOpBool(op)                          \
+    template<typename Arg>                              \
+    bool op(Arg&& arg) const                            \
+    {                                                   \
+        return call<bool>(#op, std::forward<Arg>(arg)); \
+    }
+
 #define reflectValueOpNary(op)                                  \
     template<typename... Args>                                  \
     Value op(Args&&... args) const                              \
@@ -147,22 +154,22 @@ struct Value
     reflectValueOpBinary(operator<<)
     reflectValueOpBinary(operator>>)
 
-    reflectValueOpUnary (operator!)
-    reflectValueOpBinary(operator&&)
-    reflectValueOpBinary(operator||)
+    bool operator!() const;
+    reflectValueOpBool(operator&&)
+    reflectValueOpBool(operator||)
 
-    reflectValueOpBinary(operator==)
-    reflectValueOpBinary(operator!=)
-    reflectValueOpBinary(operator<)
-    reflectValueOpBinary(operator>)
-    reflectValueOpBinary(operator<=)
-    reflectValueOpBinary(operator>=)
+    reflectValueOpBool(operator==)
+    reflectValueOpBool(operator!=)
+    reflectValueOpBool(operator<)
+    reflectValueOpBool(operator>)
+    reflectValueOpBool(operator<=)
+    reflectValueOpBool(operator>=)
 
     reflectValueOpNary  (operator())
     reflectValueOpBinary(operator[])
     reflectValueOpUnary (operator*)
 
-    operator bool() const { return call<bool>("operator bool()"); }
+    explicit operator bool() const;
 
 private:
 
