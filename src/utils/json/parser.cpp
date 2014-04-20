@@ -149,9 +149,12 @@ void parseObject(Value& value, std::istream& json)
         else value.set(key, item);
 
         token = nextToken(json);
-        if (token.type() == Token::Separator) continue;
+        if (token.type() == Token::Separator) {
+            token = nextToken(json);
+            continue;
+        }
 
-        expectToken(token, Token::ArrayEnd);
+        expectToken(token, Token::ObjectEnd);
         return;
     }
 
@@ -170,7 +173,7 @@ void parseInto(Value& value, Token token, std::istream& json)
     case Token::ArrayStart: parseArray(value, json); break;
     case Token::ObjectStart: parseObject(value, json); break;
 
-    default: reflectError("unexpected token <%s>", toString(token.type()));
+    default: reflectError("unexpected token <%s>", print(token.type()));
     }
 }
 

@@ -9,6 +9,7 @@
 #include "reflect.h"
 
 #include <ctype.h>
+#include <sstream>
 
 namespace reflect {
 namespace json {
@@ -16,31 +17,6 @@ namespace json {
 /******************************************************************************/
 /* TOKEN                                                                      */
 /******************************************************************************/
-
-std::string toString(Token::Type type)
-{
-    switch (type)
-    {
-    case Token::ObjectStart: return "{";
-    case Token::ObjectEnd:   return "}";
-
-    case Token::ArrayStart: return "[";
-    case Token::ArrayEnd:   return "]";
-
-    case Token::Separator:    return ",";
-    case Token::KeySeparator: return ":";
-
-    case Token::String: return "string";
-    case Token::Number: return "number";
-    case Token::Bool:   return "bool";
-    case Token::Null:   return "null";
-
-    case Token::EOS: return "eos";
-
-    default: reflectError("unknown token type");
-    }
-}
-
 
 Token::
 Token(Type type, std::string value) :
@@ -80,6 +56,44 @@ Token::
 boolValue() const
 {
     return !value_.empty();
+}
+
+
+std::string print(Token::Type type)
+{
+    switch (type)
+    {
+    case Token::ObjectStart: return "{";
+    case Token::ObjectEnd:   return "}";
+
+    case Token::ArrayStart: return "[";
+    case Token::ArrayEnd:   return "]";
+
+    case Token::Separator:    return ",";
+    case Token::KeySeparator: return ":";
+
+    case Token::String: return "string";
+    case Token::Number: return "number";
+    case Token::Bool:   return "bool";
+    case Token::Null:   return "null";
+
+    case Token::EOS: return "eos";
+
+    default: reflectError("unknown token type");
+    }
+}
+
+std::string
+Token::
+print() const
+{
+    std::stringstream ss;
+
+    ss << "<Token " << reflect::json::print(type_);
+    if (!value_.empty()) ss << ": " << value_;
+    ss << ">";
+
+    return ss.str();
 }
 
 
@@ -214,13 +228,13 @@ std::string readString(std::istream& json)
 
 // \todo shouldn't allow leading 0s unless followed by a .
 // \todo enforce a number before a .
-std::string readNumber(std::istream& json)
+std::string readNumber(char c, std::istream& json)
 {
-    char c;
     std::string str;
+    str += c;
 
     auto readDigits = [&] {
-        while (json && std::isdigit(c = json.get())) str += c;
+        while (json && std::isdigit(c = json.peek())) str += json.get();
     };
 
     auto readChar = [&] (char c) {
@@ -270,21 +284,21 @@ Token nextToken(std::istream& json)
     case ',': return Token(Token::Separator);
     case ':': return Token(Token::KeySeparator);
 
-    case 'n': readLiteral("null", json);  return Token(Token::Null);
-    case 't': readLiteral("true", json);  return Token(Token::Bool, true);
-    case 'f': readLiteral("false", json); return Token(Token::Bool, false);
+    case 'n': readLiteral("ull", json);  return Token(Token::Null);
+    case 't': readLiteral("rue", json);  return Token(Token::Bool, true);
+    case 'f': readLiteral("alse", json); return Token(Token::Bool, false);
 
     case '"': return Token(Token::String, readString(json));
-    default:  return Token(Token::Number, readNumber(json));
+    default:  return Token(Token::Number, readNumber(c, json));
     }
 }
 
 void expectToken(Token token, Token::Type expected)
 {
-    if (token.type() == Token::String) return;
+    if (token.type() == expected) return;
 
     reflectError("unexpected <%s> expecting <%s>",
-            toString(token.type()), toString(expected));
+            print(token.type()), print(expected));
 }
 
 

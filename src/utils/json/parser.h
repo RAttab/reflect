@@ -43,15 +43,17 @@ Value parse(const Type* type, std::istream& json);
 Value parse(const Type* type, const std::string& json);
 
 template<typename T>
-Value parse(std::istream& json)
+T parse(std::istream& json)
 {
-    return parse(type<T>(), json);
+    Value v = parse(type<T>(), json);
+    return v.get<T>();
 }
 
 template<typename T>
-Value parse(const std::string& json)
+T parse(const std::string& json)
 {
-    return parse(type<T>(), json);
+    Value v = parse(type<T>(), json);
+    return v.get<T>();
 }
 
 

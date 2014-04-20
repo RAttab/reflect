@@ -39,12 +39,14 @@ struct Token
 
     bool boolValue() const;
 
+    std::string print() const;
+
 private:
     Type type_;
     std::string value_;
 };
 
-std::string toString(Token::Type type);
+std::string print(Token::Type type);
 
 
 /******************************************************************************/
