@@ -90,6 +90,8 @@ void bleh()
     std::cerr << "move assg: " << std::is_move_assignable<T>() << std::endl;
 }
 
+void ptr(int const*) {}
+
 
 int main(int, char**)
 {
