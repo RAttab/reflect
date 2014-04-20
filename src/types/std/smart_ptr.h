@@ -8,6 +8,8 @@
 #pragma once
 
 #include "reflect.h"
+#include "vector.h"
+#include "types/reflect/type.h"
 #include "reflect/basics.h"
 #include "reflect/plumbing.h"
 #include "reflect/operators.h"
@@ -20,18 +22,19 @@ namespace reflect {
 /* REFLECT SMART PTR                                                          */
 /******************************************************************************/
 
-template<typename T_>
+template<typename T_, typename InnerT>
 void reflectSmartPtr(Type* type_)
 {
     reflectPlumbing();
 
     reflectTrait(pointer);
-    reflectOp(operator*,   Indirection);
-    reflectOp(operator->,  MemberAccess);
+    reflectOp(operator*, Indirection);
+    reflectOp(operator->, MemberAccess);
+    reflectCustom("pointee") () -> const Type* { return type<InnerT>(); };
 
     reflectFn(get);
     reflectFn(reset);
-    reflectopCast(bool);
+    reflectOpCast(bool);
     reflectOp(operator==, EqComp);
 }
 
@@ -50,7 +53,7 @@ struct Reflect< std::shared_ptr<T> >
 
     static void reflect(Type* type_)
     {
-        reflectSmartPtr<T_>(type_);
+        reflectSmartPtr<T_, T>(type_);
     }
 };
 
@@ -69,7 +72,7 @@ struct Reflect< std::unique_ptr<T> >
 
     static void reflect(Type* type_)
     {
-        reflectSmartPtr<T_>(type_);
+        reflectSmartPtr<T_, T>(type_);
     }
 };
 

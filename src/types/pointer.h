@@ -8,6 +8,7 @@
 #pragma once
 
 #include "reflect.h"
+#include "types/reflect/type.h"
 #include "reflect/basics.h"
 #include "reflect/plumbing.h"
 #include "reflect/function.h"
@@ -35,6 +36,7 @@ struct Reflect<T*>
         reflectTrait(pointer);
         reflectCustom("operator*") (T* & value) -> T& { return *value; };
         reflectCustom("operator->") (T* & value) -> T* { return value; };
+        reflectCustom("pointee") () -> const Type* { return type<T>(); };
     }
 };
 
