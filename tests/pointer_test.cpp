@@ -31,11 +31,19 @@ using namespace reflect;
 
 BOOST_AUTO_TEST_CASE(basics)
 {
-    BOOST_CHECK_EQUAL(type<int const*>(), type<int*>());
+    const Type* tPtr = type<int*>();
+    BOOST_CHECK_EQUAL(type<int const*>(), tPtr);
 
-    BOOST_CHECK_EQUAL(type<int const* const*>(), type<int**>());
-    BOOST_CHECK_EQUAL(type<int      * const*>(), type<int**>());
-    BOOST_CHECK_EQUAL(type<int const*      *>(), type<int**>());
+    BOOST_CHECK(tPtr->is("pointer"));
+    BOOST_CHECK_EQUAL(tPtr->call<const Type*>("pointee"), type<int>());
+
+    const Type* tPtrPtr = type<int**>();
+    BOOST_CHECK(tPtrPtr->is("pointer"));
+    BOOST_CHECK_EQUAL(tPtrPtr->call<const Type*>("pointee"), tPtr);
+
+    BOOST_CHECK_EQUAL(type<int const* const*>(), tPtrPtr);
+    BOOST_CHECK_EQUAL(type<int      * const*>(), tPtrPtr);
+    BOOST_CHECK_EQUAL(type<int const*      *>(), tPtrPtr);
 }
 
 
@@ -144,6 +152,43 @@ BOOST_AUTO_TEST_CASE(pointer_call)
 
 }
 
+
+/******************************************************************************/
+/* SHARED PTR                                                                 */
+/******************************************************************************/
+
+BOOST_AUTO_TEST_CASE(sharedPtr)
+{
+    typedef test::NotConstructible Obj;
+
+    const Type* tSharedPtr = type< std::shared_ptr<Obj> >();
+    std::cerr << tSharedPtr->print() << std::endl;
+
+    BOOST_CHECK(tSharedPtr->is("pointer"));
+    BOOST_CHECK_EQUAL(tSharedPtr->call<const Type*>("pointee"), type<Obj>());
+
+    Obj* po = Obj::make();
+    Value vSharedPtr = tSharedPtr->construct(po);
+    BOOST_CHECK_THROW(vSharedPtr.get< std::shared_ptr<int> >(), ReflectError);
+
+    auto& obj = (*vSharedPtr).get<Obj>();
+    auto& sharedPtr = vSharedPtr.get< std::shared_ptr<Obj> >();
+
+    BOOST_CHECK(vSharedPtr); // operator bool()
+    BOOST_CHECK(vSharedPtr == sharedPtr); // operator==
+    BOOST_CHECK_EQUAL(&obj, po);
+    BOOST_CHECK_EQUAL(sharedPtr.get(), po);
+    BOOST_CHECK_EQUAL(vSharedPtr.call<Obj*>("get"), po);
+
+    vSharedPtr.call<void>("reset", Obj::make());
+
+    BOOST_CHECK(vSharedPtr); // operator bool()
+    BOOST_CHECK_NE(vSharedPtr.call<Obj*>("get"), po);
+
+    vSharedPtr.call<void>("reset");
+    // BOOST_CHECK(!vSharedPtr); // operator bool()
+    BOOST_CHECK(vSharedPtr.call<Obj*>("get") == nullptr);
+}
 
 
 /******************************************************************************/

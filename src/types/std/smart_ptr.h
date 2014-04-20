@@ -31,16 +31,19 @@ template<typename T_, typename InnerT>
 void reflectSmartPtr(Type* type_)
 {
     reflectPlumbing();
+    reflectCons(InnerT*);
 
     reflectTrait(pointer);
     reflectCustom(pointee) { return type<InnerT>(); };
-    reflectCustom(operator*) (const T_& value) { return *value; };
+    reflectCustom(operator*) (const T_& value) -> InnerT& { return *value; };
 
-    reflectOp(operator==, EqComp);
     reflectFnTyped(reset, void (T_::*) ());
     reflectFnTyped(reset, void (T_::*) (InnerT*));
     reflectCustom(get) (const T_& value) { return value.get(); };
     reflectCustom(operator bool()) (const T_& value) { return !!value; };
+    reflectCustom(operator==) (const T_& value, const T_& other) {
+        return value == other;
+    };
 }
 
 
