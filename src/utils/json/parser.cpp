@@ -139,16 +139,16 @@ void parseObject(Value& value, std::istream& json)
     while (json) {
 
         expectToken(token, Token::String);
-        std::string key = token.stringValue();
+        const std::string key = token.stringValue();
+
         expectToken(nextToken(json), Token::KeySeparator);
 
         const Type* type = isMap ? tValue : getFieldType(value, key);
-
         Value item = type->construct();
         parseInto(item, json);
 
-        if (isMap) value[key] = item;
-        else value.set(key, item);
+        if (isMap) value[key].assign(item.rvalue());
+        else value.set(key, item.rvalue());
 
         token = nextToken(json);
         if (token.type() == Token::Separator) {

@@ -13,6 +13,7 @@
 #include "types/primitives.h"
 #include "types/std/string.h"
 #include "types/std/vector.h"
+#include "types/std/map.h"
 #include "reflect/plumbing.h"
 #include "reflect/class.h"
 #include "reflect/field.h"
@@ -34,9 +35,10 @@ struct Bleh
     bool b;
 
     Bleh() : i(0), b(false) {}
+    Bleh(long i, bool b) : i(i), b(b) {}
 };
 
-reflectClass(Bleh) 
+reflectClass(Bleh)
 {
     reflectPlumbing();
     reflectField(i);
@@ -51,14 +53,16 @@ reflectClass(Bleh)
 struct Blah
 {
     std::string str;
-    std::vector<Bleh> bleh;
+    std::vector<Bleh> vec;
+    std::map<std::string, Bleh> map;
 };
 
 reflectClass(Blah)
 {
     reflectPlumbing();
     reflectField(str);
-    reflectField(bleh);
+    reflectField(vec);
+    reflectField(map);
 }
 
 
@@ -80,8 +84,12 @@ BOOST_AUTO_TEST_CASE(parsing)
 
     BOOST_CHECK_EQUAL(blah.str, "I like candy");
 
-    BOOST_CHECK_EQUAL(blah.bleh.size(), 3);
-    checkBleh(blah.bleh[0], 10, false);
-    checkBleh(blah.bleh[1], 0, true);
-    checkBleh(blah.bleh[2], 30, false);
+    BOOST_CHECK_EQUAL(blah.vec.size(), 3);
+    checkBleh(blah.vec[0], 10, false);
+    checkBleh(blah.vec[1], 0, true);
+    checkBleh(blah.vec[2], 30, false);
+
+    BOOST_CHECK_EQUAL(blah.map.size(), 2);
+    checkBleh(blah.map["foo"], 20, true);
+    checkBleh(blah.map["bar"], 0, true);
 }
