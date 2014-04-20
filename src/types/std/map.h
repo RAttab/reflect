@@ -53,6 +53,15 @@ struct Reflect< std::map<KeyT, ValueT> >
             reflectError("accessing unknown key in const map");
         };
 
+        reflectCustom(keys) (const T_& value) -> std::vector<KeyT> {
+            std::vector<KeyT> result;
+            result.reserve(value.size());
+
+            for (auto& item : value) result.push_back(item.first);
+
+            return result;
+        };
+
     }
 };
 
