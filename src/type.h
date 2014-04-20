@@ -45,6 +45,12 @@ struct Type
     bool is(const std::string& trait) const;
     std::vector<std::string> traits() const;
 
+    void addFunctionTrait(const std::string& fn, std::string trait);
+    bool fieldIs(const std::string& field, const std::string& trait) const;
+    bool functionIs(const std::string& fn, const std::string& trait) const;
+    std::vector<std::string> fieldTraits(const std::string& field) const;
+    std::vector<std::string> functionTraits(const std::string& fn) const;
+
     template<typename T>
     bool isParentOf() const { return isParentOf(type<T>()); }
     bool isParentOf(const Type* other) const;
@@ -82,6 +88,7 @@ private:
 
     std::unordered_set<std::string> traits_;
     std::unordered_map<std::string, Overloads> fns_;
+    std::unordered_map<std::string, std::unordered_set<std::string> > fnTraits_;
 };
 
 

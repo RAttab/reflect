@@ -34,8 +34,53 @@ std::vector<std::string>
 Type::
 traits() const
 {
-    return std::vector<std::string>(traits_.begin(), traits_.end());
+    return { traits_.begin(), traits_.end() };
 }
+
+void
+Type::
+addFunctionTrait(const std::string& fn, std::string trait)
+{
+    fnTraits_[fn].emplace(std::move(trait));
+}
+
+bool
+Type::
+functionIs(const std::string& fn, const std::string& trait) const
+{
+    auto it = fnTraits_.find(fn);
+    if (it != fnTraits_.end())
+        return it->second.count(trait);
+
+    return parent_ ? parent_->functionIs(fn, trait) : false;
+}
+
+bool
+Type::
+fieldIs(const std::string& field, const std::string& trait) const
+{
+    return functionIs(field, trait);
+}
+
+
+std::vector<std::string>
+Type::
+functionTraits(const std::string& fn) const
+{
+    auto it = fnTraits_.find(fn);
+    if (it != fnTraits_.end())
+        return { it->second.begin(), it->second.end() };
+
+    return parent_ ? parent_->functionTraits(fn) : std::vector<std::string>();
+}
+
+std::vector<std::string>
+Type::
+fieldTraits(const std::string& field) const
+{
+    return functionTraits(field);
+}
+
 
 bool
 Type::

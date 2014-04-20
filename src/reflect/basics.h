@@ -42,4 +42,10 @@ void reflectParent_(Type* type)
 #define reflectTrait(trait) \
     type_->addTrait(#trait)
 
+#define reflectFnTrait(fn, trait) \
+    type_->addFunctionTrait(#fn, #trait)
+
+#define reflectFieldTrait(field, trait) \
+    type_->addFunctionTrait(#field, #trait)
+
 } // reflect
