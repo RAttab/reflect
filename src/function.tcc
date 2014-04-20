@@ -59,11 +59,24 @@ std::vector<Argument> reflectArguments()
     return args;
 }
 
+
+/******************************************************************************/
+/* REFLECT ARGUMENTS                                                          */
+/******************************************************************************/
+
 inline void reflectArguments(std::vector<Argument>&) {}
 
 template<typename... Rest>
 void reflectArguments(
         std::vector<Argument>& args, Value& value, Rest&&... rest)
+{
+    args.emplace_back(value.argument());
+    reflectArguments(args, std::forward<Rest>(rest)...);
+}
+
+template<typename... Rest>
+void reflectArguments(
+        std::vector<Argument>& args, const Value& value, Rest&&... rest)
 {
     args.emplace_back(value.argument());
     reflectArguments(args, std::forward<Rest>(rest)...);
