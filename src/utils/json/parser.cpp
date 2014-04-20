@@ -26,7 +26,7 @@ namespace {
 
 const Type* getContainerType(Value& value, size_t index)
 {
-    Value typeVector = value.call<Value>("containedType");
+    Value typeVector = value.call<Value>("types");
     return typeVector[index].get<const Type*>();
 }
 
