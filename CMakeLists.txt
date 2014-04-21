@@ -61,9 +61,6 @@ link_directories("$ENV{HOME}/local/lib")
 # LIBRARIES
 #------------------------------------------------------------------------------#
 
-link_libraries(rt)
-link_libraries(pthread)
-
 option(USE_TCMALLOC "Use tcmalloc for heap allocations." ON)
 find_library(LIB_TCMALLOC tcmalloc)
 
