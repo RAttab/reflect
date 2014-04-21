@@ -91,8 +91,12 @@ bool
 Type::
 isChildOf(const Type* other) const
 {
-    return this == other
-        || (parent_ && parent_->isChildOf(other));
+    if (this == other) return true;
+
+    if (isPointer() && other->isPointer())
+        return pointee()->isChildOf(other->pointee());
+
+    return parent_ && parent_->isChildOf(other);
 }
 
 bool

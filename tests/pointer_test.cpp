@@ -60,6 +60,14 @@ BOOST_AUTO_TEST_CASE(basics)
     BOOST_CHECK_EQUAL(type<int const* const*>(), tPtrPtr);
     BOOST_CHECK_EQUAL(type<int      * const*>(), tPtrPtr);
     BOOST_CHECK_EQUAL(type<int const*      *>(), tPtrPtr);
+
+    auto argPtr = Argument::make<int*>();
+    auto argPtrPtr = Argument::make<int**>();
+    auto argSharedPtr = Argument::make< std::shared_ptr<int> >();
+    BOOST_CHECK_EQUAL(argPtr.isConvertibleTo(argPtr), Match::Exact);
+    BOOST_CHECK_EQUAL(argPtr.isConvertibleTo(argPtrPtr), Match::None);
+    BOOST_CHECK_EQUAL(argPtr.isConvertibleTo(argSharedPtr), Match::None);
+    BOOST_CHECK_EQUAL(argSharedPtr.isConvertibleTo(argSharedPtr), Match::Exact);
 }
 
 
@@ -170,6 +178,106 @@ BOOST_AUTO_TEST_CASE(pointer_call)
 
 
 /******************************************************************************/
+/* CHILD PARENT                                                               */
+/******************************************************************************/
+
+BOOST_AUTO_TEST_CASE(childParent_test)
+{
+    using namespace test;
+
+    auto doChild = [] (Child* c) { return c; };
+    Function childFn("child", doChild);
+
+    auto doParent = [] (Parent* p) { return p; };
+    Function parentFn("parent", doParent);
+
+    typedef std::shared_ptr<Child> SmartChild;
+    auto doSmartChild = [] (SmartChild c) { return c; };
+    Function smartChildFn("smartChild", doSmartChild);
+
+    typedef std::shared_ptr<Parent> SmartParent;
+    auto doSmartParent = [] (SmartParent p) { return p; };
+    Function smartParentFn("smartParent", doSmartParent);
+
+    BOOST_CHECK_EQUAL(childFn.test<Child*(Child*)>(), Match::Exact);
+    BOOST_CHECK_EQUAL(childFn.test<Child*(Parent*)>(), Match::None);
+    BOOST_CHECK_EQUAL(childFn.test<Child*(SmartChild)>(), Match::None);
+    BOOST_CHECK_EQUAL(childFn.test<Parent*(Child*)>(), Match::Exact);
+    BOOST_CHECK_EQUAL(childFn.test<SmartChild(Child*)>(), Match::None);
+
+    BOOST_CHECK_EQUAL(parentFn.test<Parent*(Child*)>(), Match::Partial);
+    BOOST_CHECK_EQUAL(parentFn.test<Parent*(Parent*)>(), Match::Exact);
+    BOOST_CHECK_EQUAL(parentFn.test<Parent*(SmartParent)>(), Match::None);
+    BOOST_CHECK_EQUAL(parentFn.test<Child*(Parent*)>(), Match::None);
+    BOOST_CHECK_EQUAL(parentFn.test<SmartParent(Parent*)>(), Match::None);
+
+    BOOST_CHECK_EQUAL(smartChildFn.test<SmartChild(Child*)>(), Match::None);
+    BOOST_CHECK_EQUAL(smartChildFn.test<SmartChild(SmartChild)>(), Match::Exact);
+    BOOST_CHECK_EQUAL(smartChildFn.test<SmartChild(SmartParent)>(), Match::None);
+    BOOST_CHECK_EQUAL(smartChildFn.test<Child*(SmartChild)>(), Match::None);
+    BOOST_CHECK_EQUAL(smartChildFn.test<SmartParent(SmartChild)>(), Match::Exact);
+
+    BOOST_CHECK_EQUAL(smartParentFn.test<SmartParent(Parent*)>(), Match::None);
+    BOOST_CHECK_EQUAL(smartParentFn.test<SmartParent(SmartChild)>(), Match::Partial);
+    BOOST_CHECK_EQUAL(smartParentFn.test<SmartParent(SmartParent)>(), Match::Exact);
+    BOOST_CHECK_EQUAL(smartParentFn.test<Parent*(SmartParent)>(), Match::None);
+    BOOST_CHECK_EQUAL(smartParentFn.test<SmartChild(SmartParent)>(), Match::None);
+}
+
+
+BOOST_AUTO_TEST_CASE(childParent_call)
+{
+    using namespace test;
+
+    auto doChild = [] (Child* c) { return c; };
+    Function childFn("child", doChild);
+
+    auto doParent = [] (Parent* p) { return p; };
+    Function parentFn("parent", doParent);
+
+    typedef std::shared_ptr<Child> SmartChild;
+    auto doSmartChild = [] (SmartChild c) { return c; };
+    Function smartChildFn("smartChild", doSmartChild);
+
+    typedef std::shared_ptr<Parent> SmartParent;
+    auto doSmartParent = [] (SmartParent p) { return p; };
+    Function smartParentFn("smartParent", doSmartParent);
+
+    Child child;
+    Child* pc = &child;
+    SmartChild sc(new Child);
+
+    Parent parent;
+    Parent* pp = &parent;
+    SmartParent sp(new Parent);
+
+    BOOST_CHECK_EQUAL(childFn.call<Child*>(pc), doChild(pc));
+    BOOST_CHECK_THROW(childFn.call<Child*>(pp), ReflectError);
+    BOOST_CHECK_THROW(childFn.call<Child*>(sc), ReflectError);
+    BOOST_CHECK_EQUAL(childFn.call<Parent*>(pc), doChild(pc));
+    BOOST_CHECK_THROW(childFn.call<SmartChild>(pc), ReflectError);
+
+    BOOST_CHECK_EQUAL(parentFn.call<Parent*>(pc), doParent(pc));
+    BOOST_CHECK_EQUAL(parentFn.call<Parent*>(pp), doParent(pp));
+    BOOST_CHECK_THROW(parentFn.call<Parent*>(sp), ReflectError);
+    BOOST_CHECK_THROW(parentFn.call<Child*>(pp), ReflectError);
+    BOOST_CHECK_THROW(parentFn.call<SmartParent>(pp), ReflectError);
+
+    BOOST_CHECK_THROW(smartChildFn.call<SmartChild>(pc), ReflectError);
+    BOOST_CHECK_EQUAL(smartChildFn.call<SmartChild>(sc), doSmartChild(sc));
+    BOOST_CHECK_THROW(smartChildFn.call<SmartChild>(sp), ReflectError);
+    BOOST_CHECK_THROW(smartChildFn.call<Child*>(sc), ReflectError);
+    BOOST_CHECK_EQUAL(smartChildFn.call<SmartParent>(sc), doSmartChild(sc));
+
+    BOOST_CHECK_THROW(smartParentFn.call<SmartParent>(pp), ReflectError);
+    BOOST_CHECK_EQUAL(smartParentFn.call<SmartParent>(sc), doSmartParent(sc));
+    BOOST_CHECK_EQUAL(smartParentFn.call<SmartParent>(sp), doSmartParent(sp));
+    BOOST_CHECK_THROW(smartParentFn.call<Parent*>(sp), ReflectError);
+    BOOST_CHECK_THROW(smartParentFn.call<SmartChild>(sp), ReflectError);
+}
+
+
+/******************************************************************************/
 /* SMART PTR                                                                  */
 /******************************************************************************/
 
@@ -231,24 +339,6 @@ BOOST_AUTO_TEST_CASE(null)
 {
     Function nullFn("null", [] (test::Object* o) {});
     nullFn.call<void>(nullptr);
-}
-
-// should also work with smart ptr.
-BOOST_AUTO_TEST_CASE(parentChild)
-{
-    auto doParent = [] (test::Parent* p) { return p; };
-    Function parentFn("parent", doParent);
-
-    auto doChild = [] (test::Child* c) { return c; };
-    Function childFn("child", doChild);
-
-    test::Parent parent;
-    test::Child child;
-
-    BOOST_CHECK_EQUAL(childFn.call<test::Child>(&child), doChild(&child));
-    BOOST_CHECK_EQUAL(childFn.call<test::Child>(&parent), doChild(&parent));
-    BOOST_CHECK_EQUAL(parentFn.call<test::Parent>(&child), doParent(&child));
-    BOOST_CHECK_EQUAL(parentFn.call<test::Parent>(&parent), doParent(&parent));
 }
 
 #endif
