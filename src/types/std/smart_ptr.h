@@ -33,13 +33,10 @@ void reflectSmartPtr(Type* type_)
     reflectPlumbing();
     reflectCons(InnerT*);
 
-    reflectTrait(pointer);
-    reflectCustom(pointee) { return type<InnerT>(); };
-    reflectCustom(operator*) (const T_& value) -> InnerT& { return *value; };
-
     reflectTrait(smartPtr);
     reflectCustom(get) (const T_& value) { return value.get(); };
     reflectCustom(operator bool()) (const T_& value) { return !!value; };
+    reflectCustom(operator*) (const T_& value) -> InnerT& { return *value; };
     reflectCustom(operator==) (const T_& value, const T_& other) {
         return value == other;
     };
@@ -60,8 +57,9 @@ struct Reflect< std::shared_ptr<T> >
 
     static void reflect(Type* type_)
     {
-        reflectSmartPtr<T_, T>(type_);
+        reflectPointer(std::shared_ptr, T);
 
+        reflectSmartPtr<T_, T>(type_);
         reflectFnTyped(reset, void (T_::*) ());
         reflectFnTyped(reset, void (T_::*) (T*));
     }
@@ -82,8 +80,9 @@ struct Reflect< std::unique_ptr<T> >
 
     static void reflect(Type* type_)
     {
-        reflectSmartPtr<T_, T>(type_);
+        reflectPointer(std::unique_ptr, T);
 
+        reflectSmartPtr<T_, T>(type_);
         reflectFn(release);
         reflectFnTyped(reset, void (T_::*) (T*));
         reflectCustom(reset) (T_& value) { value.reset(); };

@@ -48,4 +48,12 @@ void reflectParent_(Type* type)
 #define reflectFieldTrait(field, trait) \
     type_->addFunctionTrait(#field, #trait)
 
+
+/******************************************************************************/
+/* REFLECT POINTER                                                            */
+/******************************************************************************/
+
+#define reflectPointer(pointer, pointee) \
+    type_->setPointer(#pointer, ::reflect::type<pointee>())
+
 } // reflect

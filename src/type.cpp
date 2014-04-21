@@ -16,6 +16,11 @@ namespace reflect {
 /* TYPE                                                                       */
 /******************************************************************************/
 
+Type::
+Type(std::string id, const Type* parent) :
+    id_(std::move(id)), parent_(parent), pointee_(nullptr)
+{}
+
 void
 Type::
 addTrait(std::string trait)
@@ -244,6 +249,43 @@ fieldType(const std::string& field) const
     auto& f = this->field(field);
     return f.fieldType();
 }
+
+
+bool
+Type::
+isPointer() const
+{
+    return is("pointer");
+}
+
+std::string
+Type::
+pointer() const
+{
+    if (!isPointer()) reflectError("<%s> is not a pointer", id());
+    return pointer_;
+}
+
+const Type*
+Type::
+pointee() const
+{
+    if (!isPointer()) reflectError("<%s> is not a pointer", id());
+    return pointee_;
+}
+
+void
+Type::
+setPointer(std::string pointer, const Type* pointee)
+{
+    if (isPointer()) reflectError("<%s> is already a pointer", id());
+
+    addTrait("pointer");
+    pointer_ = std::move(pointer);
+    pointee_ = pointee;
+}
+
+
 
 namespace {
 

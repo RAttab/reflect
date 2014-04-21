@@ -80,4 +80,16 @@ BOOST_AUTO_TEST_CASE(constness)
     BOOST_CHECK(!isConst<unsigned&&>());
     BOOST_CHECK( isConst<const unsigned>());
     BOOST_CHECK( isConst<const unsigned&>());
+
+    // \todo We don't respect pointer const-ness
+    BOOST_CHECK(!isConst<unsigned      *>());
+    BOOST_CHECK(!isConst<unsigned const*>());
+    BOOST_CHECK(!isConst<unsigned const* const*>());
+    BOOST_CHECK(!isConst<unsigned const*      *>());
+    BOOST_CHECK(!isConst<unsigned      * const*>());
+    BOOST_CHECK(!isConst<unsigned      *      &>());
+    BOOST_CHECK(!isConst<unsigned const*      &>());
+    BOOST_CHECK( isConst<unsigned      * const&>());
+    BOOST_CHECK( isConst<unsigned const* const&>());
 }
+

@@ -7,7 +7,19 @@
    Note: Disabled tests are the ones that are currently failing due to
    lackluster pointer support.
 
-   \todo Pointers arent' const-checked at the moment.
+   \todo Pointers aren't const-checked at the moment.
+
+   Turns out that this is rather difficult to get right because with pointers we
+   get multi-layering of constness which makes it impossible to have a single
+   bool represent const-ness. As an example:
+
+   int const*      * const*      &
+   int      * const*      * const&
+
+   Should they both be const? What would that even mean? What we'd need is a
+   list of argument objects that understands both pointer and references. But
+   that's just way too complicated for the small feature gain we'd get.
+
 */
 
 #define BOOST_TEST_MAIN
@@ -32,14 +44,18 @@ using namespace reflect;
 BOOST_AUTO_TEST_CASE(basics)
 {
     const Type* tPtr = type<int*>();
+    std::cerr << tPtr->print() << std::endl;
+
     BOOST_CHECK_EQUAL(type<int const*>(), tPtr);
 
-    BOOST_CHECK(tPtr->is("pointer"));
-    BOOST_CHECK_EQUAL(tPtr->call<const Type*>("pointee"), type<int>());
+    BOOST_CHECK(tPtr->isPointer());
+    BOOST_CHECK_EQUAL(tPtr->pointer(), "*");
+    BOOST_CHECK_EQUAL(tPtr->pointee(), type<int>());
 
     const Type* tPtrPtr = type<int**>();
-    BOOST_CHECK(tPtrPtr->is("pointer"));
-    BOOST_CHECK_EQUAL(tPtrPtr->call<const Type*>("pointee"), tPtr);
+    BOOST_CHECK(tPtrPtr->isPointer());
+    BOOST_CHECK_EQUAL(tPtrPtr->pointer(), "*");
+    BOOST_CHECK_EQUAL(tPtrPtr->pointee(), tPtr);
 
     BOOST_CHECK_EQUAL(type<int const* const*>(), tPtrPtr);
     BOOST_CHECK_EQUAL(type<int      * const*>(), tPtrPtr);
@@ -67,7 +83,7 @@ BOOST_AUTO_TEST_CASE(pointer_test)
     BOOST_CHECK_EQUAL(ptrFn.test<void(Obj       )>(), Match::None);
     BOOST_CHECK_EQUAL(ptrFn.test<void(Obj *     )>(), Match::Exact);
     BOOST_CHECK_EQUAL(ptrFn.test<void(Obj **    )>(), Match::None);
-    // BOOST_CHECK_EQUAL(ptrFn.test<void(Obj const*)>(), Match::None);
+    BOOST_CHECK_EQUAL(ptrFn.test<void(Obj const*)>(), Match::Exact);
     BOOST_CHECK_EQUAL(ptrFn.test<Obj       (Obj*)>(), Match::None);
     BOOST_CHECK_EQUAL(ptrFn.test<Obj *     (Obj*)>(), Match::Exact);
     BOOST_CHECK_EQUAL(ptrFn.test<Obj **    (Obj*)>(), Match::None);
@@ -87,7 +103,7 @@ BOOST_AUTO_TEST_CASE(pointer_test)
     BOOST_CHECK_EQUAL(constPtrFn.test<void(Obj **    )>(), Match::None);
     BOOST_CHECK_EQUAL(constPtrFn.test<void(Obj const*)>(), Match::Exact);
     BOOST_CHECK_EQUAL(constPtrFn.test<Obj       (Obj const*)>(), Match::None);
-    // BOOST_CHECK_EQUAL(constPtrFn.test<Obj *     (Obj const*)>(), Match::None);
+    BOOST_CHECK_EQUAL(constPtrFn.test<Obj *     (Obj const*)>(), Match::Exact);
     BOOST_CHECK_EQUAL(constPtrFn.test<Obj **    (Obj const*)>(), Match::None);
     BOOST_CHECK_EQUAL(constPtrFn.test<Obj const*(Obj const*)>(), Match::Exact);
 
@@ -114,11 +130,11 @@ BOOST_AUTO_TEST_CASE(pointer_call)
     BOOST_CHECK_THROW(ptrFn.call<Obj*>(o  ), ReflectError);
     BOOST_CHECK_EQUAL(ptrFn.call<Obj*>(po ), doPtr(po));
     BOOST_CHECK_THROW(ptrFn.call<Obj*>(ppo), ReflectError);
-    // BOOST_CHECK_THROW(ptrFn.call<Obj*>(cpo), ReflectError);
+    BOOST_CHECK_EQUAL(ptrFn.call<Obj*>(cpo), doPtr(po)); // Not an error.
     BOOST_CHECK_THROW(ptrFn.call<Obj*>(Value(o  )), ReflectError);
     BOOST_CHECK_EQUAL(ptrFn.call<Obj*>(Value(po )), doPtr(po));
     BOOST_CHECK_THROW(ptrFn.call<Obj*>(Value(ppo)), ReflectError);
-    // BOOST_CHECK_THROW(ptrFn.call<Obj*>(Value(cpo)), ReflectError);
+    BOOST_CHECK_EQUAL(ptrFn.call<Obj*>(Value(cpo)), doPtr(po)); // not an error.
     BOOST_CHECK_THROW(ptrFn.call<Obj       >(po), ReflectError);
     BOOST_CHECK_EQUAL(ptrFn.call<Obj *     >(po), doPtr(po));
     BOOST_CHECK_THROW(ptrFn.call<Obj **    >(po), ReflectError);
@@ -146,7 +162,7 @@ BOOST_AUTO_TEST_CASE(pointer_call)
     BOOST_CHECK_THROW(constPtrFn.call<Obj const*>(Value(ppo)), ReflectError);
     BOOST_CHECK_EQUAL(constPtrFn.call<Obj const*>(Value(cpo)), doConstPtr(cpo));
     BOOST_CHECK_THROW(constPtrFn.call<Obj       >(cpo), ReflectError);
-    // BOOST_CHECK_THROW(constPtrFn.call<Obj *     >(cpo), ReflectError);
+                      constPtrFn.call<Obj *     >(cpo);
     BOOST_CHECK_THROW(constPtrFn.call<Obj **    >(cpo), ReflectError);
     BOOST_CHECK_EQUAL(constPtrFn.call<Obj const*>(cpo), doConstPtr(cpo));
 
@@ -164,8 +180,8 @@ BOOST_AUTO_TEST_CASE(sharedPtr)
     const Type* tSharedPtr = type< std::shared_ptr<Obj> >();
     std::cerr << tSharedPtr->print() << std::endl;
 
-    BOOST_CHECK(tSharedPtr->is("pointer"));
-    BOOST_CHECK_EQUAL(tSharedPtr->call<const Type*>("pointee"), type<Obj>());
+    BOOST_CHECK(tSharedPtr->isPointer());
+    BOOST_CHECK_EQUAL(tSharedPtr->pointee(), type<Obj>());
 
     Obj* po = Obj::make();
     Value vSharedPtr = tSharedPtr->construct(po);
@@ -202,8 +218,8 @@ BOOST_AUTO_TEST_CASE(uniquePtr)
     const Type* tUniquePtr = type< std::unique_ptr<Obj> >();
     std::cerr << tUniquePtr->print() << std::endl;
 
-    BOOST_CHECK(tUniquePtr->is("pointer"));
-    BOOST_CHECK_EQUAL(tUniquePtr->call<const Type*>("pointee"), type<Obj>());
+    BOOST_CHECK(tUniquePtr->isPointer());
+    BOOST_CHECK_EQUAL(tUniquePtr->pointee(), type<Obj>());
 
     Obj* po = Obj::make();
     Value vUniquePtr = tUniquePtr->construct(po);

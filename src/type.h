@@ -16,9 +16,7 @@ namespace reflect {
 
 struct Type
 {
-    explicit Type(std::string id, const Type* parent = nullptr) :
-        id_(std::move(id)), parent_(parent)
-    {}
+    explicit Type(std::string id, const Type* parent = nullptr);
 
     Type(Type&&) = delete;
     Type(const Type&) = delete;
@@ -50,6 +48,11 @@ struct Type
     bool functionIs(const std::string& fn, const std::string& trait) const;
     std::vector<std::string> fieldTraits(const std::string& field) const;
     std::vector<std::string> functionTraits(const std::string& fn) const;
+
+    bool isPointer() const;
+    std::string pointer() const;
+    const Type* pointee() const;
+    void setPointer(std::string pointer, const Type* pointee);
 
     template<typename T>
     bool isParentOf() const { return isParentOf(type<T>()); }
@@ -85,6 +88,9 @@ private:
 
     std::string id_;
     const Type* parent_;
+
+    std::string pointer_;
+    const Type* pointee_;
 
     std::unordered_set<std::string> traits_;
     std::unordered_map<std::string, Overloads> fns_;
