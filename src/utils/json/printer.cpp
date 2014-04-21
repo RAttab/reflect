@@ -92,7 +92,7 @@ void printObject(const Value& value, std::ostream& json, int indent)
     size_t i = 0;
 
     for (const auto& field : value.type()->fields()) {
-        if (!value.type()->fieldIs(field, "printable")) continue;
+        if (!value.type()->hasField(field)) continue;
 
         if (i++) json << ',';
         newline(json, inc(indent));

@@ -44,9 +44,6 @@ reflectClass(Bleh)
     reflectPlumbing();
     reflectField(i);
     reflectField(b);
-
-    reflectFieldTrait(i, printable);
-    reflectFieldTrait(b, printable);
 }
 
 
@@ -67,10 +64,6 @@ reflectClass(Blah)
     reflectField(str);
     reflectField(vec);
     reflectField(map);
-
-    reflectFieldTrait(str, printable);
-    reflectFieldTrait(vec, printable);
-    reflectFieldTrait(map, printable);
 }
 
 
