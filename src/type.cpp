@@ -60,14 +60,6 @@ functionIs(const std::string& fn, const std::string& trait) const
     return parent_ ? parent_->functionIs(fn, trait) : false;
 }
 
-bool
-Type::
-fieldIs(const std::string& field, const std::string& trait) const
-{
-    return functionIs(field, trait);
-}
-
-
 std::vector<std::string>
 Type::
 functionTraits(const std::string& fn) const
@@ -77,13 +69,6 @@ functionTraits(const std::string& fn) const
         return { it->second.begin(), it->second.end() };
 
     return parent_ ? parent_->functionTraits(fn) : std::vector<std::string>();
-}
-
-std::vector<std::string>
-Type::
-fieldTraits(const std::string& field) const
-{
-    return functionTraits(field);
 }
 
 
@@ -154,21 +139,24 @@ isMovable() const
 
 void
 Type::
-functions(std::vector<std::string>& result) const
+functions(std::vector<std::string>& result, const std::string& trait) const
 {
     result.reserve(result.size() + fns_.size());
-    for (const auto& f : fns_)
-        result.push_back(f.first);
 
-    if (parent_) parent_->functions(result);
+    for (const auto& f : fns_) {
+        if (!trait.empty() && !functionIs(f.first, trait)) continue;
+        result.push_back(f.first);
+    }
+
+    if (parent_) parent_->functions(result, trait);
 }
 
 std::vector<std::string>
 Type::
-functions() const
+functions(const std::string& trait) const
 {
     std::vector<std::string> result;
-    functions(result);
+    functions(result, trait);
 
     std::sort(result.begin(), result.end());
     result.erase(std::unique(result.begin(), result.end()), result.end());
@@ -178,80 +166,54 @@ functions() const
 
 bool
 Type::
-hasFunction(const std::string& function) const
+hasFunction(const std::string& fn) const
 {
-    if (fns_.find(function) != fns_.end()) return true;
-    return parent_ ? parent_->hasFunction(function) : false;
+    if (fns_.find(fn) != fns_.end()) return true;
+    return parent_ ? parent_->hasFunction(fn) : false;
 }
 
 const Overloads&
 Type::
-function(const std::string& function) const
+function(const std::string& fn) const
 {
-    auto it = fns_.find(function);
+    auto it = fns_.find(fn);
     if (it != fns_.end()) return it->second;
 
     if (!parent_)
-        reflectError("<%s> doesn't have a function <%s>", id_, function);
+        reflectError("<%s> doesn't have a function <%s>", id_, fn);
 
-    return parent_->function(function);
-}
-
-
-void
-Type::
-fields(std::vector<std::string>& result) const
-{
-    result.reserve(result.size() + fns_.size());
-    for (const auto& f : fns_) {
-        if (!f.second.isField()) continue;
-        result.push_back(f.first);
-    }
-
-    if (parent_) parent_->fields(result);
+    return parent_->function(fn);
 }
 
 std::vector<std::string>
 Type::
 fields() const
 {
-    std::vector<std::string> result;
-    fields(result);
-
-    std::sort(result.begin(), result.end());
-    result.erase(std::unique(result.begin(), result.end()), result.end());
-
-    return result;
+    return functions("field");
 }
 
 bool
 Type::
 hasField(const std::string& field) const
 {
-    auto it = fns_.find(field);
-    if (it != fns_.end() && it->second.isField()) return true;
-    return parent_ ? parent_->hasField(field) : false;
+    return functionIs(field, "field");
 }
 
 const Overloads&
 Type::
 field(const std::string& field) const
 {
-    auto it = fns_.find(field);
-    if (it != fns_.end() && it->second.isField()) return it->second;
-
-    if (!parent_)
+    if (!hasField(field))
         reflectError("<%s> doesn't have a field <%s>", id_, field);
 
-    return parent_->field(field);
+    return function(field);
 }
 
 const Type*
 Type::
 fieldType(const std::string& field) const
 {
-    auto& f = this->field(field);
-    return f.fieldType();
+    return this->field(field).fieldType();
 }
 
 
@@ -289,6 +251,28 @@ setPointer(std::string pointer, const Type* pointee)
     pointee_ = pointee;
 }
 
+void
+Type::
+add(const std::string& name, Function fn)
+{
+    bool isField = fn.isGetter() || fn.isSetter();
+    fns_[name].add(std::move(fn));
+
+    // let's add to fields if it passes the constructor and operator filter.
+
+    if (!isField) return;
+    if (name == id_) return;
+
+    static const std::string op = "operator";
+    size_t pos = name.find(op);
+
+    if (pos == 0 && name.size() > op.size()) {
+        char c = name[op.size()];
+        if (c != '_' && !std::isalpha(c)) return;
+    }
+
+    addFunctionTrait(name, "field");
+}
 
 
 namespace {

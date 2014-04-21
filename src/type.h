@@ -29,8 +29,9 @@ struct Type
 
     template<typename Fn>
     void add(const std::string& name, Fn rawFn);
+    void add(const std::string& name, Function fn);
 
-    std::vector<std::string> functions() const;
+    std::vector<std::string> functions(const std::string& trait = "") const;
     bool hasFunction(const std::string& fn) const;
     const Overloads& function(const std::string& fn) const;
 
@@ -44,9 +45,7 @@ struct Type
     std::vector<std::string> traits() const;
 
     void addFunctionTrait(const std::string& fn, std::string trait);
-    bool fieldIs(const std::string& field, const std::string& trait) const;
     bool functionIs(const std::string& fn, const std::string& trait) const;
-    std::vector<std::string> fieldTraits(const std::string& field) const;
     std::vector<std::string> functionTraits(const std::string& fn) const;
 
     bool isPointer() const;
@@ -83,8 +82,7 @@ struct Type
 
 private:
 
-    void functions(std::vector<std::string>& result) const;
-    void fields(std::vector<std::string>& result) const;
+    void functions(std::vector<std::string>& result, const std::string& trait) const;
 
     std::string id_;
     const Type* parent_;
@@ -92,8 +90,9 @@ private:
     std::string pointer_;
     const Type* pointee_;
 
-    std::unordered_set<std::string> traits_;
     std::unordered_map<std::string, Overloads> fns_;
+
+    std::unordered_set<std::string> traits_;
     std::unordered_map<std::string, std::unordered_set<std::string> > fnTraits_;
 };
 

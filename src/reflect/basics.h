@@ -45,9 +45,6 @@ void reflectParent_(Type* type)
 #define reflectFnTrait(fn, trait) \
     type_->addFunctionTrait(#fn, #trait)
 
-#define reflectFieldTrait(field, trait) \
-    type_->addFunctionTrait(#field, #trait)
-
 
 /******************************************************************************/
 /* REFLECT POINTER                                                            */

@@ -36,8 +36,7 @@ void
 Type::
 add(const std::string& name, Fn rawFn)
 {
-    Function fn(name, std::move(rawFn));
-    fns_[name].add(std::move(fn));
+    add(name, Function(name, std::move(rawFn)));
 }
 
 } // namespace reflect

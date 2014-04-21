@@ -84,12 +84,12 @@ BOOST_AUTO_TEST_CASE(function_)
 BOOST_AUTO_TEST_CASE(field)
 {
     const Type* tInt = type<int>();
-    BOOST_CHECK( tInt->hasField("int"));
+    BOOST_CHECK(!tInt->hasField("int"));
     BOOST_CHECK(!tInt->hasField("operator="));
     BOOST_CHECK(!tInt->hasField("bob"));
 
     const Type* tObject = type<test::Object>();
-    BOOST_CHECK( tObject->hasField("test::Object"));
+    BOOST_CHECK(!tObject->hasField("test::Object"));
     BOOST_CHECK(!tObject->hasField("Object"));
     BOOST_CHECK( tObject->hasField("value"));
     BOOST_CHECK(!tObject->hasField("operator="));
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE(field)
     BOOST_CHECK(!tObject->hasField("bob"));
 
     const Type* tParent = type<test::Parent>();
-    BOOST_CHECK( tParent->hasField("test::Parent"));
+    BOOST_CHECK(!tParent->hasField("test::Parent"));
     BOOST_CHECK(!tParent->hasField("test::Child"));
     BOOST_CHECK( tParent->hasField("value"));
     BOOST_CHECK(!tParent->hasField("childValue"));
@@ -107,8 +107,8 @@ BOOST_AUTO_TEST_CASE(field)
     BOOST_CHECK(!tParent->hasField("pureVirtual"));
 
     const Type* tChild = type<test::Child>();
-    BOOST_CHECK( tChild->hasField("test::Child"));
-    BOOST_CHECK( tChild->hasField("test::Parent"));
+    BOOST_CHECK(!tChild->hasField("test::Child"));
+    BOOST_CHECK(!tChild->hasField("test::Parent"));
     BOOST_CHECK( tChild->hasField("value"));
     BOOST_CHECK( tChild->hasField("childValue"));
     BOOST_CHECK( tChild->hasField("shadowed"));
@@ -116,34 +116,25 @@ BOOST_AUTO_TEST_CASE(field)
     BOOST_CHECK(!tChild->hasField("pureVirtual"));
 
     const Type* tConvertible = type<test::Convertible>();
-    BOOST_CHECK( tConvertible->hasField("operator int()"));
-    BOOST_CHECK( tConvertible->hasField("operator test::Parent()"));
+    BOOST_CHECK(!tConvertible->hasField("operator int()"));
+    BOOST_CHECK(!tConvertible->hasField("operator test::Parent()"));
 }
 
 BOOST_AUTO_TEST_CASE(fieldType)
 {
     const Type* tInt = type<int>();
-    BOOST_CHECK_EQUAL(tInt->fieldType("int"), tInt);
 
     const Type* tObject = type<test::Object>();
-    BOOST_CHECK_EQUAL(tObject->fieldType("test::Object"), tObject);
     BOOST_CHECK_EQUAL(tObject->fieldType("value"), tInt);
 
     const Type* tParent = type<test::Parent>();
-    BOOST_CHECK_EQUAL(tParent->fieldType("test::Parent"), tParent);
     BOOST_CHECK_EQUAL(tParent->fieldType("value"), tObject);
     BOOST_CHECK_EQUAL(tParent->fieldType("shadowed"), tInt);
 
     const Type* tChild = type<test::Child>();
-    BOOST_CHECK_EQUAL(tChild->fieldType("test::Child"), tChild);
-    BOOST_CHECK_EQUAL(tChild->fieldType("test::Parent"), tParent);
     BOOST_CHECK_EQUAL(tChild->fieldType("value"), tObject);
     BOOST_CHECK_EQUAL(tChild->fieldType("childValue"), tObject);
     BOOST_CHECK_EQUAL(tChild->fieldType("shadowed"), type<bool>());
-
-    const Type* tConvertible = type<test::Convertible>();
-    BOOST_CHECK_EQUAL(tConvertible->fieldType("operator int()"), tInt);
-    BOOST_CHECK_EQUAL(tConvertible->fieldType("operator test::Parent()"), tParent);
 }
 
 BOOST_AUTO_TEST_CASE(moveCopy)

@@ -91,9 +91,9 @@ BOOST_AUTO_TEST_CASE(basics)
     std::cerr << nFoo->print() << std::endl;
 
     BOOST_CHECK(nFoo->hasType("Foo"));
-    BOOST_CHECK(nFoo->type("Foo")->hasField("foo::Foo"));
+    BOOST_CHECK(nFoo->type("Foo")->hasFunction("foo::Foo"));
 
-    BOOST_CHECK(nFoo->type("bar::Bar")->hasField("foo::bar::Bar"));
+    BOOST_CHECK(nFoo->type("bar::Bar")->hasFunction("foo::bar::Bar"));
     BOOST_CHECK(nFoo->hasType("bar::Bar"));
 
     BOOST_CHECK_EQUAL(nFoo->call<int>("fooFn", 10), foo::fooFn(10));
