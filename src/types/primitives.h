@@ -19,6 +19,7 @@ reflectClassDecl(void)
 
 reflectClassDecl(bool)
 
+reflectClassDecl(char)
 reflectClassDecl(signed char)
 reflectClassDecl(unsigned char)
 

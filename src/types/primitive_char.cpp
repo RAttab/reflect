@@ -12,5 +12,6 @@
 /* REFLECT CHAR                                                               */
 /******************************************************************************/
 
+reflectNumber(char)
 reflectNumber(signed char)
 reflectNumber(unsigned char)
