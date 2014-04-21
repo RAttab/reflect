@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(lValue)
         BOOST_CHECK_EQUAL(value, 10);
         BOOST_CHECK(lValue.isVoid());
 
-        // \todo primitives don't get wiped. Should use another type;
+        // primitives don't get wiped. Should use another type;
         // BOOST_CHECK_NE(u, 10);
     }
 }

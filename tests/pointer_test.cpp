@@ -4,9 +4,6 @@
 
    Tests for pointer reflection.
 
-   Note: Disabled tests are the ones that are currently failing due to
-   lackluster pointer support.
-
    \todo Pointers aren't const-checked at the moment.
 
    Turns out that this is rather difficult to get right because with pointers we

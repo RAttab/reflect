@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE(function_)
 
     const Type* tChild = type<test::Child>();
     BOOST_CHECK( tChild->hasFunction("test::Child"));
-    BOOST_CHECK( tChild->hasFunction("test::Parent")); // \todo Do we want this?
+    BOOST_CHECK( tChild->hasFunction("test::Parent"));
     BOOST_CHECK( tChild->hasFunction("value"));
     BOOST_CHECK( tChild->hasFunction("childValue"));
     BOOST_CHECK( tChild->hasFunction("shadowed"));
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(field)
 
     const Type* tChild = type<test::Child>();
     BOOST_CHECK( tChild->hasField("test::Child"));
-    BOOST_CHECK( tChild->hasField("test::Parent")); // \todo Do we want this?
+    BOOST_CHECK( tChild->hasField("test::Parent"));
     BOOST_CHECK( tChild->hasField("value"));
     BOOST_CHECK( tChild->hasField("childValue"));
     BOOST_CHECK( tChild->hasField("shadowed"));
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE(moveCopy)
 
     const Type* tNotCopiable = type<test::NotCopiable>();
     BOOST_CHECK(!tNotCopiable->isCopiable());
-    // BOOST_CHECK( tNotCopiable->isMovable()); // \todo
+    BOOST_CHECK( tNotCopiable->isMovable());
 
     const Type* tNotMovable = type<test::NotMovable>();
     BOOST_CHECK(!tNotMovable->isCopiable());
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE(moveCopy)
 
     const Type* tNotConstructible = type<test::NotConstructible>();
     BOOST_CHECK(!tNotConstructible->isCopiable());
-    // BOOST_CHECK( tNotConstructible->isMovable()); // \todo
+    BOOST_CHECK(!tNotConstructible->isMovable());
 }
 
 BOOST_AUTO_TEST_CASE(parentChild)

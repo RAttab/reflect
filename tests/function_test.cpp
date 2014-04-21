@@ -271,9 +271,6 @@ BOOST_AUTO_TEST_CASE(lValue_call)
     }
     {
         int r = i;
-        // \todo Inconsistent. Value-ing an r-ref turns it into an l-ref to
-        // Value's internal storage which means that the call is now valid.
-        // Returns a reference to a temporary so can't check the return value.
         BOOST_CHECK_THROW(fn.call<int&>(Value(r).rvalue()), ReflectError);
     }
 }
