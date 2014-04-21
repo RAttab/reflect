@@ -110,14 +110,14 @@ bool
 Type::
 hasConverter(const Type* other) const
 {
-    return hasField("operator " + other->id() + "()");
+    return hasFunction("operator " + other->id() + "()");
 }
 
 const Function&
 Type::
 converter(const Type* other) const
 {
-    auto& fns = field("operator " + other->id() + "()");
+    auto& fns = function("operator " + other->id() + "()");
 
     if (fns.size() > 1) {
         reflectError("<%s> has too many converters for <%s>",
@@ -131,9 +131,9 @@ bool
 Type::
 isCopiable() const
 {
-    if (!hasField(id_)) return false;
+    if (!hasFunction(id_)) return false;
 
-    auto& fns = field(id_);
+    auto& fns = function(id_);
     return fns.test(
             Argument(this, RefType::Copy, false),
             { Argument(this, RefType::Copy, false) });
@@ -143,9 +143,9 @@ bool
 Type::
 isMovable() const
 {
-    if (!hasField(id_)) return false;
+    if (!hasFunction(id_)) return false;
 
-    auto& fns = field(id_);
+    auto& fns = function(id_);
     return fns.test(
             Argument(this, RefType::Copy, false),
             { Argument(this, RefType::RValue, false) });
@@ -325,15 +325,15 @@ print(size_t indent) const
         ss << pad1; printTraits(ss, traits_);
     }
 
-    for (auto& field : fns_) {
-        ss << pad1 << field.first << ":\n";
+    for (auto& fn : fns_) {
+        ss << pad1 << fn.first << ":\n";
 
-        auto it = fnTraits_.find(field.first);
+        auto it = fnTraits_.find(fn.first);
         if (it != fnTraits_.end()) {
             ss << pad2; printTraits(ss, it->second);
         }
 
-        ss << field.second.print(indent + PadInc);
+        ss << fn.second.print(indent + PadInc);
     }
 
     ss << pad0 << "}\n";
