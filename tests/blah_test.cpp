@@ -100,6 +100,13 @@ int main(int, char**)
     printf("\ncref:\n"); bleh<typename CleanType<const int&>::type>();
     printf("\nrref:\n"); bleh<typename CleanType<int&&>::type>();
 
+    std::cerr << std::endl;
+    std::cerr << "copy: " << std::is_pointer<int*>::value << std::endl;
+    std::cerr << "lref: " << std::is_pointer<int*&>::value << std::endl;
+    std::cerr << "rref: " << std::is_pointer<int*&&>::value << std::endl;
+    std::cerr << "cref: " << std::is_pointer<int* const &>::value << std::endl;
+    std::cerr << std::endl;
+
     (void) Blah<int>::loader;
 
     {
