@@ -28,8 +28,8 @@ struct Type
     void parent(const Type* parent) { parent_ = parent; }
 
     template<typename Fn>
-    void add(const std::string& name, Fn rawFn);
-    void add(const std::string& name, Function fn);
+    void add(const std::string& name, Fn&& rawFn);
+    void add(const std::string& name, Function&& fn);
 
     std::vector<std::string> functions(const std::string& trait = "") const;
     bool hasFunction(const std::string& fn) const;

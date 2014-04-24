@@ -112,8 +112,7 @@ std::vector<Argument> reflectArguments(Args&&... args)
 
 template<typename Fn>
 Function::
-Function(std::string name, Fn fn) :
-    name_(std::move(name))
+Function(const std::string& name, Fn fn) : name_(name)
 {
     initFn(makeFunction(std::move(fn)));
 }
@@ -121,7 +120,7 @@ Function(std::string name, Fn fn) :
 template<typename Ret, typename... Args>
 void
 Function::
-initFn(std::function<Ret(Args...)> rawFn)
+initFn(std::function<Ret(Args...)>&& rawFn)
 {
     auto typedFn = makeValueFunction(std::move(rawFn));
 

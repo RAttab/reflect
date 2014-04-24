@@ -253,7 +253,7 @@ setPointer(std::string pointer, const Type* pointee)
 
 void
 Type::
-add(const std::string& name, Function fn)
+add(const std::string& name, Function&& fn)
 {
     bool isField = fn.isGetter() || fn.isSetter();
     fns_[name].add(std::move(fn));

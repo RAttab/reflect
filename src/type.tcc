@@ -34,7 +34,7 @@ call(const std::string& fn, Args&&... args) const
 template<typename Fn>
 void
 Type::
-add(const std::string& name, Fn rawFn)
+add(const std::string& name, Fn&& rawFn)
 {
     add(name, Function(name, std::move(rawFn)));
 }

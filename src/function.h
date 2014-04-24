@@ -27,7 +27,7 @@ std::vector<Argument> reflectArguments(Args&&... args);
 struct Function
 {
     template<typename Fn>
-    Function(std::string name, Fn fn);
+    Function(const std::string& name, Fn fn);
 
     const std::string& name() const { return name_; }
 
@@ -58,7 +58,7 @@ private:
     typedef std::function<void()> VoidFn;
 
     template<typename Ret, typename... Args>
-    void initFn(std::function<Ret(Args...)> fn);
+    void initFn(std::function<Ret(Args...)>&& fn);
 
     Match test(const Argument& value, const Argument& target) const;
     Match testReturn(const Argument& value, const Argument& target) const;

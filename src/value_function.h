@@ -23,7 +23,7 @@ struct ValueFunction<void, TypeVector<Args...>, TypeVector<Values...> >
 {
     typedef std::function<void(Args...)> Fn;
 
-    ValueFunction(Fn fn) : fn(std::move(fn)) {}
+    ValueFunction(Fn&& fn) : fn(std::move(fn)) {}
 
     Value operator() (Values... values) const
     {
@@ -40,7 +40,7 @@ struct ValueFunction<Ret, TypeVector<Args...>, TypeVector<Values...> >
 {
     typedef std::function<Ret(Args...)> Fn;
 
-    ValueFunction(Fn fn) : fn(std::move(fn)) {}
+    ValueFunction(Fn&& fn) : fn(std::move(fn)) {}
 
     Value operator() (Values... values) const
     {
@@ -80,7 +80,7 @@ struct MakeStdValueFunction
 
 
 template<typename Ret, typename... Args>
-auto makeValueFunction(std::function<Ret(Args...)> fn) ->
+auto makeValueFunction(std::function<Ret(Args...)>&& fn) ->
     typename MakeStdValueFunction<Args...>::type
 {
     return typename MakeValueFunction<Ret, Args...>::type(std::move(fn));
