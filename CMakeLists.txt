@@ -16,6 +16,9 @@ enable_testing()
 
 add_definitions("-Wall -Wextra -Werror -pedantic -g -O4")
 
+# For cperf optimization only.
+add_definitions("-Wno-unused-variable -Wno-unused-parameter")
+
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -195,6 +198,7 @@ function(reflect_test name)
     endif()
 endfunction()
 
+
 reflect_test(ref)
 reflect_test(namespace)
 reflect_test(type)
@@ -205,7 +209,21 @@ reflect_test(pointer)
 reflect_test(reflection)
 reflect_test(json)
 
-reflect_test(cperf_type_lookup)
-reflect_test(cperf_reflect_args)
-
 add_executable(blah_test tests/blah_test.cpp)
+
+
+#------------------------------------------------------------------------------#
+# CPERF
+#------------------------------------------------------------------------------#
+
+function(reflect_cperf name)
+    if(CMAKE_SOURCE_DIR STREQUAL ${PROJECT_SOURCE_DIR})
+        add_executable(${name}_test tests/${name}_test.cpp)
+        target_link_libraries(${name}_test reflect)
+        add_test(${name} bin/${name}_test)
+    endif()
+endfunction()
+
+
+reflect_cperf(cperf_type_lookup)
+reflect_cperf(cperf_reflect_args)
