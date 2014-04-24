@@ -83,24 +83,22 @@ include_directories("${PROJECT_SOURCE_DIR}/src")
 
 add_library(reflect SHARED
     src/reflect.cpp
+    src/types/primitive_void.cpp
     src/types/reflect/value.cpp
     src/types/reflect/type.cpp)
 
 
 add_library(reflect_primitives SHARED
     src/types/primitives.cpp
-    src/types/primitive_void.cpp
     src/types/primitive_bool.cpp
     src/types/primitive_char.cpp
     src/types/primitive_short.cpp
     src/types/primitive_int.cpp
     src/types/primitive_long.cpp
     src/types/primitive_long_long.cpp)
-force_target_link_libraries(reflect reflect_primitives)
 
 add_library(reflect_std SHARED
     src/types/std/string.cpp)
-
 
 add_library(reflect_json SHARED
     src/utils/json/token.cpp
@@ -181,14 +179,15 @@ install(
 # TESTS
 #------------------------------------------------------------------------------#
 
-add_library(reflect_test SHARED
-    tests/test_types.cpp)
+add_library(reflect_test SHARED tests/test_types.cpp)
+force_target_link_libraries(reflect_test reflect_primitives)
 
 function(reflect_test name)
     if(CMAKE_SOURCE_DIR STREQUAL ${PROJECT_SOURCE_DIR})
         add_executable(${name}_test tests/${name}_test.cpp)
         target_link_libraries(${name}_test reflect)
         target_link_libraries(${name}_test reflect_json)
+        force_target_link_libraries(${name}_test reflect_primitives)
         force_target_link_libraries(${name}_test reflect_test)
         force_target_link_libraries(${name}_test reflect_std)
         target_link_libraries(${name}_test boost_unit_test_framework)
