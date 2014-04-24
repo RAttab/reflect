@@ -207,5 +207,6 @@ reflect_test(reflection)
 reflect_test(json)
 
 reflect_test(cperf_type_lookup)
+reflect_test(cperf_reflect_args)
 
 add_executable(blah_test tests/blah_test.cpp)
