@@ -13,6 +13,7 @@
 #include "registry.cpp"
 #include "argument.cpp"
 #include "value.cpp"
+#include "value_function.cpp"
 #include "function.cpp"
 #include "overloads.cpp"
 #include "type.cpp"

@@ -28,6 +28,12 @@ struct Function
 {
     template<typename Fn>
     Function(const std::string& name, Fn fn);
+    ~Function();
+
+    Function(const Function&) = delete;
+    Function& operator=(const Function&) = delete;
+    Function(Function&&) noexcept;
+    Function& operator=(Function&&) noexcept;
 
     const std::string& name() const { return name_; }
 
@@ -55,18 +61,13 @@ struct Function
 
 private:
 
-    typedef std::function<void()> VoidFn;
-
-    template<typename Ret, typename... Args>
-    void initFn(std::function<Ret(Args...)>&& fn);
-
     Match test(const Argument& value, const Argument& target) const;
     Match testReturn(const Argument& value, const Argument& target) const;
     Match testArguments(
             const std::vector<Argument>& value,
             const std::vector<Argument>& target) const;
 
-    VoidFn fn;
+    void* fn;
     std::string name_;
 
     Argument ret;

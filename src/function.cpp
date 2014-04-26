@@ -16,6 +16,38 @@ namespace reflect {
 /* FUNCTION                                                                   */
 /******************************************************************************/
 
+Function::
+Function(Function&& other) noexcept :
+    fn(other.fn),
+    name_(std::move(other.name_)),
+    ret(std::move(other.ret)),
+    args(std::move(other.args))
+{
+    other.fn = nullptr;
+}
+
+Function&
+Function::
+operator=(Function&& other) noexcept
+{
+    if (this == &other) return *this;
+
+    fn = other.fn;
+    other.fn = nullptr;
+
+    name_ = std::move(other.name_);
+    ret = std::move(other.ret);
+    args = std::move(other.args);
+
+    return *this;
+}
+
+Function::
+~Function()
+{
+    if (fn) freeValueFunction(fn);
+}
+
 Match
 Function::
 testReturn(const Argument& value, const Argument& target) const

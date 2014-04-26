@@ -25,7 +25,7 @@ add(Function fn)
                 other.name(), signature(other));
     }
 
-    overloads.push_back(fn);
+    overloads.emplace_back(std::move(fn));
 }
 
 bool

@@ -112,25 +112,13 @@ std::vector<Argument> reflectArguments(Args&&... args)
 
 template<typename Fn>
 Function::
-Function(const std::string& name, Fn fn) : name_(name)
+Function(const std::string& name, Fn fn) :
+    fn(makeValueFunction(std::move(fn))),
+    name_(name)
 {
-    initFn(makeFunction(std::move(fn)));
-}
+    ret = reflectReturn<Fn>();
+    args = reflectArguments<Fn>();
 
-template<typename Ret, typename... Args>
-void
-Function::
-initFn(std::function<Ret(Args...)>&& rawFn)
-{
-    auto typedFn = makeValueFunction(std::move(rawFn));
-
-    // std::function is stored as a single pointer (memory allocation are used
-    // to handle spill overs) which means it's "safe" to cast it to VoidFn and
-    // back. The original type can always be recovered before we make the calll.
-    fn = *reinterpret_cast<VoidFn*>(&typedFn);
-
-    ret = reflectReturn<Ret(Args...)>();
-    args = reflectArguments<Ret(Args...)>();
 }
 
 
@@ -170,8 +158,8 @@ call(Args&&... args) const
                 signature<Ret(Args...)>(), signature(*this));
     }
 
-    typedef typename MakeStdValueFunction<Args...>::type Fn;
-    const auto& typedFn = *reinterpret_cast<const Fn*>(&fn);
+    typedef ValueFunction<sizeof...(Args)> Fn;
+    Fn& typedFn = *static_cast<Fn*>(fn);
 
     Value ret = typedFn(cast<Value>(std::forward<Args>(args))...);
     return retCast<Ret>(ret);
