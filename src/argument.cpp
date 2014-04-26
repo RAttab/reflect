@@ -120,13 +120,6 @@ isConvertibleTo(const Argument& target) const
         if (refType() != RefType::RValue) return Match::None;
     }
 
-    if (type()->isPointer() && target.type()->isPointer()) {
-        if (type()->pointer() != target.type()->pointer()) return Match::None;
-        if (!target.type()->pointee()->isParentOf(type()->pointee()))
-            return Match::None;
-        return Match::Partial;
-    }
-
     return target.type()->isParentOf(type()) ? Match::Partial : Match::None;
 
 }

@@ -78,8 +78,10 @@ isChildOf(const Type* other) const
 {
     if (this == other) return true;
 
-    if (isPointer() && other->isPointer())
+    if (isPointer() && other->isPointer()) {
+        if (pointer() != other->pointer()) return false;
         return pointee()->isChildOf(other->pointee());
+    }
 
     return parent_ && parent_->isChildOf(other);
 }
