@@ -17,16 +17,16 @@
 #define reflectThing(n)                         \
     struct Thing ## n                           \
     {                                           \
-        void f0(A0 a) {}                        \
-        void f1(A1 a) {}                        \
-        void f2(A2 a) {}                        \
-        void f3(A3 a) {}                        \
-        void f4(A4 a) {}                        \
-        void f5(A5 a) {}                        \
-        void f6(A6 a) {}                        \
-        void f7(A7 a) {}                        \
-        void f8(A8 a) {}                        \
-        void f9(A9 a) {}                        \
+        void f0(A0) {}                          \
+        void f1(A1) {}                          \
+        void f2(A2) {}                          \
+        void f3(A3) {}                          \
+        void f4(A4) {}                          \
+        void f5(A5) {}                          \
+        void f6(A6) {}                          \
+        void f7(A7) {}                          \
+        void f8(A8) {}                          \
+        void f9(A9) {}                          \
     };                                          \
                                                 \
     reflectClass(Thing ## n)                    \
@@ -59,7 +59,7 @@ reflectThing(6)
 /* MAIN                                                                       */
 /******************************************************************************/
 
-int main(int argc, char** argv)
+int main(int, char**)
 {
     std::cerr << reflect::namespace_()->print() << std::endl;
     std::cerr << reflect::type<Thing0>()->print() << std::endl;

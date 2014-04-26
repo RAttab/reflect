@@ -59,7 +59,7 @@ reflectThing(9)
 /* MAIN                                                                       */
 /******************************************************************************/
 
-int main(int argc, char** argv)
+int main(int, char**)
 {
     std::cerr << reflect::namespace_()->print() << std::endl;
     std::cerr << reflect::type<Thing0>()->print() << std::endl;
