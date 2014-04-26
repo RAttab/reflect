@@ -6,8 +6,8 @@
 # Small utility to run compile performance tests.
 
 
-TEST_NAME=cperf_$1_test
+TEST_NAME=$1_test
 
 nice make -kj8 reflect \
-    && touch tests/$TEST_NAME.cpp \
+    && touch tests/cperf/$TEST_NAME.cpp \
     && time make $TEST_NAME

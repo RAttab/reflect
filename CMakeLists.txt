@@ -218,12 +218,12 @@ add_executable(blah_test tests/blah_test.cpp)
 
 function(reflect_cperf name)
     if(CMAKE_SOURCE_DIR STREQUAL ${PROJECT_SOURCE_DIR})
-        add_executable(${name}_test tests/${name}_test.cpp)
+        add_executable(${name}_test tests/cperf/${name}_test.cpp)
         target_link_libraries(${name}_test reflect)
         add_test(${name} bin/${name}_test)
     endif()
 endfunction()
 
 
-reflect_cperf(cperf_type_lookup)
-reflect_cperf(cperf_reflect_args)
+reflect_cperf(type_lookup)
+reflect_cperf(reflect_args)
