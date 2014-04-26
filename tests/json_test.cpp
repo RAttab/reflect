@@ -73,7 +73,7 @@ reflectClass(Blah)
 
 BOOST_AUTO_TEST_CASE(parsing)
 {
-    std::ifstream ifs("tests/json/basics.json");
+    std::ifstream ifs("tests/data/basics.json");
     BOOST_CHECK(ifs);
 
     auto blah = json::parse<Blah>(ifs);
