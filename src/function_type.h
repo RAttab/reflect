@@ -36,7 +36,6 @@ struct FunctorType<Ret(Obj::*)(Args...)>
     static constexpr size_t ArgCount = sizeof...(Args);
 
     typedef Ret (Fn)(Args...);
-    typedef std::function<Ret(Args...)> StdFn;
 };
 
 template<typename Obj, typename Ret, typename... Args>
@@ -49,7 +48,6 @@ struct FunctorType<Ret(Obj::*)(Args...) const>
     static constexpr size_t ArgCount = sizeof...(Args);
 
     typedef Ret (Fn)(Args...);
-    typedef std::function<Ret(Args...)> StdFn;
 };
 
 
@@ -93,7 +91,6 @@ struct FunctionType<Ret(*)(Args...)>
     static constexpr size_t ArgCount = sizeof...(Args);
 
     typedef Ret (Fn)(Args...);
-    typedef std::function<Ret(Args...)> StdFn;
 };
 
 
@@ -111,7 +108,6 @@ struct FunctionType<Ret(Obj::*)(Args...)>
     static constexpr size_t ArgCount = sizeof...(Args) + 1;
 
     typedef Ret (Fn)(Obj&, Args...);
-    typedef std::function<Ret(Obj&, Args...)> StdFn;
 };
 
 template<typename Obj, typename Ret, typename... Args>
@@ -124,7 +120,6 @@ struct FunctionType<Ret(Obj::*)(Args...) const>
     static constexpr size_t ArgCount = sizeof...(Args) + 1;
 
     typedef Ret (Fn)(const Obj&, Args...);
-    typedef std::function<Ret(const Obj&, Args...)> StdFn;
 };
 
 } // reflect
