@@ -54,11 +54,11 @@ reflectThing(1)
 reflectThing(2)
 reflectThing(3)
 reflectThing(4)
-// reflectThing(5)
-// reflectThing(6)
-// reflectThing(7)
-// reflectThing(8)
-// reflectThing(9)
+reflectThing(5)
+reflectThing(6)
+reflectThing(7)
+reflectThing(8)
+reflectThing(9)
 
 
 /******************************************************************************/
