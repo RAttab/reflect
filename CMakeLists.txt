@@ -17,7 +17,7 @@ enable_testing()
 add_definitions("-Wall -Wextra -Werror -pedantic -g -O4")
 
 # For cperf optimization only.
-add_definitions("-Wno-unused-variable -Wno-unused-parameter")
+# add_definitions("-Wno-unused-variable -Wno-unused-parameter")
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
