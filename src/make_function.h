@@ -21,107 +21,16 @@
 
 namespace reflect {
 
-
-/******************************************************************************/
-/* IS FUNCTOR                                                                 */
-/******************************************************************************/
-
-template<typename T>
-struct IsFunctor
-{
-    template<typename U>
-    static std::true_type test(decltype(&U::operator())* = 0);
-
-    template<typename>
-    static std::false_type test(...);
-
-    typedef decltype(test<T>(0)) type;
-    static constexpr bool value = type::value;
-};
-
-
-/******************************************************************************/
-/* FUNCTOR TYPE                                                               */
-/******************************************************************************/
-
-template<typename Fn, typename Enable = void> struct FunctorType;
-
-template<typename Obj, typename Ret, typename... Args>
-struct FunctorType<Ret(Obj::*)(Args...)>
-{
-    typedef Ret (type)(Args...);
-};
-
-template<typename Obj, typename Ret, typename... Args>
-struct FunctorType<Ret(Obj::*)(Args...) const>
-{
-    typedef Ret (type)(Args...);
-};
-
-// If we got the object itself then extract the operator() and recurse.
-template<typename Fn>
-struct FunctorType<Fn,
-    typename std::enable_if<IsFunctor<Fn>::value>::type> :
-        public FunctorType<decltype(&Fn::operator())>
-{};
-
-
-/******************************************************************************/
-/* FUNCTION TYPE                                                              */
-/******************************************************************************/
-
-template<typename Fn> struct FunctionType;
-
-template<typename Ret, typename... Args>
-struct FunctionType<Ret(*)(Args...)>
-{
-    typedef Ret (type)(Args...);
-};
-
-template<typename Obj, typename Ret, typename... Args>
-struct FunctionType<Ret(Obj::*)(Args...)>
-{
-    typedef Ret (type)(Obj&, Args...);
-};
-
-template<typename Obj, typename Ret, typename... Args>
-struct FunctionType<Ret(Obj::*)(Args...) const>
-{
-    typedef Ret (type)(const Obj&, Args...);
-};
-
-
-/******************************************************************************/
-/* GET FUNCTION TYPE                                                          */
-/******************************************************************************/
-
-template<typename Fn, typename Enable = void> struct GetFunctionType;
-
-template<typename Fn>
-struct GetFunctionType<Fn,
-    typename std::enable_if<IsFunctor<Fn>::value>::type> :
-        public FunctorType<Fn>
-{};
-
-template<typename Fn>
-struct GetFunctionType<Fn,
-    typename std::enable_if<!IsFunctor<Fn>::value>::type> :
-        public FunctionType<Fn>
-{};
-
-
 /******************************************************************************/
 /* MAKE FUNCTION                                                              */
 /******************************************************************************/
 
 // C++14 return type deduction would be handy right about now...
 template<typename Fn>
-auto makeFunction(Fn&& fn) ->
-    std::function<typename GetFunctionType<typename std::decay<Fn>::type>::type>
+auto makeFunction(Fn&& fn) -> typename FunctionType<Fn>::StdFn
 {
-    typedef typename std::decay<Fn>::type CleanFn;
-    typedef typename GetFunctionType<CleanFn>::type FnType;
-    return std::function<FnType>(std::forward<Fn>(fn));
+    typedef typename FunctionType<Fn>::StdFn StdFn;
+    return StdFn(std::forward<Fn>(fn));
 }
 
 } // reflect

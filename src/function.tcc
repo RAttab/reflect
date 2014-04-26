@@ -17,7 +17,7 @@ namespace reflect {
 template<typename Fn>
 Argument reflectReturn()
 {
-    typedef typename GetReturnValue<Fn>::type Ret;
+    typedef typename FunctionType<Fn>::Return Ret;
     return Argument::make<Ret>();
 }
 
@@ -52,7 +52,7 @@ void reflectArguments(std::vector<Argument>& args, TypeVector<Arg, Rest...>)
 template<typename Fn>
 std::vector<Argument> reflectArguments()
 {
-    typedef typename GetArguments<Fn>::type Args;
+    typedef typename FunctionType<Fn>::Arguments Args;
 
     std::vector<Argument> args;
     reflectArguments(args, Args());
