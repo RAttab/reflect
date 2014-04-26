@@ -227,3 +227,4 @@ endfunction()
 
 reflect_cperf(type_lookup)
 reflect_cperf(reflect_args)
+reflect_cperf(reflect_getter)
