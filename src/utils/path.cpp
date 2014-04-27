@@ -88,18 +88,20 @@ popBack() const
 // We use recursive pathing to ensure that rvalue returns remain valid during
 // the duration of the access.
 
-bool has(Value value, const Path& path)
+namespace {
+
+bool has(Value value, const Path& path, size_t index)
 {
-    if (!path) return true;
+    if (index == path.size()) return true;
 
     if (value.type()->isPointer()) {
         if (value.type()->pointee()->isPointer()) return false;
-        return has(*value, path);
+        return has(*value, path, index);
     }
 
     if (value.is("list")) {
-        if (!path.isIndex(0)) return false;
-        return has(value[path.index(0)], path.popFront());
+        if (!path.isIndex(index)) return false;
+        return has(value[path.index(index)], path, index + 1);
     }
 
     if (value.is("map")) {
@@ -109,29 +111,42 @@ bool has(Value value, const Path& path)
         if (!value.call<bool>("count", path.front()))
             return  false;
 
-        return has(value[path.front()], path.popFront());
+        return has(value[path[index]], path, index + 1);
     }
 
-    return has(value.get<Value>(path.front()), path.popFront());
+    return has(value.get<Value>(path[index]), path, index + 1);
 }
 
-Value get(Value value, const Path& path)
+
+Value get(Value value, const Path& path, size_t index)
 {
     if (value.type()->isPointer()) {
         if (value.type()->pointee()->isPointer()) {
             reflectError("can't path down a double indirection <%s>",
                     value.typeId());
         }
-        return get(*value, path);
+        return get(*value, path, index);
     }
 
     if (value.is("list"))
-        return get(value[path.index(0)], path.popFront());
+        return get(value[path.index(index)], path, index + 1);
 
     if (value.is("map"))
-        return get(value[path.front()], path.popFront());
+        return get(value[path[index]], path, index + 1);
 
-    return get(value.get<Value>(path.front()), path.popFront());
+    return get(value.get<Value>(path[index]), path, index + 1);
 }
 
+} // namespace anonymous
+
+
+bool has(Value value, const Path& path)
+{
+    return has(value, path, 0);
+}
+
+Value get(Value value, const Path& path)
+{
+    return get(value, path, 0);
+}
 } // reflect
