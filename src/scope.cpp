@@ -19,27 +19,58 @@ std::pair<std::string, std::string>
 Scope::
 head(const std::string& name)
 {
-    size_t pos = name.find("::");
-    size_t next = pos + 2;
+    size_t i;
+    size_t next = name.size();
+    size_t nesting = 0;
 
-    if (pos == std::string::npos)
-        pos = next = name.size();
+    for (i = 0; i < name.size(); ++i) {
 
-    return std::make_pair(name.substr(0, pos), name.substr(next));
+        switch (name[i]) {
+        case '<': nesting++; break;
+        case '>': nesting--; break;
+        case ':':
+            if (nesting) continue;
+            if (name.size() <= i + 1 || name[i + 1] != ':')
+                reflectError("unmatched <%c> in <%s>", ':', name);
+
+            next = i + 2;
+            goto done;
+        }
+    }
+
+  done:
+    if (nesting) reflectError("unmatched <%c> in <%s>", '<', name);
+    return std::make_pair(name.substr(0, i), name.substr(next));
 }
 
 std::pair<std::string, std::string>
 Scope::
 tail(const std::string& name)
 {
-    size_t pos = name.rfind("::");
-    size_t next = pos;
+    size_t i;
+    size_t nesting = 0;
+    size_t next = 0;
 
-    if (pos == std::string::npos)
-        pos = next = 0;
-    else pos += 2;
+    for (i = name.size(); i > 0;) {
+        i--;
 
-    return std::make_pair(name.substr(pos), name.substr(0, next));
+        switch (name[i]) {
+        case '<': nesting--; break;
+        case '>': nesting++; break;
+        case ':':
+            if (nesting) continue;
+            if (!i || name[i - 1] != ':')
+                reflectError("unmatched <%c> in <%s>", ':', name);
+
+            i++;
+            next = i - 2;
+            goto done;
+        }
+    }
+
+  done:
+    if (nesting) reflectError("unmatched <%c> in <%s>", '<', name);
+    return std::make_pair(name.substr(i), name.substr(0, next));
 }
 
 std::string

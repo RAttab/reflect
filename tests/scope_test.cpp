@@ -84,6 +84,54 @@ reflectScope(foo::baz)
 /* TEST                                                                       */
 /******************************************************************************/
 
+BOOST_AUTO_TEST_CASE(head)
+{
+    auto check = [] (
+            std::pair<std::string, std::string> r,
+            std::string head, std::string rest)
+        {
+            BOOST_CHECK_EQUAL(r.first, head);
+            BOOST_CHECK_EQUAL(r.second, rest);
+        };
+
+    check(Scope::head(""),        "",  "");
+    check(Scope::head("::"),      "",  "");
+    check(Scope::head("a"),       "a", "");
+    check(Scope::head("a::b"),    "a", "b");
+    check(Scope::head("a::b::c"), "a", "b::c");
+    check(Scope::head("::b::c"),  "",  "b::c");
+
+    check(Scope::head("a<b>"),       "a<b>",    "");
+    check(Scope::head("a<b::c>"),    "a<b::c>", "");
+    check(Scope::head("a<b>::c"),    "a<b>",    "c");
+    check(Scope::head("a<b::c>::d"), "a<b::c>", "d");
+    check(Scope::head("a<b::c<d::f>::g>::h"), "a<b::c<d::f>::g>", "h");
+}
+
+BOOST_AUTO_TEST_CASE(tail)
+{
+    auto check = [] (
+            std::pair<std::string, std::string> r,
+            std::string tail, std::string rest)
+        {
+            BOOST_CHECK_EQUAL(r.first, tail);
+            BOOST_CHECK_EQUAL(r.second, rest);
+        };
+
+    check(Scope::tail(""),        "",  "");
+    check(Scope::tail("::"),      "",  "");
+    check(Scope::tail("a"),       "a", "");
+    check(Scope::tail("a::b"),    "b", "a");
+    check(Scope::tail("a::b::c"), "c", "a::b");
+    check(Scope::tail("b::c::"),  "",  "b::c");
+
+    check(Scope::tail("a<b>"),       "a<b>",    "");
+    check(Scope::tail("a<b::c>"),    "a<b::c>", "");
+    check(Scope::tail("c::a<b>"),    "a<b>",    "c");
+    check(Scope::tail("d::a<b::c>"), "a<b::c>", "d");
+    check(Scope::tail("h::a<b::c<d::f>::g>"), "a<b::c<d::f>::g>", "h");
+}
+
 BOOST_AUTO_TEST_CASE(basics)
 {
     Scope* nFoo = scope("foo");

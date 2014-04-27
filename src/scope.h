@@ -54,11 +54,11 @@ struct Scope
 
     std::string print(int indent = 0) const;
 
-private:
-
     static std::string join(const std::string& head, const std::string& tail);
     static std::pair<std::string, std::string> head(const std::string& name);
     static std::pair<std::string, std::string> tail(const std::string& name);
+
+private:
 
     std::string name_;
 
