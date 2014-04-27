@@ -106,9 +106,8 @@ bool has(Value value, const Path& path)
         if (value.call<const Type*>("keyType") != type<std::string>())
             return false;
 
-        auto keys = value.call< std::vector<std::string> >("keys");
-        if (std::find(keys.begin(), keys.end(), path.front()) == keys.end())
-            return false;
+        if (!value.call<bool>("count", path.front()))
+            return  false;
 
         return has(value[path.front()], path.popFront());
     }
