@@ -21,6 +21,7 @@ struct Path
 {
     Path() {}
     Path(const std::string& path, char sep = '.');
+    Path(const Path& prefix, const std::string& path, char sep = '.');
 
     explicit operator bool() const { return items.empty(); }
 
@@ -36,7 +37,11 @@ struct Path
     const std::string& back() const { return items.back(); }
     Path popBack() const;
 
+    std::string toString(char sep = '.');
+
 private:
+    void parse(const std::string& path, char sep);
+
     std::vector<std::string> items;
 };
 

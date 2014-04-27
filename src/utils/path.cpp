@@ -17,8 +17,9 @@ namespace reflect {
 /* PATH                                                                       */
 /******************************************************************************/
 
+void
 Path::
-Path(const std::string& path, char sep)
+parse(const std::string& path, char sep)
 {
     size_t i = 0;
     while (i < path.size()) {
@@ -31,6 +32,35 @@ Path(const std::string& path, char sep)
         items.emplace_back(path.substr(i, j));
         i = j + 1;
     }
+}
+
+std::string
+Path::
+toString(char sep)
+{
+    std::string path;
+
+    for (size_t i = 0; i < items.size(); ++i) {
+        if (i) path += sep;
+        path += items[i];
+    }
+
+    return path;
+}
+
+
+Path::
+Path(const Path& prefix, const std::string& path, char sep) :
+    items(prefix.items)
+{
+    parse(path, sep);
+}
+
+
+Path::
+Path(const std::string& path, char sep)
+{
+    parse(path, sep);
 }
 
 bool
