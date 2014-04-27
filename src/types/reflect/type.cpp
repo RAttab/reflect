@@ -7,12 +7,11 @@
 
 #include "type.h"
 
-
 /******************************************************************************/
 /* REFLECT TYPE                                                               */
 /******************************************************************************/
 
-reflectClassImpl(reflect::Type)
+reflectTypeImpl(reflect::Type)
 {
     // \todo reflect Type 
 }

@@ -8,11 +8,11 @@
 #pragma once
 
 #include "reflect.h"
-#include "reflect/class.h"
+#include "reflect/type.h"
 
 /******************************************************************************/
 /* REFLECT TYPE                                                               */
 /******************************************************************************/
 
-reflectClassDecl(reflect::Type)
+reflectTypeDecl(reflect::Type)
 

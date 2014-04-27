@@ -8,7 +8,7 @@
 #pragma once
 
 #include "reflect.h"
-#include "reflect/class.h"
+#include "reflect/type.h"
 
 namespace test {
 
@@ -235,13 +235,13 @@ std::ostream& operator<<(std::ostream& stream, const Convertible& obj)
 /* REFLECT                                                                    */
 /******************************************************************************/
 
-reflectClassDecl(test::Object)
+reflectTypeDecl(test::Object)
 
-reflectClassDecl(test::NotCopiable)
-reflectClassDecl(test::NotMovable)
-reflectClassDecl(test::NotConstructible)
+reflectTypeDecl(test::NotCopiable)
+reflectTypeDecl(test::NotMovable)
+reflectTypeDecl(test::NotConstructible)
 
-reflectClassDecl(test::Interface)
-reflectClassDecl(test::Parent)
-reflectClassDecl(test::Child)
-reflectClassDecl(test::Convertible)
+reflectTypeDecl(test::Interface)
+reflectTypeDecl(test::Parent)
+reflectTypeDecl(test::Child)
+reflectTypeDecl(test::Convertible)

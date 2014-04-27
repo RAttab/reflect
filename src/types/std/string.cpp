@@ -14,7 +14,7 @@
 /* STRING                                                                     */
 /******************************************************************************/
 
-reflectClassImpl(std::string)
+reflectTypeImpl(std::string)
 {
     reflectPlumbing();
 

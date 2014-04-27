@@ -17,7 +17,7 @@
 /* OBJECT                                                                     */
 /******************************************************************************/
 
-reflectClassImpl(test::Object)
+reflectTypeImpl(test::Object)
 {
     reflectPlumbing();
     reflectCons(int);
@@ -35,7 +35,7 @@ reflectClassImpl(test::Object)
 /* NOT COPIABLE                                                               */
 /******************************************************************************/
 
-reflectClassImpl(test::NotCopiable)
+reflectTypeImpl(test::NotCopiable)
 {
     reflectPlumbing();
 }
@@ -45,7 +45,7 @@ reflectClassImpl(test::NotCopiable)
 /* NOT MOVABLE                                                                */
 /******************************************************************************/
 
-reflectClassImpl(test::NotMovable)
+reflectTypeImpl(test::NotMovable)
 {
     reflectPlumbing();
 }
@@ -55,7 +55,7 @@ reflectClassImpl(test::NotMovable)
 /* NOT CONSTRUCTIBLE                                                          */
 /******************************************************************************/
 
-reflectClassImpl(test::NotConstructible)
+reflectTypeImpl(test::NotConstructible)
 {
     reflectPlumbing();
 }
@@ -65,7 +65,7 @@ reflectClassImpl(test::NotConstructible)
 /* INTERFACE                                                                  */
 /******************************************************************************/
 
-reflectClassImpl(test::Interface)
+reflectTypeImpl(test::Interface)
 {
     reflectFn(pureVirtual);
 }
@@ -74,7 +74,7 @@ reflectClassImpl(test::Interface)
 /* PARENT                                                                     */
 /******************************************************************************/
 
-reflectClassImpl(test::Parent)
+reflectTypeImpl(test::Parent)
 {
     reflectParent(test::Interface);
     reflectPlumbing();
@@ -91,7 +91,7 @@ reflectClassImpl(test::Parent)
 /* CHILD                                                                      */
 /******************************************************************************/
 
-reflectClassImpl(test::Child)
+reflectTypeImpl(test::Child)
 {
     reflectParent(test::Parent);
     reflectPlumbing();
@@ -108,7 +108,7 @@ reflectClassImpl(test::Child)
 /* CONVERTIBLE                                                                */
 /******************************************************************************/
 
-reflectClassImpl(test::Convertible)
+reflectTypeImpl(test::Convertible)
 {
     reflectPlumbing();
     reflectField(value);

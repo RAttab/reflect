@@ -148,7 +148,7 @@ install(
     FILES
     src/reflect/all.h
     src/reflect/basics.h
-    src/reflect/class.h
+    src/reflect/type.h
     src/reflect/field.h
     src/reflect/function.h
     src/reflect/scope.h

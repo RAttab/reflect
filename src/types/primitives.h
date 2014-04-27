@@ -8,33 +8,33 @@
 #pragma once
 
 #include "reflect.h"
-#include "reflect/class.h"
+#include "reflect/type.h"
 #include "pointer.h"
 
 /******************************************************************************/
 /* REFLECT PRIMITIVES                                                         */
 /******************************************************************************/
 
-reflectClassDecl(void)
+reflectTypeDecl(void)
 
-reflectClassDecl(bool)
+reflectTypeDecl(bool)
 
-reflectClassDecl(char)
-reflectClassDecl(signed char)
-reflectClassDecl(unsigned char)
+reflectTypeDecl(char)
+reflectTypeDecl(signed char)
+reflectTypeDecl(unsigned char)
 
-reflectClassDecl(short int)
-reflectClassDecl(unsigned short int)
+reflectTypeDecl(short int)
+reflectTypeDecl(unsigned short int)
 
-reflectClassDecl(int)
-reflectClassDecl(unsigned int)
+reflectTypeDecl(int)
+reflectTypeDecl(unsigned int)
 
-reflectClassDecl(long int)
-reflectClassDecl(unsigned long int)
+reflectTypeDecl(long int)
+reflectTypeDecl(unsigned long int)
 
-reflectClassDecl(long long int)
-reflectClassDecl(unsigned long long int)
+reflectTypeDecl(long long int)
+reflectTypeDecl(unsigned long long int)
 
-reflectClassDecl(float)
-reflectClassDecl(double)
-reflectClassDecl(long double)
+reflectTypeDecl(float)
+reflectTypeDecl(double)
+reflectTypeDecl(long double)

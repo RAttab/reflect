@@ -34,7 +34,7 @@ struct Bar
 
 } // namespace test
 
-reflectClass(test::Bar)
+reflectType(test::Bar)
 {
     reflectField(bar);
 }
@@ -95,7 +95,7 @@ struct Foo : public Bar
 } // namespace test
 
 
-reflectClass(test::Foo)
+reflectType(test::Foo)
 {
     reflectParent(test::Bar);
 

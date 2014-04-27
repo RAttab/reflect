@@ -12,7 +12,7 @@
 /* REFLECT VOID                                                               */
 /******************************************************************************/
 
-reflectClassImpl(void)
+reflectTypeImpl(void)
 {
     reflectTrait(primitive);
     reflectTrait(void);

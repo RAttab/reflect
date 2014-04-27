@@ -60,7 +60,7 @@ struct Value;
 #include "type.tcc"
 #include "scope.tcc"
 
-#include "reflect/class.h"
+#include "reflect/type.h"
 
 #include "types/primitives.h"
 #include "types/reflect/value.h"

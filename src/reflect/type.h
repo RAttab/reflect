@@ -1,8 +1,8 @@
-/* class.h                                 -*- C++ -*-
+/* type.h                                 -*- C++ -*-
    Rémi Attab (remi.attab@gmail.com), 30 Mar 2014
    FreeBSD-style copyright and disclaimer apply
 
-   Class reflection
+   Type reflection
 */
 
 #include "reflect.h"
@@ -14,7 +14,7 @@ namespace reflect {
 /* REFLECT CLASS                                                              */
 /******************************************************************************/
 
-#define reflectClassDecl(_type_)                                        \
+#define reflectTypeDecl(_type_)                                         \
     namespace reflect {                                                 \
     template<>                                                          \
     struct Reflect<_type_>                                              \
@@ -31,7 +31,7 @@ namespace reflect {
 // Note that we need the template specialization because we if we use
 // reflectUniqueName to get a unique typename then we have no way to recover the
 // type to name our constructor.
-#define reflectClassLoader(_type_)                              \
+#define reflectTypeLoader(_type_)                               \
     namespace reflect {                                         \
     template<>                                                  \
     struct Loader<_type_>                                       \
@@ -42,16 +42,16 @@ namespace reflect {
     } // namespace reflect
 
 
-#define reflectClassImpl(_type_)                        \
-    reflectClassLoader(_type_)                          \
-                                                        \
-    void                                                \
-    reflect::Reflect<_type_>::                          \
+#define reflectTypeImpl(_type_)                 \
+    reflectTypeLoader(_type_)                   \
+                                                \
+    void                                        \
+    reflect::Reflect<_type_>::                  \
     reflect(reflectUnused Type* type_)
 
-#define reflectClass(_type_)                  \
-    reflectClassDecl(_type_)                  \
-    reflectClassImpl(_type_)
+#define reflectType(_type_)                     \
+    reflectTypeDecl(_type_)                     \
+    reflectTypeImpl(_type_)
 
 
 /******************************************************************************/

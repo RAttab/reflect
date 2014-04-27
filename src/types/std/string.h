@@ -8,10 +8,10 @@
 #pragma once
 
 #include "reflect.h"
-#include "reflect/class.h"
+#include "reflect/type.h"
 
 /******************************************************************************/
 /* REFLECT STRING                                                             */
 /******************************************************************************/
 
-reflectClassDecl(std::string)
+reflectTypeDecl(std::string)

@@ -15,7 +15,7 @@
 #include "types/std/vector.h"
 #include "types/std/map.h"
 #include "reflect/plumbing.h"
-#include "reflect/class.h"
+#include "reflect/type.h"
 #include "reflect/field.h"
 #include "utils/json/parser.h"
 #include "utils/json/printer.h"
@@ -39,7 +39,7 @@ struct Bleh
     Bleh(long i, bool b) : i(i), b(b) {}
 };
 
-reflectClass(Bleh)
+reflectType(Bleh)
 {
     reflectPlumbing();
     reflectField(i);
@@ -58,7 +58,7 @@ struct Blah
     std::map<std::string, Bleh> map;
 };
 
-reflectClass(Blah)
+reflectType(Blah)
 {
     reflectPlumbing();
     reflectField(str);

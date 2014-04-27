@@ -11,7 +11,7 @@
 
 #include "reflect.h"
 #include "reflect/scope.h"
-#include "reflect/class.h"
+#include "reflect/type.h"
 #include "reflect/plumbing.h"
 
 #include <boost/test/unit_test.hpp>
@@ -34,7 +34,7 @@ reflectScope(foo)
     reflectGlobalFn(foo::fooFn);
 }
 
-reflectClass(foo::Foo)
+reflectType(foo::Foo)
 {
     reflectPlumbing();
 }
@@ -56,7 +56,7 @@ reflectScope(foo::bar)
     reflectGlobalFn(foo::bar::barFn);
 }
 
-reflectClass(foo::bar::Bar)
+reflectType(foo::bar::Bar)
 {
     reflectPlumbing();
 }

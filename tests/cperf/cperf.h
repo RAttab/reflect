@@ -8,7 +8,7 @@
 #pragma once
 
 #include "reflect.h"
-#include "reflect/class.h"
+#include "reflect/type.h"
 
 /******************************************************************************/
 /* ARGS                                                                       */
@@ -16,7 +16,7 @@
 
 #define reflectArg(n)                       \
     struct A ## n {};                       \
-    reflectClass(A ## n) {}
+    reflectType(A ## n) {}
 
 reflectArg(0)
 reflectArg(1)

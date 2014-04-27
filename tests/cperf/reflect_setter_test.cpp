@@ -29,7 +29,7 @@
         void f9(A9) {}                          \
     };                                          \
                                                 \
-    reflectClass(Thing ## n)                    \
+    reflectType(Thing ## n)                     \
     {                                           \
         reflectFn(f0);                          \
         reflectFn(f1);                          \

@@ -7,12 +7,11 @@
 
 #include "value.h"
 
-
 /******************************************************************************/
 /* VALUE                                                                      */
 /******************************************************************************/
 
-reflectClassImpl(reflect::Value)
+reflectTypeImpl(reflect::Value)
 {
     // \todo Reflect Value
 }

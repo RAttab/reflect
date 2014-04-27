@@ -302,7 +302,7 @@ print(size_t indent) const
     std::string pad1(indent, ' ');
     std::string pad2(indent + PadInc, ' ');
 
-    ss << pad0 << "struct " << id_ << "\n";
+    ss << pad0 << "type " << id_ << "\n";
     ss << pad0 << "{\n";
 
     if (parent_) ss << parent_->print(indent) << "\n";

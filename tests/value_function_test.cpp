@@ -115,7 +115,7 @@ struct Foo
     unsigned value;
 };
 
-reflectClass(Foo) {}
+reflectType(Foo) {}
 
 BOOST_AUTO_TEST_CASE(memberFn)
 {

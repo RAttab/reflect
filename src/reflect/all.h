@@ -8,7 +8,7 @@
 #include "reflect.h"
 #pragma once
 
-#include "class.h"
+#include "type.h"
 #include "scope.h"
 #include "basics.h"
 #include "plumbing.h"

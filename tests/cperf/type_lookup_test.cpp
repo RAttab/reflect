@@ -21,7 +21,7 @@ using namespace reflect;
 
 #define reflectThing1Impl(name)                 \
     struct name {};                             \
-    reflectClassDecl(name)
+    reflectTypeDecl(name)
 
 
 #define reflectThing1()                         \
@@ -71,7 +71,7 @@ using namespace reflect;
 reflectThing1000()
 
 struct Target {};
-reflectClass(Target) {}
+reflectType(Target) {}
 
 
 int main(int, char**)

@@ -34,7 +34,7 @@
         void f9(A1, A2, A3, A4, A5, A6, A7, A8, A9, A0) {}      \
     };                                                          \
                                                                 \
-    reflectClass(Thing ## n)                                    \
+    reflectType(Thing ## n)                                     \
     {                                                           \
         reflectFn(f0);                                          \
         reflectFn(f1);                                          \

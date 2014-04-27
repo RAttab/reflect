@@ -52,6 +52,6 @@ void reflectNumberImpl(Type* type_)
 }
 
 #define reflectNumber(num) \
-    reflectClassImpl(num) { reflectNumberImpl<T_>(type_); }
+    reflectTypeImpl(num) { reflectNumberImpl<T_>(type_); }
 
 } // reflect
