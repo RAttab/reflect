@@ -135,7 +135,6 @@ install(
     src/registry.h
     src/type.h
     src/type.tcc
-    src/type_name.h
     src/type_vector.h
     src/utils.h
     src/value_function.h

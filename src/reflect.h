@@ -31,7 +31,6 @@
 #include "ref_type.h"
 #include "type_vector.h"
 #include "function_type.h"
-#include "type_name.h"
 
 namespace reflect {
 
