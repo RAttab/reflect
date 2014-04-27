@@ -11,7 +11,7 @@
 namespace reflect {
 
 /******************************************************************************/
-/* REFLECT FUNCTION                                                           */
+/* REFLECT RETURN                                                             */
 /******************************************************************************/
 
 template<typename Fn>
@@ -20,6 +20,11 @@ Argument reflectReturn()
     typedef typename FunctionType<Fn>::Return Ret;
     return Argument::make<Ret>();
 }
+
+
+/******************************************************************************/
+/* REFLECT ARGUMENTS                                                          */
+/******************************************************************************/
 
 /** Note that we have to use TypeVector otherwise if we're dealing purely with
     types then we'd need to define the base case like so:
@@ -118,7 +123,6 @@ Function(const std::string& name, Fn fn) :
 {
     ret = reflectReturn<Fn>();
     args = reflectArguments<Fn>();
-
 }
 
 

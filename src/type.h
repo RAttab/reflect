@@ -76,7 +76,7 @@ struct Type
     Value construct(Args&&... args) const;
 
     template<typename Ret, typename... Args>
-    Ret call(const std::string& field, Args&&... args) const;
+    Ret call(const std::string& fn, Args&&... args) const;
 
     std::string print(size_t indent = 0) const;
 

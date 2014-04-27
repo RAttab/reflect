@@ -122,8 +122,6 @@ install(
     src/cast.h
     src/function.h
     src/function.tcc
-    src/function_traits.h
-    src/make_function.h
     src/namespace.h
     src/namespace.tcc
     src/overloads.h

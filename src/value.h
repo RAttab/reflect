@@ -92,6 +92,7 @@ struct Value
     RefType refType() const { return arg.refType(); }
     bool isConst() const { return arg.isConst(); }
     bool isVoid() const { return arg.isVoid(); }
+    bool isStored() const { return !!storage; }
 
     const Argument& argument() const { return arg; }
 
