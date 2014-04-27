@@ -34,11 +34,11 @@
 
 namespace reflect {
 
-struct Scope;
 struct Type;
-struct Overloads;
-struct Function;
+struct Scope;
 struct Value;
+struct Function;
+struct Overloads;
 
 } // namespace reflect
 
