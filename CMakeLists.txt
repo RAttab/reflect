@@ -108,6 +108,10 @@ add_library(reflect_json SHARED
     src/utils/json/parser.cpp
     src/utils/json/printer.cpp)
 
+add_library(reflect_utils SHARED src/utils/path.cpp)
+force_target_link_libraries(reflect_utils reflect_primitives)
+force_target_link_libraries(reflect_utils reflect_std)
+
 
 #------------------------------------------------------------------------------#
 # INSTALL
