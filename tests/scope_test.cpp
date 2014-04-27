@@ -1,8 +1,8 @@
-/* namespace_test.cpp                                 -*- C++ -*-
+/* scope_test.cpp                                 -*- C++ -*-
    Rémi Attab (remi.attab@gmail.com), 16 Apr 2014
    FreeBSD-style copyright and disclaimer apply
 
-   Tests for namespace reflection.
+   Tests for scope reflection.
 */
 
 #define BOOST_TEST_MAIN
@@ -10,7 +10,7 @@
 #define REFLECT_USE_EXCEPTIONS 1
 
 #include "reflect.h"
-#include "reflect/namespace.h"
+#include "reflect/scope.h"
 #include "reflect/class.h"
 #include "reflect/plumbing.h"
 
@@ -29,7 +29,7 @@ struct Foo {};
 
 }
 
-reflectNamespace(foo)
+reflectScope(foo)
 {
     reflectGlobalFn(foo::fooFn);
 }
@@ -51,7 +51,7 @@ int barFn(int i) { return i + 1; }
 
 }}
 
-reflectNamespace(foo::bar)
+reflectScope(foo::bar)
 {
     reflectGlobalFn(foo::bar::barFn);
 }
@@ -73,7 +73,7 @@ int bazFn(int i ) { return i * 2; }
 
 }}
 
-reflectNamespace(foo::baz)
+reflectScope(foo::baz)
 {
     reflectGlobalVar(foo::baz::i);
     reflectGlobalFn(foo::baz::bazFn);
@@ -86,7 +86,7 @@ reflectNamespace(foo::baz)
 
 BOOST_AUTO_TEST_CASE(basics)
 {
-    Namespace* nFoo = namespace_("foo");
+    Scope* nFoo = scope("foo");
 
     std::cerr << nFoo->print() << std::endl;
 

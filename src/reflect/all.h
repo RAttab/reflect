@@ -9,7 +9,7 @@
 #pragma once
 
 #include "class.h"
-#include "namespace.h"
+#include "scope.h"
 #include "basics.h"
 #include "plumbing.h"
 #include "field.h"

@@ -126,8 +126,8 @@ install(
     src/cast.h
     src/function.h
     src/function.tcc
-    src/namespace.h
-    src/namespace.tcc
+    src/scope.h
+    src/scope.tcc
     src/overloads.h
     src/overloads.tcc
     src/reflect.h
@@ -151,7 +151,7 @@ install(
     src/reflect/class.h
     src/reflect/field.h
     src/reflect/function.h
-    src/reflect/namespace.h
+    src/reflect/scope.h
     src/reflect/operators.h
     src/reflect/plumbing.h
     DESTINATION
@@ -202,7 +202,7 @@ endfunction()
 
 
 reflect_test(ref)
-reflect_test(namespace)
+reflect_test(scope)
 reflect_test(type)
 reflect_test(value)
 reflect_test(value_function)

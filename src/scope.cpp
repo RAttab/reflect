@@ -1,8 +1,8 @@
-/* namespace.cpp                                 -*- C++ -*-
+/* scope.cpp                                 -*- C++ -*-
    Rémi Attab (remi.attab@gmail.com), 15 Apr 2014
    FreeBSD-style copyright and disclaimer apply
 
-   Namespace implementation.
+   Scope implementation.
 */
 
 #include "reflect.h"
@@ -16,7 +16,7 @@ namespace reflect {
 /******************************************************************************/
 
 std::pair<std::string, std::string>
-Namespace::
+Scope::
 head(const std::string& name)
 {
     size_t pos = name.find("::");
@@ -29,7 +29,7 @@ head(const std::string& name)
 }
 
 std::pair<std::string, std::string>
-Namespace::
+Scope::
 tail(const std::string& name)
 {
     size_t pos = name.rfind("::");
@@ -43,7 +43,7 @@ tail(const std::string& name)
 }
 
 std::string
-Namespace::
+Scope::
 join(const std::string& head, const std::string& tail)
 {
     return head.empty() ? tail : (head + "::" + tail);
@@ -54,17 +54,17 @@ join(const std::string& head, const std::string& tail)
 /* BASICS                                                                     */
 /******************************************************************************/
 
-Namespace::
-Namespace() : parent_(nullptr)
+Scope::
+Scope() : parent_(nullptr)
 {}
 
-Namespace::
-Namespace(const std::string& name, Namespace* parent) :
+Scope::
+Scope(const std::string& name, Scope* parent) :
     name_(name), parent_(parent)
 {}
 
 std::string
-Namespace::
+Scope::
 id() const
 {
     if (!parent_) return "";
@@ -72,7 +72,7 @@ id() const
 }
 
 std::string
-Namespace::
+Scope::
 print(int indent) const
 {
     enum { PadInc = 4 };
@@ -83,7 +83,7 @@ print(int indent) const
     indent += PadInc;
     std::string pad1(indent, ' ');
 
-    ss << pad0 << "namespace " << name_ << "\n";
+    ss << pad0 << "scope " << name_ << "\n";
     ss << pad0 << "{\n";
 
     for (auto& fn : functions_) {
@@ -91,16 +91,16 @@ print(int indent) const
         ss << fn.second.print(indent + PadInc);
     }
 
-    if (!functions_.empty() && (!types_.empty() || !subs_.empty()))
+    if (!functions_.empty() && (!types_.empty() || !scopes_.empty()))
         ss << pad0 << "\n";
 
     for (auto& type : types_)
         ss << pad1 << "struct " << type.first << ";\n";
 
-    if (!types_.empty() && !subs_.empty()) ss << pad0 << "\n";
+    if (!types_.empty() && !scopes_.empty()) ss << pad0 << "\n";
 
-    for (auto& sub : subs_)
-        ss << sub.second->print(indent) << "\n";
+    for (auto& scope : scopes_)
+        ss << scope.second->print(indent) << "\n";
 
     ss << pad0 << "}\n";
 
@@ -109,60 +109,60 @@ print(int indent) const
 
 
 /******************************************************************************/
-/* SUBS                                                                       */
+/* SCOPES                                                                     */
 /******************************************************************************/
 
 std::vector<std::string>
-Namespace::
-subs() const
+Scope::
+scopes() const
 {
     std::vector<std::string> result;
-    result.reserve(subs_.size());
+    result.reserve(scopes_.size());
 
-    for(auto& sub : subs_)
-        result.push_back(sub.first);
+    for(auto& scope : scopes_)
+        result.push_back(scope.first);
 
     return result;
 }
 
 bool
-Namespace::
-hasSub(const std::string& name) const
+Scope::
+hasScope(const std::string& name) const
 {
     auto split = head(name);
 
-    auto it = subs_.find(split.first);
-    if (it == subs_.end()) return false;
+    auto it = scopes_.find(split.first);
+    if (it == scopes_.end()) return false;
 
-    return !split.second.empty() ? it->second->hasSub(split.second) : true;
+    return !split.second.empty() ? it->second->hasScope(split.second) : true;
 }
 
-Namespace*
-Namespace::
-sub(const std::string& name) const
+Scope*
+Scope::
+scope(const std::string& name) const
 {
     auto split = head(name);
 
-    auto it = subs_.find(split.first);
-    if (it == subs_.end())
-        reflectError("<%s> doesn't have sub <%s>", name_, name);
+    auto it = scopes_.find(split.first);
+    if (it == scopes_.end())
+        reflectError("<%s> doesn't have scope <%s>", name_, name);
 
-    return !split.second.empty() ? it->second->sub(split.second) : it->second;
+    return !split.second.empty() ? it->second->scope(split.second) : it->second;
 }
 
-Namespace*
-Namespace::
-sub(const std::string& name)
+Scope*
+Scope::
+scope(const std::string& name)
 {
     auto split = head(name);
 
-    auto it = subs_.find(split.first);
-    if (it == subs_.end()) {
-        std::unique_ptr<Namespace> sub(new Namespace(split.first, this));
-        it = subs_.emplace(split.first, sub.release()).first;
+    auto it = scopes_.find(split.first);
+    if (it == scopes_.end()) {
+        std::unique_ptr<Scope> scope(new Scope(split.first, this));
+        it = scopes_.emplace(split.first, scope.release()).first;
     }
 
-    return !split.second.empty() ? it->second->sub(split.second) : it->second;
+    return !split.second.empty() ? it->second->scope(split.second) : it->second;
 }
 
 
@@ -171,8 +171,8 @@ sub(const std::string& name)
 /******************************************************************************/
 
 std::vector<std::string>
-Namespace::
-types(bool includeSubs) const
+Scope::
+types(bool includeScopes) const
 {
     std::vector<std::string> result;
     result.reserve(types_.size());
@@ -180,21 +180,21 @@ types(bool includeSubs) const
     for(auto& type : types_)
         result.push_back(type.first);
 
-    if (!includeSubs) return result;
+    if (!includeScopes) return result;
 
-    for (auto& sub : subs_) {
-        auto subTypes = sub.second->types(true);
-        result.reserve(result.size() + subTypes.size());
+    for (auto& scope : scopes_) {
+        auto scopeTypes = scope.second->types(true);
+        result.reserve(result.size() + scopeTypes.size());
 
-        for (auto& type : subTypes)
-            result.emplace_back(join(sub.first, type));
+        for (auto& type : scopeTypes)
+            result.emplace_back(join(scope.first, type));
     }
 
     return result;
 }
 
 bool
-Namespace::
+Scope::
 hasType(const std::string& name)
 {
     auto split = head(name);
@@ -203,10 +203,10 @@ hasType(const std::string& name)
     if (it == types_.end()) {
         if (split.second.empty()) return false;
 
-        auto subIt = subs_.find(split.first);
-        if (subIt == subs_.end()) return false;
+        auto scopeIt = scopes_.find(split.first);
+        if (scopeIt == scopes_.end()) return false;
 
-        return subIt->second->hasType(split.second);
+        return scopeIt->second->hasType(split.second);
     }
 
     if (!split.second.empty())
@@ -216,7 +216,7 @@ hasType(const std::string& name)
 }
 
 const Type*
-Namespace::
+Scope::
 type(const std::string& name)
 {
     auto split = head(name);
@@ -224,11 +224,11 @@ type(const std::string& name)
     auto it = types_.find(split.first);
     if (it == types_.end()) {
 
-        auto subIt = subs_.find(split.first);
-        if (split.second.empty() || subIt == subs_.end())
+        auto scopeIt = scopes_.find(split.first);
+        if (split.second.empty() || scopeIt == scopes_.end())
             reflectError("unknown type <%s::%s>", id(), split.first);
 
-        return subIt->second->type(split.second);
+        return scopeIt->second->type(split.second);
     }
 
     // lazy load the type.
@@ -243,7 +243,7 @@ type(const std::string& name)
 
 
 void
-Namespace::
+Scope::
 addType(const std::string& name)
 {
     auto split = head(name);
@@ -262,7 +262,7 @@ addType(const std::string& name)
     if (fnIt != functions_.end())
         reflectError("<%s> conflicts with function in <%s>", name, id());
 
-    sub(split.first)->addType(split.second);
+    scope(split.first)->addType(split.second);
 }
 
 
@@ -271,8 +271,8 @@ addType(const std::string& name)
 /******************************************************************************/
 
 std::vector<std::string>
-Namespace::
-functions(bool includeSubs) const
+Scope::
+functions(bool includeScopes) const
 {
     std::vector<std::string> result;
     result.reserve(types_.size());
@@ -280,40 +280,40 @@ functions(bool includeSubs) const
     for(auto& function : functions_)
         result.push_back(function.first);
 
-    if (!includeSubs) return result;
+    if (!includeScopes) return result;
 
-    for (auto& sub : subs_) {
-        auto subFunctions = sub.second->functions(true);
-        result.reserve(result.size() + subFunctions.size());
+    for (auto& scope : scopes_) {
+        auto scopeFunctions = scope.second->functions(true);
+        result.reserve(result.size() + scopeFunctions.size());
 
-        for (auto& function : subFunctions)
-            result.emplace_back(join(sub.first, function));
+        for (auto& fn : scopeFunctions)
+            result.emplace_back(join(scope.first, fn));
     }
 
     return result;
 }
 
 bool
-Namespace::
+Scope::
 hasFunction(const std::string& name) const
 {
     auto split = tail(name);
 
     if (!split.second.empty())
-        return sub(split.second)->hasFunction(split.first);
+        return scope(split.second)->hasFunction(split.first);
 
     auto it = functions_.find(split.first);
     return it != functions_.end();
 }
 
 const Overloads&
-Namespace::
+Scope::
 function(const std::string& name) const
 {
     auto split = tail(name);
 
     if (!split.second.empty())
-        return sub(split.second)->function(split.first);
+        return scope(split.second)->function(split.first);
 
     auto it = functions_.find(split.first);
     if (it == functions_.end())
@@ -323,13 +323,13 @@ function(const std::string& name) const
 }
 
 void
-Namespace::
+Scope::
 addFunction(const std::string& name, Function fn)
 {
     auto split = tail(name);
 
     if (!split.second.empty())
-        return sub(split.second)->addFunction(split.first, std::move(fn));
+        return scope(split.second)->addFunction(split.first, std::move(fn));
 
     functions_[split.first].add(std::move(fn));
 }

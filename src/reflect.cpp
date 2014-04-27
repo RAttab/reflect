@@ -17,4 +17,4 @@
 #include "function.cpp"
 #include "overloads.cpp"
 #include "type.cpp"
-#include "namespace.cpp"
+#include "scope.cpp"

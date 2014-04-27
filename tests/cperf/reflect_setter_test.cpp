@@ -61,6 +61,6 @@ reflectThing(9)
 
 int main(int, char**)
 {
-    std::cerr << reflect::namespace_()->print() << std::endl;
+    std::cerr << reflect::scope()->print() << std::endl;
     std::cerr << reflect::type<Thing0>()->print() << std::endl;
 }

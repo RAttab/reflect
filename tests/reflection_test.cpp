@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE(basics)
     BOOST_CHECK(typeBar);
     BOOST_CHECK(typeFoo);
 
-    std::cerr << namespace_()->print() << std::endl;
+    std::cerr << scope()->print() << std::endl;
     std::cerr << typeBar->print() << std::endl;
     std::cerr << typeFoo->print() << std::endl;
 

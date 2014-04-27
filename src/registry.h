@@ -18,7 +18,7 @@ struct Type;
 /******************************************************************************/
 
 template<typename T, typename Enable = void> struct Reflect;
-template<typename T, typename Enable = void> struct ReflectNamespace;
+template<typename T, typename Enable = void> struct ReflectScope;
 template<typename T, typename Enable = void> struct Loader;
 
 
@@ -58,7 +58,7 @@ struct Registry
     }
     static void alias(const std::string& id, const std::string& alias);
 
-    static Namespace* globalNamespace();
+    static Scope* globalScope();
 
 private:
     static void add(const std::string& id, const Type* type);
@@ -94,9 +94,9 @@ inline const Type* type(const std::string& id)
 
 
 /******************************************************************************/
-/* NAMESPACE                                                                  */
+/* SCOPE                                                                      */
 /******************************************************************************/
 
-Namespace* namespace_(const std::string& name = "");
+Scope* scope(const std::string& name = "");
 
 } // reflect

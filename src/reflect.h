@@ -35,7 +35,7 @@
 
 namespace reflect {
 
-struct Namespace;
+struct Scope;
 struct Type;
 struct Overloads;
 struct Function;
@@ -51,14 +51,14 @@ struct Value;
 #include "function.h"
 #include "overloads.h"
 #include "type.h"
-#include "namespace.h"
+#include "scope.h"
 
 #include "argument.tcc"
 #include "value.tcc"
 #include "function.tcc"
 #include "overloads.tcc"
 #include "type.tcc"
-#include "namespace.tcc"
+#include "scope.tcc"
 
 #include "reflect/class.h"
 
