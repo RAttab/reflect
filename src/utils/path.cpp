@@ -18,12 +18,12 @@ namespace reflect {
 /******************************************************************************/
 
 Path::
-Path(const std::string& path)
+Path(const std::string& path, char sep)
 {
     size_t i = 0;
     while (i < path.size()) {
 
-        size_t j = path.find('.', i);
+        size_t j = path.find(sep, i);
 
         if (j == std::string::npos) j = path.size();
         if (i == j) reflectError("empty path component <%s>", path);

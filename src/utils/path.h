@@ -20,7 +20,7 @@ namespace reflect {
 struct Path
 {
     Path() {}
-    Path(const std::string& path);
+    Path(const std::string& path, char sep = '.');
 
     explicit operator bool() const { return items.empty(); }
 
