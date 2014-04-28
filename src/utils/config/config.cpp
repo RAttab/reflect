@@ -19,6 +19,29 @@ Config::
 Config(std::string trait) : trait(std::move(trait))
 {}
 
+bool
+Config::
+count(const Path& path) const
+{
+    auto it = keys.find(path.front());
+    if (it == keys.end()) return false;
+
+    if (path.size() == 1) return true;
+    return has(it->second, path.popFront());
+}
+
+Value
+Config::
+operator[] (const Path& path) const
+{
+    auto it = keys.find(path.front());
+    if (it == keys.end())
+        reflectError("path <%s> doesn't exist", path.toString());
+
+    if (path.size() == 1) return true;
+    return has(it->second, path.popFront());
+}
+
 void
 Config::
 propagate(const Path& path, Value value)
@@ -97,16 +120,16 @@ load(const std::string& config)
 
 void
 Config::
-save(std::ostream& config)
+save(std::ostream& config, const std::string& trait)
 {
 }
 
 std::string
 Config::
-save()
+save(const std::string& trait)
 {
     std::stringstream ss(config);
-    save(ss);
+    save(ss, trait);
 }
 
 

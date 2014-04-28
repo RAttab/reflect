@@ -20,10 +20,14 @@ namespace config {
 
 struct Config
 {
-    explicit Config(std::string trait = "config");
+    bool count(const Path& path) const;
+    Value operator[] (const Path& path) const;
 
-    bool count(const std::string& key) const { return keys.count(key); }
-    Value operator[] (const std::string& key) const { return keys[key]; }
+    template<typename T>
+    const T& get(const Path& path)
+    {
+        return operator[path].get<T>();
+    }
 
     void set(const Path& path, Value value);
     void link(const Path& link, const Path& target);
@@ -31,14 +35,13 @@ struct Config
     void load(std::istream& config);
     void load(const std::string& config);
 
-    std::string save();
-    void save(std::ostream& config);
+    std::string save(const std::string& trait = "config");
+    void save(std::ostream& config, const std::string& trait = "config");
 
 private:
     void propagate(const Path& path);
     void relink(const Path& link, const Path& target);
 
-    std::string trait;
     std::unordered_map<std::string, Value> keys;
     Node links;
 };
