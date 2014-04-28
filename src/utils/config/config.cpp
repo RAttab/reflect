@@ -23,8 +23,8 @@ bool
 Config::
 count(const Path& path) const
 {
-    auto it = keys.find(path.front());
-    if (it == keys.end()) return false;
+    auto it = keys_.find(path.front());
+    if (it == keys_.end()) return false;
 
     if (path.size() == 1) return true;
     return has(it->second, path.popFront());
@@ -34,12 +34,21 @@ Value
 Config::
 operator[] (const Path& path) const
 {
-    auto it = keys.find(path.front());
-    if (it == keys.end())
+    auto it = keys_.find(path.front());
+    if (it == keys_.end())
         reflectError("path <%s> doesn't exist", path.toString());
 
     if (path.size() == 1) return true;
     return has(it->second, path.popFront());
+}
+
+std::vector<std::string>
+Config::
+keys() const
+{
+    std::vector<std::string> result;
+    for (auto& key : keys_) result.push_back(key);
+    return result;
 }
 
 void
@@ -58,9 +67,9 @@ void
 Config::
 set(const Path& path, Value value)
 {
-    auto it = keys.find(path.front());
+    auto it = keys_.find(path.front());
 
-    if (it != keys.end())
+    if (it != keys_.end())
         set(it->second, path.popFront(), value);
 
     else {
@@ -90,8 +99,8 @@ void
 Config::
 link(const Path& link, const Path& target)
 {
-    auto it = keys.find(target.front());
-    if (it == keys.end()) {
+    auto it = keys_.find(target.front());
+    if (it == keys_.end()) {
         links.add(link, target);
         relink(link, target);
         return;
@@ -101,35 +110,6 @@ link(const Path& link, const Path& target)
     if (target.size() > 1)
         value = get(value, target.popFront());
     set(link, value);
-}
-
-void
-Config::
-load(std::istream& config)
-{
-
-}
-
-void
-Config::
-load(const std::string& config)
-{
-    std::stringstream ss(config);
-    load(ss);
-}
-
-void
-Config::
-save(std::ostream& config, const std::string& trait)
-{
-}
-
-std::string
-Config::
-save(const std::string& trait)
-{
-    std::stringstream ss(config);
-    save(ss, trait);
 }
 
 
