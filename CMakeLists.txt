@@ -103,14 +103,12 @@ add_library(reflect_primitives SHARED
 add_library(reflect_std SHARED
     src/types/std/string.cpp)
 
-add_library(reflect_json SHARED
-    src/utils/json/token.cpp
-    src/utils/json/parser.cpp
-    src/utils/json/printer.cpp)
+add_library(reflect_json SHARED src/utils/json/json.cpp)
 
-add_library(reflect_utils SHARED src/utils/path.cpp)
-force_target_link_libraries(reflect_utils reflect_primitives)
-force_target_link_libraries(reflect_utils reflect_std)
+add_library(reflect_config SHARED src/utils/config/path.cpp)
+target_link_libraries(reflect_config reflect_json)
+force_target_link_libraries(reflect_config reflect_primitives)
+force_target_link_libraries(reflect_config reflect_std)
 
 
 #------------------------------------------------------------------------------#

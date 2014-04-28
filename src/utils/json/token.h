@@ -18,7 +18,8 @@ namespace json {
 
 struct Token
 {
-    enum Type {
+    enum Type
+    {
         ObjectStart, ObjectEnd, // {}
         ArrayStart, ArrayEnd,   // []
         Separator,              // ,
