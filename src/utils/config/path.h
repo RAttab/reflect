@@ -12,6 +12,7 @@
 #include <vector>
 
 namespace reflect {
+namespace config {
 
 /******************************************************************************/
 /* PATH                                                                       */
@@ -76,4 +77,6 @@ Ret call(Value value, const Path& path, Args&&... args)
     return v.call<Ret>(path.back(), std::forward<Args>(args)...);
 }
 
-} // reflect
+
+} // namespace config
+} // namespace reflect

@@ -12,6 +12,7 @@
 #include <algorithm>
 
 namespace reflect {
+namespace config {
 
 /******************************************************************************/
 /* PATH                                                                       */
@@ -193,4 +194,7 @@ Value get(Value value, const Path& path)
 {
     return get(value, path, 0);
 }
-} // reflect
+
+
+} // namespace config
+} // namespace reflect

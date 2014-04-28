@@ -45,4 +45,4 @@ private:
 
 
 } // namespace config
-} // reflect
+} // namespace reflect

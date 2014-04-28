@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "utils/path.h"
+#include "path.h"
 
 namespace reflect {
 namespace config {
@@ -37,4 +37,4 @@ private:
 };
 
 } // namespace config
-} // reflect
+} // namespace reflect

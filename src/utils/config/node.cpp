@@ -89,4 +89,4 @@ erase(const Path& link, const Path& path, size_t index)
 }
 
 } // namespace config
-} // reflect
+} // namespace reflect

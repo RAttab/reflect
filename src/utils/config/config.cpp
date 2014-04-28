@@ -9,7 +9,7 @@
 #include "json/token.h"
 
 namespace reflect {
-
+namespace config {
 
 /******************************************************************************/
 /* CONFIG                                                                     */
@@ -109,4 +109,6 @@ save()
     save(ss);
 }
 
-} // reflect
+
+} // namespace config
+} // namespace reflect
