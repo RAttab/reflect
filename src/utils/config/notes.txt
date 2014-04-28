@@ -1,0 +1,12 @@
+
+struct Bar {};
+struct Foo : public Bar { int value };
+struct Blah { Bar* obj };
+
+{
+    "a!Foo": { "value": 10 },   // Foo* a = new Foo(); a.value(10);
+    "b!Blah": { "#foo": "a" },  // Blah* b = new Blah(); b.foo(a);
+    "#c!Bar": "a",              // Bar* c = a;
+    "#d": "a.value",            // auto c = a.value();
+    "e": 10
+}
