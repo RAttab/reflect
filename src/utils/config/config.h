@@ -7,10 +7,12 @@
 
 #pragma once
 
-#include "reflect.h"
+#include "node.h"
 #include "path.h"
+#include "reflect.h"
 
 namespace reflect {
+namespace config {
 
 /******************************************************************************/
 /* CONFIG                                                                     */
@@ -23,8 +25,8 @@ struct Config
     bool count(const std::string& key) const { return keys.count(key); }
     Value operator[] (const std::string& key) const { return keys[key]; }
 
-    void add(const std::string& key, Value value);
-    void addLink(const Path& link, const Path& target);
+    void set(const Path& path, Value value);
+    void link(const Path& link, const Path& target);
 
     void load(std::istream& config);
     void load(const std::string& config);
@@ -33,26 +35,14 @@ struct Config
     void save(std::ostream& config);
 
 private:
+    void propagate(const Path& path);
+    void relink(const Path& link, const Path& target);
+
     std::string trait;
     std::unordered_map<std::string, Value> keys;
-
-    struct LinkNode
-    {
-        ~LinkNode();
-
-        LinkNode* get(const Path& path, size_t index = 0);
-        std::vector<Path> subtree() const;
-
-        void add(const Path& path, const std::string& link);
-        void erase(const Path& path, size_t index = 0);
-
-    private:
-        void subtree(std::vector<Path>& result, Path prefix) const;
-
-        std::list<std::string> links;
-        std::unordered_map<std::string, LinkNode*> children;
-
-    } root;
+    Node links;
 };
 
+
+} // namespace config
 } // reflect
