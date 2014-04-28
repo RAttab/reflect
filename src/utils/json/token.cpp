@@ -150,7 +150,7 @@ std::string readUnicode(std::istream& json)
         else reflectError("non-hex digit in unicode code point <%c>", c);
     }
 
-    auto extract = [&] (unsigned pos, uint32_t mask, uint32_t head) -> char {
+    auto encode = [&] (unsigned pos, uint32_t mask, uint32_t head) -> char {
         return ((code >> (6 * pos)) & mask) | head;
     };
 
@@ -160,41 +160,41 @@ std::string readUnicode(std::istream& json)
 
     if (code <= 0x7FF) {
         code -= 0x80;
-        return {extract(1, 0x1F, 0xC0),
-                extract(0, 0x3F, 0x80)};
+        return {encode(1, 0x1F, 0xC0),
+                encode(0, 0x3F, 0x80)};
     }
 
     if (code <= 0xFFFF) {
         code -= 0x800;
-        return {extract(2, 0x0F, 0xE0),
-                extract(1, 0x3F, 0x80),
-                extract(0, 0x3F, 0x80)};
+        return {encode(2, 0x0F, 0xE0),
+                encode(1, 0x3F, 0x80),
+                encode(0, 0x3F, 0x80)};
     }
 
     if (code <= 0x1FFFFF) {
         code -= 0x10000;
-        return {extract(3, 0x07, 0xF0),
-                extract(2, 0x3F, 0x80),
-                extract(1, 0x3F, 0x80),
-                extract(0, 0x3F, 0x80)};
+        return {encode(3, 0x07, 0xF0),
+                encode(2, 0x3F, 0x80),
+                encode(1, 0x3F, 0x80),
+                encode(0, 0x3F, 0x80)};
     }
 
     if (code <= 0x3FFFFFFF) {
         code -= 0x2000000;
-        return {extract(4, 0x03, 0xF8),
-                extract(3, 0x3F, 0x80),
-                extract(2, 0x3F, 0x80),
-                extract(1, 0x3F, 0x80),
-                extract(0, 0x3F, 0x80)};
+        return {encode(4, 0x03, 0xF8),
+                encode(3, 0x3F, 0x80),
+                encode(2, 0x3F, 0x80),
+                encode(1, 0x3F, 0x80),
+                encode(0, 0x3F, 0x80)};
     }
 
     code -= 0x400000000;
-    return {extract(5, 0x01, 0xFC),
-            extract(4, 0x3F, 0x80),
-            extract(3, 0x3F, 0x80),
-            extract(2, 0x3F, 0x80),
-            extract(1, 0x3F, 0x80),
-            extract(0, 0x3F, 0x80)};
+    return {encode(5, 0x01, 0xFC),
+            encode(4, 0x3F, 0x80),
+            encode(3, 0x3F, 0x80),
+            encode(2, 0x3F, 0x80),
+            encode(1, 0x3F, 0x80),
+            encode(0, 0x3F, 0x80)};
 }
 
 std::string readString(std::istream& json)
