@@ -51,17 +51,23 @@ toString(char sep)
 
 
 Path::
+Path(const std::string& path, char sep)
+{
+    parse(path, sep);
+}
+
+Path::
 Path(const Path& prefix, const std::string& path, char sep) :
     items(prefix.items)
 {
     parse(path, sep);
 }
 
-
 Path::
-Path(const std::string& path, char sep)
+Path(const Path& prefix, size_t index) :
+    items(prefix.items)
 {
-    parse(path, sep);
+    items.emplace_back(std::to_string(index));
 }
 
 bool

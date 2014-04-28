@@ -22,6 +22,7 @@ struct Path
 {
     Path() {}
     Path(const std::string& path, char sep = '.');
+    Path(const Path& prefix, size_t index);
     Path(const Path& prefix, const std::string& path, char sep = '.');
 
     explicit operator bool() const { return items.empty(); }
