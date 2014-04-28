@@ -37,6 +37,8 @@ struct Path
     const std::string& back() const { return items.back(); }
     Path popBack() const;
 
+    bool operator<(const Path& other) const;
+
     std::string toString(char sep = '.');
 
 private:

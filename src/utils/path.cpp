@@ -111,6 +111,20 @@ popBack() const
     return std::move(result);
 }
 
+bool
+Path::
+operator<(const Path& other) const
+{
+    for (size_t i = 0; i < std::min(size(), other.size()); ++i) {
+        int res = items[i].compare(other[i]);
+        if (!res) continue;
+
+        return res < 0;
+    }
+
+    return size() < other.size();
+}
+
 
 /******************************************************************************/
 /* UTILS                                                                      */
