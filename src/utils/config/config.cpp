@@ -73,7 +73,9 @@ set(const Path& path, Value value)
         set(it->second, path.popFront(), value);
 
     else {
-        if (path.size() > 1) reflectError("unknown path <%s>", path.tostring());
+        if (path.size() > 1)
+            reflectError("unknown path <%s>", path.tostring());
+
         it->second = value;
     }
 

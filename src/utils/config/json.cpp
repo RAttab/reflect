@@ -91,8 +91,12 @@ void loadObject(Config& cfg, const Path& path, std::istream& json)
 
         Path sub(path, key);
 
-        if (!type.empty())
+        if (!type.empty()) {
+            if (!path.empty())
+                reflectError("type specifier <%s> only allowed at root", type);
+
             config.set(sub, reflect::type(type)->alloc());
+        }
 
         if (isLink) loadLink(cfg, sub, json);
         else load(cfg, sub, json);

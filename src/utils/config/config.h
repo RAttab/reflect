@@ -23,10 +23,7 @@ struct Config
     bool count(const Path& path) const;
 
     template<typename T>
-    const T& get(const Path& path)
-    {
-        return operator[path].get<T>();
-    }
+    T get(const Path& path) const;
     Value operator[] (const Path& path) const;
 
     std::vector<std::string> keys() const;

@@ -10,3 +10,20 @@ struct Blah { Bar* obj };
     "#d": "a.value",            // auto c = a.value();
     "e": 10
 }
+
+
+Top level
+    - pointer -> must be available for non-copy linking.
+    - !isType && !isLink -> num, bool string
+    - !isType && isLink -> resolve when propagating links
+    - isType -> new type
+
+Other levels
+    - isType -> error
+    - isLink -> resolve when propagating links
+
+Linking
+    - link.isPointer && target.isPointer -> link.assign(target)
+    - !link.isPointer && target.isPointer -> link.assign(*target)
+    - link.isPointer && target.isPointer -> error
+    - !link.isPointer && !target.isPointer -> copy
