@@ -207,6 +207,7 @@ reflect_test(function)
 reflect_test(pointer)
 reflect_test(reflection)
 reflect_test(json)
+reflect_test(demo)
 
 add_executable(blah_test tests/blah_test.cpp)
 
