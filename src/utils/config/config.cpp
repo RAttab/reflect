@@ -22,7 +22,7 @@ count(const Path& path) const
     if (it == keys_.end()) return false;
 
     if (path.size() == 1) return true;
-    return has(it->second, path.popFront());
+    return has(it->second, path, 1);
 }
 
 Value
@@ -34,7 +34,7 @@ operator[] (const Path& path) const
         reflectError("path <%s> doesn't exist", path.toString());
 
     if (path.size() == 1) return it->second;;
-    return config::get(it->second, path.popFront());
+    return config::get(it->second, path, 1);
 }
 
 std::vector<std::string>
@@ -65,7 +65,7 @@ set(const Path& path, Value value)
     auto it = keys_.find(path.front());
 
     if (it != keys_.end())
-        config::set(it->second, path.popFront(), value);
+        config::set(it->second, path, 1, value);
 
     else {
         if (path.size() > 1)
@@ -105,7 +105,7 @@ link(const Path& link, const Path& target)
 
     Value value = it->second;
     if (target.size() > 1)
-        value = config::get(value, target.popFront());
+        value = config::get(value, target, 1);
     set(link, value);
 }
 

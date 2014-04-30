@@ -52,8 +52,8 @@ private:
 /* UTILS                                                                      */
 /******************************************************************************/
 
-bool has(Value value, const Path& path);
-Value get(Value value, const Path& path);
+bool has(Value value, const Path& path, size_t index = 0);
+Value get(Value value, const Path& path, size_t index = 0);
 
 template<typename Ret>
 Ret get(Value value, const Path& path)
@@ -63,10 +63,16 @@ Ret get(Value value, const Path& path)
 }
 
 template<typename Arg>
+void set(Value value, const Path& path, size_t index, Arg&& arg)
+{
+    Value v = get(value, path.popBack(), index);
+    v.set(path.back(), std::forward<Arg>(arg));
+}
+
+template<typename Arg>
 void set(Value value, const Path& path, Arg&& arg)
 {
-    Value v = get(value, path.popBack());
-    v.set(path.back(), std::forward<Arg>(arg));
+    set(value, path, 0, std::forward<Arg>(arg));
 }
 
 template<typename Ret, typename... Args>

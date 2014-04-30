@@ -139,8 +139,6 @@ operator<(const Path& other) const
 // We use recursive pathing to ensure that rvalue returns remain valid during
 // the duration of the access.
 
-namespace {
-
 bool has(Value value, const Path& path, size_t index)
 {
     if (index == path.size()) return true;
@@ -186,19 +184,6 @@ Value get(Value value, const Path& path, size_t index)
         return get(value[path[index]], path, index + 1);
 
     return get(value.get<Value>(path[index]), path, index + 1);
-}
-
-} // namespace anonymous
-
-
-bool has(Value value, const Path& path)
-{
-    return has(value, path, 0);
-}
-
-Value get(Value value, const Path& path)
-{
-    return get(value, path, 0);
 }
 
 
