@@ -5,7 +5,7 @@
    Path implementation.
 */
 
-#include "path.h"
+#include "includes.h"
 #include "types/std/string.h"
 #include "types/std/vector.h"
 
@@ -37,7 +37,7 @@ parse(const std::string& path, char sep)
 
 std::string
 Path::
-toString(char sep)
+toString(char sep) const
 {
     std::string path;
 

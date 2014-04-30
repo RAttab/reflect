@@ -5,11 +5,11 @@
    Reflection-based configuration utility template implemenataion.
 */
 
+#include "includes.h"
 #pragma once
 
-#include "config.h"
-
 namespace reflect {
+namespace config {
 
 /******************************************************************************/
 /* CONFIG                                                                     */
@@ -21,11 +21,11 @@ Config::
 get(const Path& path) const
 {
     const Type* target = type<T>();
-    Value value = operator[path].get<T>();
+    Value value = operator[](path).get<T>();
 
-    if (!target.isPointer()) value = *value;
-    return cast<T>(v);
+    if (!target->isPointer()) value = *value;
+    return cast<T>(value);
 }
 
-
+} // namespace config
 } // namespace reflect

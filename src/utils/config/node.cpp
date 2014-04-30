@@ -5,7 +5,7 @@
    Implementation of the trie node for links
 */
 
-#include "node.h"
+#include "includes.h"
 
 namespace reflect {
 namespace config {
@@ -17,7 +17,7 @@ namespace config {
 Node::
 ~Node()
 {
-    for (auto child : children) delete child;
+    for (auto child : children) delete child.second;
 }
 
 bool
@@ -39,10 +39,10 @@ get(const Path& path, size_t index)
     if (index == path.size()) return this;
 
     auto it = children.find(path[index]);
-    if (it == end())
-        it = children.insert(path[index], new Node).first;
+    if (it == children.end())
+        it = children.emplace(path[index], new Node).first;
 
-    return it->second->get(key, path, index + 1);
+    return it->second->get(path, index + 1);
 }
 
 void
@@ -51,12 +51,12 @@ subtree(std::vector<LinkPair>& result, Path path) const
 {
     for (auto& link : links) result.emplace_back(path, link);
     for (auto child : children)
-        child.second->subtree(result, Path(prefix, child.first));
+        child.second->subtree(result, Path(path, child.first));
 }
 
-std::vector<LinkPair>
+auto
 Node::
-subtree() const
+subtree() const -> std::vector<LinkPair>
 {
     std::vector<LinkPair> result;
     subtree(result, Path());
@@ -67,25 +67,30 @@ void
 Node::
 add(const Path& link, const Path& path)
 {
-    get(path)->links.push_back(link);
+    get(path)->links.insert(link);
 }
 
 void
 Node::
-erase(const Path& link, const Path& path, size_t index)
+erase(const Path& path, size_t index)
 {
     if (index == path.size()) {
-        links.erase(link);
+        for (const auto& child : children) delete child.second;
+        children.clear();
+        links.clear();
         return;
     }
 
     auto it = children.find(path[index]);
     if (it == children.end()) return;
-    Node* node = it->second;
 
+    Node* node = it->second;
     node->erase(path, index + 1);
-    if (node->links.empty() && node->children.empty())
-        children.erase(path[index]);
+
+    if (node->links.empty() && node->children.empty()) {
+        delete it->second;
+        children.erase(it);
+    }
 }
 
 } // namespace config

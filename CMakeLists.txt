@@ -105,7 +105,7 @@ add_library(reflect_std SHARED
 
 add_library(reflect_json SHARED src/utils/json/json.cpp)
 
-add_library(reflect_config SHARED src/utils/config/path.cpp)
+add_library(reflect_config SHARED src/utils/config/compile.cpp)
 target_link_libraries(reflect_config reflect_json)
 force_target_link_libraries(reflect_config reflect_primitives)
 force_target_link_libraries(reflect_config reflect_std)

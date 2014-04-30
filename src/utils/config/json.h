@@ -5,9 +5,8 @@
    Json config serialization.
 */
 
+#include "includes.h"
 #pragma once
-
-#include "config.h"
 
 namespace reflect {
 namespace config {

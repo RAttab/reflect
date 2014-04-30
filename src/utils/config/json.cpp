@@ -5,8 +5,10 @@
    json config serialization implementation.
 */
 
-#include "json.h"
+#include "includes.h"
 #include "utils/json/token.h"
+
+#include <sstream>
 
 namespace reflect {
 namespace config {
@@ -49,20 +51,20 @@ void loadNull(Config&, const Path&) {}
 
 void loadBool(Config& cfg, const Path& path, json::Token token)
 {
-    cfg.set(path, token.boolValue());
+    cfg.set(path, Value(token.boolValue()));
 }
 
 void loadNumber(Config& cfg, const Path& path, json::Token token)
 {
-    cfg.set(path, token.floatValue());
+    cfg.set(path, Value(token.floatValue()));
 }
 
 void loadString(Config& cfg, const Path& path, json::Token token)
 {
-    cfg.set(path, token.stringValue());
+    cfg.set(path, Value(token.stringValue()));
 }
 
-void loadArray(Config& cfg, const Path& path, std::istream& json)
+void loadArray(Config&, const Path&, std::istream&)
 {
     reflectError("config doesn't currently support arrays");
 }
@@ -77,13 +79,13 @@ void loadLink(Config& cfg, const Path& path, std::istream& json)
 
 void loadObject(Config& cfg, const Path& path, std::istream& json)
 {
-    Token token = json::nextToken(json);
+    json::Token token = json::nextToken(json);
     if (token.type() == json::Token::ObjectEnd) return;
 
     while (json) {
 
-        expectToken(token, Token::String);
-        expectToken(json::nextToken(json), Token::KeySeparator);
+        expectToken(token, json::Token::String);
+        expectToken(json::nextToken(json), json::Token::KeySeparator);
 
         bool isLink;
         std::string key, type;
@@ -95,7 +97,7 @@ void loadObject(Config& cfg, const Path& path, std::istream& json)
             if (!path.empty())
                 reflectError("type specifier <%s> only allowed at root", type);
 
-            config.set(sub, reflect::type(type)->alloc());
+            cfg.set(sub, reflect::type(type)->alloc());
         }
 
         if (isLink) loadLink(cfg, sub, json);
@@ -103,12 +105,12 @@ void loadObject(Config& cfg, const Path& path, std::istream& json)
 
 
         token = json::nextToken(json);
-        if (token.type() == json::Token.Separator) {
-            token = nextToken(json);
+        if (token.type() == json::Token::Separator) {
+            token = json::nextToken(json);
             continue;
         }
 
-        expectToken(token, Token::ObjectEnd);
+        json::expectToken(token, json::Token::ObjectEnd);
         return;
     }
 
@@ -122,12 +124,12 @@ void load(Config& cfg, const Path& path, std::istream& json)
 
     switch(token.type())
     {
-    case Token::Null: loadNull(cfg, path); break;
-    case Token::Bool: loadBool(cfg, path, token); break;
-    case Token::Number: loadNumber(cfg, path, token); break;
-    case Token::String: loadString(cfg, path, token); break;
-    case Token::ArrayStart: loadArray(cfg, path, json); break;
-    case Token::ObjectStart: loadObject(cfg, path, json); break;
+    case json::Token::Null: loadNull(cfg, path); break;
+    case json::Token::Bool: loadBool(cfg, path, token); break;
+    case json::Token::Number: loadNumber(cfg, path, token); break;
+    case json::Token::String: loadString(cfg, path, token); break;
+    case json::Token::ArrayStart: loadArray(cfg, path, json); break;
+    case json::Token::ObjectStart: loadObject(cfg, path, json); break;
 
     default: reflectError("unexpected token<%s>", print(token.type()));
     }
@@ -136,15 +138,15 @@ void load(Config& cfg, const Path& path, std::istream& json)
 } // namespace anonymous
 
 
-void loadJson(Config& config, std::istream& json)
+void loadJson(Config& cfg, std::istream& json)
 {
     load(cfg, Path(), json);
 }
 
-void loadJson(Config& config, const std::string& json)
+void loadJson(Config& cfg, const std::string& json)
 {
     std::stringstream ss(json);
-    loadJson(config, ss);
+    loadJson(cfg, ss);
 }
 
 
@@ -152,15 +154,15 @@ void loadJson(Config& config, const std::string& json)
 /* SAVE                                                                       */
 /******************************************************************************/
 
-void saveJson(const Config& config, std::ostream& json, const std::string& trait)
+void saveJson(const Config&, std::ostream&, const std::string&)
 {
-
+    reflectError("saveJson is not implemented yet");
 }
 
-std::string saveJson(const Config& config, const std::string& trait)
+std::string saveJson(const Config& cfg, const std::string& trait)
 {
     std::stringstream ss;
-    saveJson(config, ss, trait);
+    saveJson(cfg, ss, trait);
     return ss.str();
 }
 

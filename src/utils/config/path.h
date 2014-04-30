@@ -5,11 +5,8 @@
    Reflect path.
 */
 
+#include "includes.h"
 #pragma once
-
-#include "reflect.h"
-
-#include <vector>
 
 namespace reflect {
 namespace config {
@@ -27,6 +24,7 @@ struct Path
 
     explicit operator bool() const { return items.empty(); }
 
+    bool empty() const { return items.empty(); }
     size_t size() const { return items.size(); }
     const std::string& operator[] (size_t index) const { return items[index]; }
 
@@ -41,7 +39,7 @@ struct Path
 
     bool operator<(const Path& other) const;
 
-    std::string toString(char sep = '.');
+    std::string toString(char sep = '.') const;
 
 private:
     void parse(const std::string& path, char sep);

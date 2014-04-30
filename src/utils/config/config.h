@@ -5,11 +5,8 @@
    Reflection-based configuration utility.
 */
 
+#include "includes.h"
 #pragma once
-
-#include "node.h"
-#include "path.h"
-#include "reflect.h"
 
 namespace reflect {
 namespace config {
@@ -32,7 +29,7 @@ struct Config
     void link(const Path& link, const Path& target);
 
 private:
-    void propagate(const Path& path);
+    void propagate(const Path& path, Value value);
     void relink(const Path& link, const Path& target);
 
     Node links;

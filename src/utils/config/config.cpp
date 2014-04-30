@@ -5,8 +5,7 @@
    Reflection-based configuration implementation.
 */
 
-#include "config.h"
-#include "json/token.h"
+#include "includes.h"
 
 namespace reflect {
 namespace config {
@@ -14,10 +13,6 @@ namespace config {
 /******************************************************************************/
 /* CONFIG                                                                     */
 /******************************************************************************/
-
-Config::
-Config(std::string trait) : trait(std::move(trait))
-{}
 
 bool
 Config::
@@ -38,8 +33,8 @@ operator[] (const Path& path) const
     if (it == keys_.end())
         reflectError("path <%s> doesn't exist", path.toString());
 
-    if (path.size() == 1) return true;
-    return has(it->second, path.popFront());
+    if (path.size() == 1) return it->second;;
+    return config::get(it->second, path.popFront());
 }
 
 std::vector<std::string>
@@ -47,7 +42,7 @@ Config::
 keys() const
 {
     std::vector<std::string> result;
-    for (auto& key : keys_) result.push_back(key);
+    for (auto& key : keys_) result.push_back(key.first);
     return result;
 }
 
@@ -70,11 +65,11 @@ set(const Path& path, Value value)
     auto it = keys_.find(path.front());
 
     if (it != keys_.end())
-        set(it->second, path.popFront(), value);
+        config::set(it->second, path.popFront(), value);
 
     else {
         if (path.size() > 1)
-            reflectError("unknown path <%s>", path.tostring());
+            reflectError("unknown path <%s>", path.toString());
 
         it->second = value;
     }
@@ -110,7 +105,7 @@ link(const Path& link, const Path& target)
 
     Value value = it->second;
     if (target.size() > 1)
-        value = get(value, target.popFront());
+        value = config::get(value, target.popFront());
     set(link, value);
 }
 
