@@ -18,6 +18,7 @@ namespace config {
 struct Path
 {
     Path() {}
+    Path(const char* path, char sep = '.');
     Path(const std::string& path, char sep = '.');
     Path(const Path& prefix, size_t index);
     Path(const Path& prefix, const std::string& path, char sep = '.');

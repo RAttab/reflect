@@ -188,7 +188,6 @@ function(reflect_test name)
     if(CMAKE_SOURCE_DIR STREQUAL ${PROJECT_SOURCE_DIR})
         add_executable(${name}_test tests/${name}_test.cpp)
         target_link_libraries(${name}_test reflect)
-        target_link_libraries(${name}_test reflect_json)
         force_target_link_libraries(${name}_test reflect_primitives)
         force_target_link_libraries(${name}_test reflect_test)
         force_target_link_libraries(${name}_test reflect_std)
@@ -206,8 +205,13 @@ reflect_test(value_function)
 reflect_test(function)
 reflect_test(pointer)
 reflect_test(reflection)
-reflect_test(json)
 reflect_test(demo)
+
+reflect_test(json)
+target_link_libraries(json_test reflect_json)
+
+reflect_test(path)
+target_link_libraries(path_test reflect_config)
 
 add_executable(blah_test tests/blah_test.cpp)
 

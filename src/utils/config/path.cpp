@@ -30,7 +30,7 @@ parse(const std::string& path, char sep)
         if (j == std::string::npos) j = path.size();
         if (i == j) reflectError("empty path component <%s>", path);
 
-        items.emplace_back(path.substr(i, j));
+        items.emplace_back(path.substr(i, j - i));
         i = j + 1;
     }
 }
@@ -52,6 +52,12 @@ toString(char sep) const
 
 Path::
 Path(const std::string& path, char sep)
+{
+    parse(path, sep);
+}
+
+Path::
+Path(const char* path, char sep)
 {
     parse(path, sep);
 }
@@ -149,19 +155,25 @@ bool has(Value value, const Path& path, size_t index)
     }
 
     if (value.is("list")) {
+        size_t i = path.index(index);
+
         if (!path.isIndex(index)) return false;
-        return has(value[path.index(index)], path, index + 1);
+        if (i >= value.call<size_t>("size")) return false;
+
+        return has(value[i], path, index + 1);
     }
 
     if (value.is("map")) {
-        if (value.call<const Type*>("keyType") != type<std::string>())
+        if (value.type()->call<const Type*>("keyType") != type<std::string>())
             return false;
 
-        if (!value.call<bool>("count", path.front()))
-            return  false;
+        if (!value.call<size_t>("count", path[index]))
+            return false;
 
         return has(value[path[index]], path, index + 1);
     }
+
+    if (!value.type()->hasField(path[index])) return false;
 
     return has(value.get<Value>(path[index]), path, index + 1);
 }
