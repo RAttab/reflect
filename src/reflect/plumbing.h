@@ -41,9 +41,7 @@ template<typename T,
         std::is_default_constructible<T>::valye>::type>
 void reflectAllocDefaultConstructor(Type* type)
 {
-    type->add(type->id(), [] () -> T* {
-                return new T();
-            });
+    type->add("new", [] () -> T* { return new T(); });
 }
 
 template<typename>
@@ -83,7 +81,7 @@ template<typename T,
     class = typename std::enable_if<std::is_copy_constructible<T>::value>::type>
 void reflectAllocCopyConstructor(Type* type)
 {
-    type->add(type->id(), [] (const T& other) -> T* {
+    type->add("new", [] (const T& other) -> T* {
                 return new T(other);
             });
 }
@@ -125,7 +123,7 @@ template<typename T,
     class = typename std::enable_if<std::is_move_constructible<T>::value>::type>
 void reflectAllocMoveConstructor(Type* type)
 {
-    type->add(type->id(), [] (T&& other) -> T* {
+    type->add("new", [] (T&& other) -> T* {
                 return new T(std::move(other));
             });
 }

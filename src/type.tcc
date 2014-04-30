@@ -22,6 +22,14 @@ construct(Args&&... args) const
     return call<Value>(id(), std::forward<Args>(args)...);
 }
 
+template<typename... Args>
+Value
+Type::
+alloc(Args&&... args) const
+{
+    return call<Value>("new", std::forward<Args>(args)...);
+}
+
 template<typename Ret, typename... Args>
 Ret
 Type::
