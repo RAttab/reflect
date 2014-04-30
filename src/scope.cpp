@@ -126,7 +126,7 @@ print(int indent) const
         ss << pad0 << "\n";
 
     for (auto& type : types_)
-        ss << pad1 << "struct " << type.first << ";\n";
+        ss << pad1 << "type " << type.first << ";\n";
 
     if (!types_.empty() && !scopes_.empty()) ss << pad0 << "\n";
 
