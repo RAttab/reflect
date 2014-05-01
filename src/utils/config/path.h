@@ -63,11 +63,18 @@ Ret get(Value value, const Path& path)
     return v.get<Ret>(path.back());
 }
 
+namespace details{
+
+template<typename Arg>
+void set(Value value, const Path& path, size_t index, Arg&& arg);
+
+} // namespace details
+
 template<typename Arg>
 void set(Value value, const Path& path, size_t index, Arg&& arg)
 {
     Value v = get(value, path.popBack(), index);
-    v.set(path.back(), std::forward<Arg>(arg));
+    details::set(v, path, path.size() - 1, std::forward<Arg>(arg));
 }
 
 template<typename Arg>

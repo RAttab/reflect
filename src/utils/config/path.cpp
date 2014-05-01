@@ -30,7 +30,7 @@ parse(const std::string& path, char sep)
         if (j == std::string::npos) j = path.size();
         if (i == j) reflectError("empty path component <%s>", path);
 
-        items.emplace_back(path.substr(i, j - i));
+        items.push_back(path.substr(i, j - i));
         i = j + 1;
     }
 }
@@ -149,18 +149,14 @@ bool has(Value value, const Path& path, size_t index)
 {
     if (index == path.size()) return true;
 
-    if (value.type()->isPointer()) {
-        if (value.type()->pointee()->isPointer()) return false;
+    if (value.type()->isPointer())
         return has(*value, path, index);
-    }
 
     if (value.is("list")) {
-        size_t i = path.index(index);
-
         if (!path.isIndex(index)) return false;
-        if (i >= value.call<size_t>("size")) return false;
+        if (path.index(index) >= value.call<size_t>("size")) return false;
 
-        return has(value[i], path, index + 1);
+        return has(value[path.index(index)], path, index + 1);
     }
 
     if (value.is("map")) {
@@ -183,16 +179,14 @@ Value get(Value value, const Path& path, size_t index)
 {
     if (index == path.size()) return value;
 
-    if (value.type()->isPointer()) {
-        if (value.type()->pointee()->isPointer()) {
-            reflectError("can't path down a double indirection <%s>",
-                    value.typeId());
-        }
+    if (value.type()->isPointer())
         return get(*value, path, index);
-    }
 
-    if (value.is("list"))
+    if (value.is("list")) {
+        if (!value.isConst())
+            value.call<void>("resize", path.index(index) + 1);
         return get(value[path.index(index)], path, index + 1);
+    }
 
     if (value.is("map"))
         return get(value[path[index]], path, index + 1);

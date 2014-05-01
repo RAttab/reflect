@@ -3,6 +3,8 @@
    FreeBSD-style copyright and disclaimer apply
 
    Tests for pathing utility
+
+   This test is a leaky boat but cleaning up isn't worh the effort.
 */
 
 #define BOOST_TEST_MAIN
@@ -34,7 +36,6 @@ struct A
 
     A() : i(20), p(new int(10)) {}
     A(int i) : i(i), p(new int(i)) {}
-    ~A() { delete p; }
 };
 
 reflectType(A)
@@ -49,8 +50,10 @@ struct B
     A* p;
     std::vector<A> v;
     std::map<std::string, A> m;
-    A* fp() const { return p; }
+
     A& fr() const { return *p; }
+    A* fp() const { return p; }
+    void fp(A* a) { p = a; }
 
     B() : p(new A(400))
     {
@@ -58,7 +61,6 @@ struct B
         v.emplace_back(100);
         v.emplace_back(200);
     }
-    ~B() { delete p; }
 };
 
 reflectType(B)
@@ -151,6 +153,84 @@ BOOST_AUTO_TEST_CASE(get)
     BOOST_CHECK_EQUAL(&config::get(vB, "m").get<Map>(), &b.m);
     BOOST_CHECK_EQUAL(&config::get(vB, "m.x").get<A>(), &b.m["x"]);
     BOOST_CHECK_EQUAL( config::get(vB, "m.x.i").get<int>(), b.m["x"].i);
+}
+
+BOOST_AUTO_TEST_CASE(set)
+{
+    Value vA = type<A>()->construct();
+    const A& a = vA.get<A>();
+
+    config::set(vA, "i", 13);
+    BOOST_CHECK_EQUAL(a.i, 13);
+
+    {
+        int* p = new int;
+        config::set(vA, "p", p);
+        BOOST_CHECK_EQUAL(a.p, p);
+    }
+
+
+    Value vB = type<B>()->construct();
+    B& b = vB.cast<B>();
+
+    {
+        A* p = new A;
+        config::set(vB, "p", p);
+        BOOST_CHECK_EQUAL(b.p, p);
+    }
+
+    config::set(vB, "p.i", 14);
+    BOOST_CHECK_EQUAL(b.p->i, 14);
+
+    {
+        int* p = new int;
+        config::set(vB, "p.p", p);
+        BOOST_CHECK_EQUAL(b.p->p, p);
+    }
+
+    {
+        A* p = new A;
+        config::set(vB, "fp", p);
+        BOOST_CHECK_EQUAL(b.fp(), p);
+    }
+
+    config::set(vB, "fp.i", 15);
+    BOOST_CHECK_EQUAL(b.fp()->i, 15);
+
+    {
+        typedef std::vector<A> Vec;
+
+        config::set(vB, "v.0", A(16));
+        BOOST_CHECK_EQUAL(b.v[0].i, 16);
+
+        config::set(vB, "v.0.i", 17);
+        BOOST_CHECK_EQUAL(b.v[0].i, 17);
+
+        config::set(vB, "v.1", A(18));
+        BOOST_CHECK_EQUAL(b.v[1].i, 18);
+
+        config::set(vB, "v.2", A(19));
+        BOOST_CHECK_EQUAL(b.v.at(2).i, 19);
+
+        config::set(vB, "v.3.i", 23);
+        BOOST_CHECK_EQUAL(b.v.at(3).i, 23);
+    }
+
+    {
+        typedef std::map<std::string, A> Map;
+
+        config::set(vB, "m.x", A(21));
+        BOOST_CHECK_EQUAL(b.m["x"].i, 21);
+
+        config::set(vB, "m.x.i", 22);
+        BOOST_CHECK_EQUAL(b.m["x"].i, 22);
+
+        config::set(vB, "m.y", A(25));
+        BOOST_CHECK_EQUAL(b.m["y"].i, 25);
+
+        config::set(vB, "m.z.i", 26);
+        BOOST_CHECK_EQUAL(b.m["z"].i, 26);
+    }
 }
 
 

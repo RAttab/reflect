@@ -25,4 +25,5 @@ struct Path;
 #include "config.h"
 #include "json.h"
 
+#include "path.tcc"
 #include "config.tcc"
