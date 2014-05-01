@@ -36,6 +36,7 @@ struct Reflect< std::vector<T> >
         reflectCustom(valueType) { return type<T>(); };
 
         reflectFn(size);
+        reflectFnTyped(resize, void (T_::*) (size_t));
         reflectFnTyped(push_back, void (T_::*) (const T&));
         reflectFnTyped(push_back, void (T_::*) (T&&));
 

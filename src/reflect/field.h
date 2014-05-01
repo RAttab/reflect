@@ -73,13 +73,15 @@ template<typename T, typename Obj,
     class = typename std::enable_if<IsMemberPtr<T, Obj>::value>::type>
 void reflectMember(Type* type, std::string name, T Obj::* field)
 {
-    type->add(std::move(name),
-            [=] (const Obj& obj) -> const T& {
+    type->add(std::move(name), [=] (Obj& obj) -> T& {
                 return obj.*field;
             });
 
-    type->add(std::move(name),
-            [=] (Obj& obj, T value) {
+    type->add(std::move(name), [=] (const Obj& obj) -> const T& {
+                return obj.*field;
+            });
+
+    type->add(std::move(name), [=] (Obj& obj, T value) {
                 obj.*field = std::move(value);
             });
 }
