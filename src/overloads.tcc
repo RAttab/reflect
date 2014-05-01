@@ -54,12 +54,18 @@ call(Args&&... args) const
 
     if (!bestFn) {
         reflectError("no overloads available for <%s> for function <%s>",
-                signature<Ret(Args...)>(), name());
+                signature(
+                        Argument::make<Ret>(),
+                        reflectArguments(std::forward<Args>(args)...)),
+                name());
     }
 
     if (ambiguous) {
         reflectError("ambiguous function call <%s> for function <%s>",
-                signature<Ret(Args...)>(), name());
+                signature(
+                        Argument::make<Ret>(),
+                        reflectArguments(std::forward<Args>(args)...)),
+                name());
     }
 
     return bestFn->call<Ret>(std::forward<Args>(args)...);
