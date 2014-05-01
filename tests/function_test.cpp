@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE(copy_test)
     BOOST_CHECK_EQUAL(fn.test<const int&(int)>(), Match::None);
 
     // r-ref
-    BOOST_CHECK_EQUAL(fn.test<int(int&&)>(), Match::Partial);
+    BOOST_CHECK_EQUAL(fn.test<int(int&&)>(), Match::Exact);
 }
 
 BOOST_AUTO_TEST_CASE(copy_call)
@@ -456,16 +456,16 @@ BOOST_AUTO_TEST_CASE(childParent_test)
     auto doRRef = [] (Parent&& p) { return p.value.value() + 1; };
     Function rrefFn("doRRef", doRRef);
 
-    BOOST_CHECK_EQUAL(copyFn.test<void(Child)>(),           Match::Partial);
+    BOOST_CHECK_EQUAL(copyFn.test<void(Child)>(),           Match::Exact);
     BOOST_CHECK_EQUAL(copyFn.test<void(Child&)>(),          Match::Partial);
     BOOST_CHECK_EQUAL(copyFn.test<void(const Child&)>(),    Match::Partial);
-    BOOST_CHECK_EQUAL(copyFn.test<void(Child&&)>(),         Match::Partial);
+    BOOST_CHECK_EQUAL(copyFn.test<void(Child&&)>(),         Match::Exact);
     BOOST_CHECK_EQUAL(copyFn.test<Parent(Parent)>(),        Match::Exact);
     BOOST_CHECK_EQUAL(copyFn.test<Parent&(Parent)>(),       Match::None);
     BOOST_CHECK_EQUAL(copyFn.test<const Parent&(Parent)>(), Match::None);
 
     BOOST_CHECK_EQUAL(lrefFn.test<void(Child)>(),            Match::None);
-    BOOST_CHECK_EQUAL(lrefFn.test<void(Child&)>(),           Match::Partial);
+    BOOST_CHECK_EQUAL(lrefFn.test<void(Child&)>(),           Match::Exact);
     BOOST_CHECK_EQUAL(lrefFn.test<void(const Child&)>(),     Match::None);
     BOOST_CHECK_EQUAL(lrefFn.test<void(Child&&)>(),          Match::None);
     BOOST_CHECK_EQUAL(lrefFn.test<Parent(Parent&)>(),        Match::Exact);
@@ -474,7 +474,7 @@ BOOST_AUTO_TEST_CASE(childParent_test)
 
     BOOST_CHECK_EQUAL(clrefFn.test<void(Child)>(),            Match::Partial);
     BOOST_CHECK_EQUAL(clrefFn.test<void(Child&)>(),           Match::Partial);
-    BOOST_CHECK_EQUAL(clrefFn.test<void(const Child&)>(),     Match::Partial);
+    BOOST_CHECK_EQUAL(clrefFn.test<void(const Child&)>(),     Match::Exact);
     BOOST_CHECK_EQUAL(clrefFn.test<void(Child&&)>(),          Match::Partial);
     BOOST_CHECK_EQUAL(clrefFn.test<Parent(const Parent&)>(),  Match::Exact);
     BOOST_CHECK_EQUAL(clrefFn.test<Parent&(const Parent&)>(), Match::None);
@@ -483,7 +483,7 @@ BOOST_AUTO_TEST_CASE(childParent_test)
     BOOST_CHECK_EQUAL(rrefFn.test<void(Child)>(),        Match::None);
     BOOST_CHECK_EQUAL(rrefFn.test<void(Child&)>(),       Match::None);
     BOOST_CHECK_EQUAL(rrefFn.test<void(const Child&)>(), Match::None);
-    BOOST_CHECK_EQUAL(rrefFn.test<void(Child&&)>(),      Match::Partial);
+    BOOST_CHECK_EQUAL(rrefFn.test<void(Child&&)>(),      Match::Exact);
 }
 
 

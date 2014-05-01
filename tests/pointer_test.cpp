@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE(childParent_test)
     BOOST_CHECK_EQUAL(childFn.test<Parent*(Child*)>(), Match::Exact);
     BOOST_CHECK_EQUAL(childFn.test<SmartChild(Child*)>(), Match::None);
 
-    BOOST_CHECK_EQUAL(parentFn.test<Parent*(Child*)>(), Match::Partial);
+    BOOST_CHECK_EQUAL(parentFn.test<Parent*(Child*)>(), Match::Exact);
     BOOST_CHECK_EQUAL(parentFn.test<Parent*(Parent*)>(), Match::Exact);
     BOOST_CHECK_EQUAL(parentFn.test<Parent*(SmartParent)>(), Match::None);
     BOOST_CHECK_EQUAL(parentFn.test<Child*(Parent*)>(), Match::None);
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE(childParent_test)
     BOOST_CHECK_EQUAL(smartChildFn.test<SmartParent(SmartChild)>(), Match::Exact);
 
     BOOST_CHECK_EQUAL(smartParentFn.test<SmartParent(Parent*)>(), Match::None);
-    BOOST_CHECK_EQUAL(smartParentFn.test<SmartParent(SmartChild)>(), Match::Partial);
+    BOOST_CHECK_EQUAL(smartParentFn.test<SmartParent(SmartChild)>(), Match::Exact);
     BOOST_CHECK_EQUAL(smartParentFn.test<SmartParent(SmartParent)>(), Match::Exact);
     BOOST_CHECK_EQUAL(smartParentFn.test<Parent*(SmartParent)>(), Match::None);
     BOOST_CHECK_EQUAL(smartParentFn.test<SmartChild(SmartParent)>(), Match::None);

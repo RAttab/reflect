@@ -99,6 +99,8 @@ isConvertibleTo(const Argument& target) const
     if ((type() == valueType) ^ (target.type() == valueType))
         return Match::Exact;
 
+    bool isExact = false;
+
     if (type()->hasConverter(target.type())) {
         if (target.refType() == RefType::LValue && !target.isConst())
             return Match::None;
@@ -109,6 +111,7 @@ isConvertibleTo(const Argument& target) const
         if (!testConstConversion(isConst(), target.isConst()))
             return Match::None;
     }
+    else isExact = refType() == RefType::RValue;
 
     if (target.refType() == RefType::LValue) {
         if (target.isConst()) {}
@@ -120,8 +123,13 @@ isConvertibleTo(const Argument& target) const
         if (refType() != RefType::RValue) return Match::None;
     }
 
-    return target.type()->isParentOf(type()) ? Match::Partial : Match::None;
+    if (!target.type()->isParentOf(type())) return Match::None;
 
+    if (isExact) return Match::Exact;
+    if (isConst() == target.isConst() && refType() == target.refType())
+        return Match::Exact;
+
+    return Match::Partial;
 }
 
 
