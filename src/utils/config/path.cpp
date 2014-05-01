@@ -181,6 +181,8 @@ bool has(Value value, const Path& path, size_t index)
 
 Value get(Value value, const Path& path, size_t index)
 {
+    if (index == path.size()) return value;
+
     if (value.type()->isPointer()) {
         if (value.type()->pointee()->isPointer()) {
             reflectError("can't path down a double indirection <%s>",

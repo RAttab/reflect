@@ -33,6 +33,7 @@ struct A
     int* p;
 
     A() : i(20), p(new int(10)) {}
+    A(int i) : i(i), p(new int(i)) {}
     ~A() { delete p; }
 };
 
@@ -51,11 +52,11 @@ struct B
     A* fp() const { return p; }
     A& fr() const { return *p; }
 
-    B() : p(new A) 
-    { 
-        m["x"] = {}; 
-        v.emplace_back();
-        v.emplace_back();
+    B() : p(new A(400))
+    {
+        m["x"] = { 300 };
+        v.emplace_back(100);
+        v.emplace_back(200);
     }
     ~B() { delete p; }
 };
@@ -91,7 +92,7 @@ BOOST_AUTO_TEST_CASE(has)
     BOOST_CHECK(!config::has(a, "j"));
     BOOST_CHECK( config::has(a, "p"));
     BOOST_CHECK(!config::has(a, "p.i"));
-    
+
 
     Value b = type<B>()->construct();
     BOOST_CHECK( config::has(b, "p"));
@@ -119,5 +120,37 @@ BOOST_AUTO_TEST_CASE(has)
     BOOST_CHECK(!config::has(b, "m.x.j"));
     BOOST_CHECK(!config::has(b, "m.y"));
     BOOST_CHECK(!config::has(b, "m.y.i"));
-
 }
+
+BOOST_AUTO_TEST_CASE(get)
+{
+    Value vA = type<A>()->construct();
+    const A& a = vA.get<A>();
+    BOOST_CHECK_EQUAL(config::get(vA, "i").get<int>(), a.i);
+    BOOST_CHECK_EQUAL(config::get(vA, "p").get<int*>(), a.p);
+
+
+    Value vB = type<B>()->construct();
+    B& b = vB.cast<B>();
+    BOOST_CHECK_EQUAL( config::get(vB, "p").get<A*>(), b.p);
+    BOOST_CHECK_EQUAL( config::get(vB, "p.i").get<int>(), b.p->i);
+    BOOST_CHECK_EQUAL( config::get(vB, "p.p").get<int*>(), b.p->p);
+
+    BOOST_CHECK_EQUAL( config::get(vB, "fp").get<A*>(), b.fp());
+    BOOST_CHECK_EQUAL( config::get(vB, "fp.i").get<int>(), b.fp()->i);
+    BOOST_CHECK_EQUAL(&config::get(vB, "fr").get<A>(), &b.fr());
+    BOOST_CHECK_EQUAL( config::get(vB, "fr.i").get<int>(), b.fr().i);
+
+    typedef std::vector<A> Vec;
+    BOOST_CHECK_EQUAL(&config::get(vB, "v").get<Vec>(), &b.v);
+    BOOST_CHECK_EQUAL(&config::get(vB, "v.0").get<A>(), &b.v[0]);
+    BOOST_CHECK_EQUAL( config::get(vB, "v.0.i").get<int>(), b.v[0].i);
+    BOOST_CHECK_EQUAL(&config::get(vB, "v.1").get<A>(), &b.v[1]);
+
+    typedef std::map<std::string, A> Map;
+    BOOST_CHECK_EQUAL(&config::get(vB, "m").get<Map>(), &b.m);
+    BOOST_CHECK_EQUAL(&config::get(vB, "m.x").get<A>(), &b.m["x"]);
+    BOOST_CHECK_EQUAL( config::get(vB, "m.x.i").get<int>(), b.m["x"].i);
+}
+
+
