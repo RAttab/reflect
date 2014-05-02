@@ -71,7 +71,7 @@ set(const Path& path, Value value)
         if (path.size() > 1)
             reflectError("unknown path <%s>", path.toString());
 
-        it->second = value;
+        keys_[path.front()] = value;
     }
 
     propagate(path, value);
