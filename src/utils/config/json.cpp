@@ -13,6 +13,8 @@
 namespace reflect {
 namespace config {
 
+using namespace json;
+
 namespace {
 
 /******************************************************************************/
@@ -44,48 +46,125 @@ parseKey(const std::string& str)
 /******************************************************************************/
 
 void load(Config& cfg, const Path& path, std::istream& json);
+void load(Config& cfg, const Path& path, const Token& token, std::istream& json);
 
+void loadLink(Config& cfg, const Path& path, std::istream& json);
+void loadLink(Config& cfg, const Path& path, const Token& token, std::istream& json);
 
 
 void loadNull(Config&, const Path&) {}
 
-void loadBool(Config& cfg, const Path& path, json::Token token)
+void loadBool(Config& cfg, const Path& path, Token token)
 {
     cfg.set(path, Value(token.boolValue()));
 }
 
-void loadNumber(Config& cfg, const Path& path, json::Token token)
+void loadNumber(Config& cfg, const Path& path, Token token)
 {
     cfg.set(path, Value(token.floatValue()));
 }
 
-void loadString(Config& cfg, const Path& path, json::Token token)
+void loadString(Config& cfg, const Path& path, Token token)
 {
     cfg.set(path, Value(token.stringValue()));
 }
 
-void loadArray(Config&, const Path&, std::istream&)
+
+void initArray(Config& cfg, const Path& path, const Token& token)
 {
-    reflectError("config doesn't currently support arrays");
+    const Type* tVector = nullptr;
+
+    switch(token.type())
+    {
+    case Token::Number: tVector = type< std::vector<double> >(); break;
+    case Token::String: tVector = type< std::vector<std::string> >(); break;
+    default:
+        reflectError("unexpected token <%s> for untyped array <%s>",
+                token.print(), path.toString());
+    }
+
+    cfg.set(path, tVector->construct());
+}
+
+void loadArray(Config& cfg, const Path& path, std::istream& json)
+{
+    Token token = nextToken(json);
+    if (token.type() == Token::ArrayEnd) return;
+
+    if (path.size() == 1) initArray(cfg, path, token);
+
+    for (size_t i = 0; json; ++i) {
+
+        load(cfg, Path(path, i), token, json);
+
+        token = nextToken(json);
+        if (token.type() == Token::Separator) {
+            token = nextToken(json);
+            continue;
+        }
+
+        expectToken(token, Token::ArrayEnd);
+        return;
+    }
+
+    reflectError("unexpected end of array");
+}
+
+
+void loadLinkString(Config& cfg, const Path& path, Token token)
+{
+    cfg.link(path, token.stringValue());
+}
+
+void loadLinkArray(Config& cfg, const Path& path, std::istream& json)
+{
+    Token token = nextToken(json);
+    if (token.type() == Token::ArrayEnd) return;
+
+    for (size_t i = 0; json; ++i) {
+
+        loadLink(cfg, Path(path, i), token, json);
+
+        token = nextToken(json);
+
+        if (token.type() == Token::Separator) {
+            token = nextToken(json);
+            continue;
+        }
+
+        expectToken(token, Token::ArrayEnd);
+        return;
+    }
+
+    reflectError("unexpected end of array");
+}
+
+void loadLink(Config& cfg, const Path& path, const Token& token, std::istream& json)
+{
+    switch (token.type())
+    {
+    case Token::String: loadLinkString(cfg, path, token); break;
+    case Token::ArrayStart: loadLinkArray(cfg, path, json); break;
+    default:
+        reflectError("unexpected link token <%s> in <%s>",
+                token.print(), path.toString());
+    }
 }
 
 void loadLink(Config& cfg, const Path& path, std::istream& json)
 {
-    auto token = json::nextToken(json);
-    json::expectToken(token, json::Token::String);
-
-    cfg.link(path, token.stringValue());
+    loadLink(cfg, path, nextToken(json), json);
 }
 
 void loadObject(Config& cfg, const Path& path, std::istream& json)
 {
-    json::Token token = json::nextToken(json);
-    if (token.type() == json::Token::ObjectEnd) return;
+    Token token = nextToken(json);
+    if (token.type() == Token::ObjectEnd) return;
 
     while (json) {
 
-        expectToken(token, json::Token::String);
-        expectToken(json::nextToken(json), json::Token::KeySeparator);
+        expectToken(token, Token::String);
+        expectToken(nextToken(json), Token::KeySeparator);
 
         bool isLink;
         std::string key, type;
@@ -104,13 +183,13 @@ void loadObject(Config& cfg, const Path& path, std::istream& json)
         else load(cfg, sub, json);
 
 
-        token = json::nextToken(json);
-        if (token.type() == json::Token::Separator) {
-            token = json::nextToken(json);
+        token = nextToken(json);
+        if (token.type() == Token::Separator) {
+            token = nextToken(json);
             continue;
         }
 
-        json::expectToken(token, json::Token::ObjectEnd);
+        expectToken(token, Token::ObjectEnd);
         return;
     }
 
@@ -118,21 +197,25 @@ void loadObject(Config& cfg, const Path& path, std::istream& json)
 }
 
 
-void load(Config& cfg, const Path& path, std::istream& json)
+void load(Config& cfg, const Path& path, const Token& token, std::istream& json)
 {
-    auto token = json::nextToken(json);
-
     switch(token.type())
     {
-    case json::Token::Null: loadNull(cfg, path); break;
-    case json::Token::Bool: loadBool(cfg, path, token); break;
-    case json::Token::Number: loadNumber(cfg, path, token); break;
-    case json::Token::String: loadString(cfg, path, token); break;
-    case json::Token::ArrayStart: loadArray(cfg, path, json); break;
-    case json::Token::ObjectStart: loadObject(cfg, path, json); break;
+    case Token::Null: loadNull(cfg, path); break;
+    case Token::Bool: loadBool(cfg, path, token); break;
+    case Token::Number: loadNumber(cfg, path, token); break;
+    case Token::String: loadString(cfg, path, token); break;
+    case Token::ArrayStart: loadArray(cfg, path, json); break;
+    case Token::ObjectStart: loadObject(cfg, path, json); break;
 
-    default: reflectError("unexpected token<%s>", print(token.type()));
+    default: reflectError("unexpected token <%s>", token.print());
     }
+}
+
+void load(Config& cfg, const Path& path, std::istream& json)
+{
+    load(cfg, path, nextToken(json), json);
+
 }
 
 } // namespace anonymous

@@ -31,10 +31,10 @@ using namespace reflect;
 template<typename T>
 struct Tube
 {
+    void connect(Tube<T>& tube) { connection = &tube; }
+
     void push(T v) { value = std::move(v); }
     T pull() const { return connection->value; }
-
-    void connect(Tube<T>& tube) { connection = &tube; }
 
 private:
     T value;
@@ -54,9 +54,12 @@ struct Reflect< Tube<T> >
     static void reflect(Type* type_)
     {
         reflectPlumbing();
+
         reflectTrait(tube);
-        reflectField(push);
-        reflectField(pull);
+        reflectCustom(valueType) { return type<T>(); };
+
+        reflectFn(push);
+        reflectFn(pull);
         reflectFn(connect);
     }
 };
@@ -65,10 +68,22 @@ struct Reflect< Tube<T> >
 
 
 /******************************************************************************/
-/* CONST CUBE                                                                 */
+/* CUBE                                                                       */
 /******************************************************************************/
 
-struct StringCube
+struct Cube
+{
+    virtual void run() = 0;
+};
+
+reflectType(Cube) { reflectFn(run); }
+
+
+/******************************************************************************/
+/* STRING CUBE                                                                */
+/******************************************************************************/
+
+struct StringCube : public Cube
 {
     void run() { out.push(value); }
 
@@ -78,11 +93,13 @@ struct StringCube
 
 reflectType(StringCube)
 {
+    reflectParent(Cube);
+
     reflectPlumbing();
     reflectAllocPlumbing();
+
     reflectField(value);
     reflectField(out);
-    reflectFn(run);
 }
 
 
@@ -90,7 +107,7 @@ reflectType(StringCube)
 /* CONCAT CUBE                                                                */
 /******************************************************************************/
 
-struct ConcatCube
+struct ConcatCube : public Cube
 {
     void run()
     {
@@ -104,12 +121,14 @@ struct ConcatCube
 
 reflectType(ConcatCube)
 {
+    reflectParent(Cube);
+
     reflectPlumbing();
     reflectAllocPlumbing();
+
     reflectField(inFirst);
     reflectField(inSecond);
     reflectField(out);
-    reflectFn(run);
 }
 
 
@@ -117,7 +136,7 @@ reflectType(ConcatCube)
 /* PRINT CUBE                                                                 */
 /******************************************************************************/
 
-struct PrintCube
+struct PrintCube : public Cube
 {
     void run() { std::cerr << in.pull() << std::endl; }
 
@@ -126,10 +145,37 @@ struct PrintCube
 
 reflectType(PrintCube)
 {
+    reflectParent(Cube);
+
     reflectPlumbing();
     reflectAllocPlumbing();
+
     reflectField(in);
-    reflectFn(run);
+}
+
+
+/******************************************************************************/
+/* RUN CUBE                                                                   */
+/******************************************************************************/
+
+struct RunCube : public Cube
+{
+    void run()
+    {
+        for (auto& cube : cubes) cube->run();
+    }
+
+    std::vector<Cube*> cubes;
+};
+
+reflectType(RunCube)
+{
+    reflectParent(Cube);
+
+    reflectPlumbing();
+    reflectAllocPlumbing();
+
+    reflectField(cubes);
 }
 
 
@@ -142,14 +188,7 @@ BOOST_AUTO_TEST_CASE(CubesAndTubes)
     std::ifstream ifs("tests/data/cubes.json");
 
     config::Config cubes;
-
-    std::cerr << "loading..." << std::endl;
     config::loadJson(cubes, ifs);
 
-    (*cubes["hello"]).call<void>("run");
-    (*cubes["world"]).call<void>("run");
-    (*cubes["concat"]).call<void>("run");
-    (*cubes["print"]).call<void>("run");
-
-    // cuebs["runner"].call<void>("run");
+    (*cubes["runner"]).call<void>("run");
 }

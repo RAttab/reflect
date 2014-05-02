@@ -7,5 +7,9 @@
         "#inSecond.connect": "world.out"
     },
 
-    "print!PrintCube": { "#in.connect": "concat.out" }
+    "print!PrintCube": { "#in.connect": "concat.out" },
+
+    "runner!RunCube": {
+        "#cubes": [ "hello", "world", "concat", "print" ]
+    }
 }
