@@ -37,6 +37,10 @@ void reflectNumberImpl(Type* type_)
 
     reflectTrait(primitive);
 
+    reflectCustom(operator+) (const int& obj, int value) {
+        return obj + value;
+    };
+
     if (std::is_same<T_, bool>::value)
         reflectTrait(bool);
 
