@@ -196,6 +196,12 @@ function(reflect_test name)
     endif()
 endfunction()
 
+function(reflect_utils_test utils name)
+    if(CMAKE_SOURCE_DIR STREQUAL ${PROJECT_SOURCE_DIR})
+        reflect_test(${name})
+        target_link_libraries(${name}_test reflect_${utils})
+    endif()
+endfunction()
 
 reflect_test(ref)
 reflect_test(scope)
@@ -206,15 +212,9 @@ reflect_test(function)
 reflect_test(pointer)
 reflect_test(reflection)
 reflect_test(demo)
-
-reflect_test(json)
-target_link_libraries(json_test reflect_json)
-
-reflect_test(path)
-target_link_libraries(path_test reflect_config)
-
-reflect_test(config)
-target_link_libraries(config_test reflect_config)
+reflect_utils_test(json json)
+reflect_utils_test(config path)
+reflect_utils_test(config cubes)
 
 add_executable(blah_test tests/blah_test.cpp)
 
