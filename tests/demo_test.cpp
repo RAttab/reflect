@@ -66,11 +66,11 @@ private:
 reflectType(test::Zorish)
 {
     reflectPlumbing();
-
     reflectCons(int);
-    reflectOpCast(int);
 
     reflectField(value);
+
+    reflectOpCast(int);
     reflectOpArithmetic();
 }
 
@@ -104,16 +104,16 @@ reflectType(test::Thingy)
     reflectPlumbing();
     reflectParent(test::Zorish);
 
-    reflectTrait(thing);
-
     reflectCons(int);
     reflectField(bob);
     reflectFn(create);
 
-    reflectFnTrait(weee, interesting);
     reflectCustom(weee) (test::Thingy& obj, int i) {
         return obj.bob[i] + i;
     };
+
+    reflectTrait(thing);
+    reflectFnTrait(weee, interesting);
 }
 
 
