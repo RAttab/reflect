@@ -15,6 +15,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+using namespace reflect;
 
 /******************************************************************************/
 /* TEST                                                                       */
@@ -23,14 +24,14 @@
 namespace test {
 
 int counter = 0;
-int incCounter(int i) { return counter += i; }
+int inc(int i) { return counter += i; }
 
 } // namespace test
 
 reflectScope(test)
 {
     reflectGlobalVar(test::counter);
-    reflectGlobalFn(test::incCounter);
+    reflectGlobalFn(test::inc);
 }
 
 
@@ -53,7 +54,7 @@ struct Zorish
         return Zorish(value_ + other.value_);
     }
 
-    operator int() const { return value_; }
+    operator int() const { return value(); }
 
 private:
     int value_;
@@ -103,10 +104,13 @@ reflectType(test::Thingy)
     reflectPlumbing();
     reflectParent(test::Zorish);
 
+    reflectTrait(thing);
+
     reflectCons(int);
     reflectField(bob);
     reflectFn(create);
 
+    reflectFnTrait(weee, interesting);
     reflectCustom(weee) (test::Thingy& obj, int i) {
         return obj.bob[i] + i;
     };
@@ -114,32 +118,59 @@ reflectType(test::Thingy)
 
 
 /******************************************************************************/
-/* DEMO                                                                       */
+/* SCOPE                                                                      */
 /******************************************************************************/
 
-BOOST_AUTO_TEST_CASE(demo)
+BOOST_AUTO_TEST_CASE(scope_)
 {
-    const reflect::Scope* sGlobal = reflect::scope();
-    const reflect::Scope* sTest = reflect::scope("test");
+    const Scope* sGlobal = scope();
+    const Scope* sTest = scope("test");
+    BOOST_CHECK_EQUAL(sGlobal->scope("test"), sTest);
+
     std::cerr << sGlobal->print() << std::endl;
 
-    const reflect::Type* tThingy = reflect::type("test::Thingy");
-    const reflect::Type* tZorish = reflect::type<test::Zorish>();
+    sTest->call<void>("inc", 10);
+    BOOST_CHECK_EQUAL(test::counter, 10);
+}
+
+
+/******************************************************************************/
+/* TYPE                                                                       */
+/******************************************************************************/
+
+BOOST_AUTO_TEST_CASE(type_)
+{
+    const Type* tThingy = type("test::Thingy");
+    BOOST_CHECK_EQUAL(type<test::Thingy>(), tThingy);
+
     std::cerr << tThingy->print() << std::endl;
+    BOOST_CHECK(tThingy->isChildOf<test::Zorish>());
+
+    Value vThingy = tThingy->construct(10);
+    BOOST_CHECK(tThingy->is("thing"));
+
+    BOOST_CHECK(tThingy->hasField("value"));
+    BOOST_CHECK_EQUAL(tThingy->fieldType("value"), type<int>());
+    BOOST_CHECK_EQUAL(vThingy.get<int>("value"), 10);
+
+    BOOST_CHECK(tThingy->functionIs("weee", "interesting"));
+    BOOST_CHECK(tThingy->hasFunction("weee"));
+}
 
 
-    auto thingy = tThingy->call<reflect::Value>("create", 100);
-    std::cerr << "ptr is " << thingy.type()->pointer()
-        << " of " << thingy.type()->pointee()->id()
-        << std::endl;
+/******************************************************************************/
+/* CONTAINERS                                                                 */
+/******************************************************************************/
 
+BOOST_AUTO_TEST_CASE(containers)
+{
+    const Type* tThingy = type<test::Thingy>();
 
-    reflect::Value bob = (*thingy).get<reflect::Value>("bob");
+    Value thingy = tThingy->call<Value>("create", 10);
+    Value bob = (*thingy).get<Value>("bob");
 
     BOOST_CHECK(bob.is("map"));
-    BOOST_CHECK_EQUAL(
-            bob.type()->call<const reflect::Type*>("keyType"),
-            reflect::type<int>());
+    BOOST_CHECK_EQUAL(bob.type()->call<const Type*>("keyType"), type<int>());
 
     auto keys = bob.call< std::vector<int> >("keys");
 
@@ -148,11 +179,19 @@ BOOST_AUTO_TEST_CASE(demo)
         std::cerr << key << ":" << bob[key].get<int>() << " ";
     }
     std::cerr << "}" << std::endl;
+}
 
 
-    auto sum = tZorish->construct(10) + *thingy;
+/******************************************************************************/
+/* OPERATORS                                                                  */
+/******************************************************************************/
+
+BOOST_AUTO_TEST_CASE(operators)
+{
+    const Type* tThingy = type<test::Thingy>();
+    const Type* tZorish = type<test::Zorish>();
+
+    auto sum = Value(1) + tZorish->construct(10) + tThingy->construct(100);
     std::cerr << "sum is a " << sum.typeId() << std::endl;
-
-    sTest->call<void>("incCounter", sum);
-    std::cerr << "counter is now " << test::counter << std::endl;
+    std::cerr << "sum = " << sum.get<int>() << std::endl;
 }
