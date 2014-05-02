@@ -38,7 +38,7 @@ void reflectDefaultConstructor(...) {}
 
 template<typename T,
     class = typename std::enable_if<
-        std::is_default_constructible<T>::valye>::type>
+        std::is_default_constructible<T>::value>::type>
 void reflectAllocDefaultConstructor(Type* type)
 {
     type->add("new", [] () -> T* { return new T(); });
@@ -48,7 +48,7 @@ template<typename>
 void reflectAllocDefaultConstructor(...) {}
 
 #define reflectAllocDefaultCons() \
-    reflect:: reflectAllocDefaultConstructor<T_>(type_);
+    reflect::reflectAllocDefaultConstructor<T_>(type_);
 
 
 /******************************************************************************/
