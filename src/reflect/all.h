@@ -10,6 +10,7 @@
 
 #include "type.h"
 #include "scope.h"
+#include "template.h"
 #include "basics.h"
 #include "plumbing.h"
 #include "field.h"

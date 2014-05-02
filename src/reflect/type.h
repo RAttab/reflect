@@ -54,17 +54,4 @@ namespace reflect {
     reflectTypeImpl(_type_)
 
 
-/******************************************************************************/
-/* REFLECT TEMPLATE                                                           */
-/******************************************************************************/
-
-#define reflectTemplateLoader()                 \
-    static void loader()                        \
-    {                                           \
-        static bool loaded = false;             \
-        if (loaded) return;                     \
-        loaded = true;                          \
-        Registry::add<T_>();                    \
-    }
-
 } // reflect

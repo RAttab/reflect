@@ -11,6 +11,7 @@
 #include "vector.h"
 #include "types/reflect/type.h"
 #include "reflect/basics.h"
+#include "reflect/template.h"
 #include "reflect/plumbing.h"
 #include "reflect/operators.h"
 
@@ -42,51 +43,33 @@ void reflectSmartPtr(Type* type_)
     };
 }
 
+} // namespace reflect
+
 
 /******************************************************************************/
 /* REFLECT SHARED PTR                                                         */
 /******************************************************************************/
 
-template<typename T>
-struct Reflect< std::shared_ptr<T> >
+reflectTemplate(std::shared_ptr, T)
 {
-    typedef std::shared_ptr<T> T_;
-    static std::string id() { return "std::shared_ptr<" + typeId<T>() + ">"; }
+    reflectPointer(std::shared_ptr, T);
 
-    reflectTemplateLoader()
-
-    static void reflect(Type* type_)
-    {
-        reflectPointer(std::shared_ptr, T);
-
-        reflectSmartPtr<T_, T>(type_);
-        reflectFnTyped(reset, void (T_::*) ());
-        reflectFnTyped(reset, void (T_::*) (T*));
-    }
-};
+    reflectSmartPtr<T_, T>(type_);
+    reflectFnTyped(reset, void (T_::*) ());
+    reflectFnTyped(reset, void (T_::*) (T*));
+}
 
 
 /******************************************************************************/
 /* REFLECT UNIQUE PTR                                                         */
 /******************************************************************************/
 
-template<typename T>
-struct Reflect< std::unique_ptr<T> >
+reflectTemplate(std::unique_ptr, T)
 {
-    typedef std::unique_ptr<T> T_;
-    static std::string id() { return "std::unique_ptr<" + typeId<T>() + ">"; }
+    reflectPointer(std::unique_ptr, T);
 
-    reflectTemplateLoader()
-
-    static void reflect(Type* type_)
-    {
-        reflectPointer(std::unique_ptr, T);
-
-        reflectSmartPtr<T_, T>(type_);
-        reflectFn(release);
-        reflectFnTyped(reset, void (T_::*) (T*));
-        reflectCustom(reset) (T_& value) { value.reset(); };
-    }
-};
-
-} // reflect
+    reflectSmartPtr<T_, T>(type_);
+    reflectFn(release);
+    reflectFnTyped(reset, void (T_::*) (T*));
+    reflectCustom(reset) (T_& value) { value.reset(); };
+}

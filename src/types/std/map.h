@@ -9,6 +9,7 @@
 
 #include "reflect.h"
 #include "reflect/basics.h"
+#include "reflect/template.h"
 #include "reflect/function.h"
 #include "reflect/operators.h"
 

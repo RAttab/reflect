@@ -10,10 +10,7 @@
 #define REFLECT_USE_EXCEPTIONS 1
 
 #include "reflect.h"
-#include "reflect/type.h"
-#include "reflect/field.h"
-#include "reflect/function.h"
-#include "reflect/plumbing.h"
+#include "reflect/all.h"
 #include "types/std/string.h"
 #include "types/std/vector.h"
 #include "utils/config/includes.h"
@@ -53,30 +50,17 @@ private:
     Tube<T>* connection;
 };
 
-
-namespace reflect {
-
-template<typename T>
-struct Reflect< Tube<T> >
+reflectTemplate(Tube, ValueT)
 {
-    typedef Tube<T> T_;
-    static std::string id() { return "Tube<" + typeId<T>() + ">"; }
-    reflectTemplateLoader()
+    reflectPlumbing();
 
-    static void reflect(Type* type_)
-    {
-        reflectPlumbing();
+    reflectTrait(tube);
+    reflectCustom(valueType) { return type<ValueT>(); };
 
-        reflectTrait(tube);
-        reflectCustom(valueType) { return type<T>(); };
-
-        reflectFn(push);
-        reflectFn(pull);
-        reflectFn(connect);
-    }
-};
-
-} // namespace reflect
+    reflectFn(push);
+    reflectFn(pull);
+    reflectFn(connect);
+}
 
 
 /******************************************************************************/

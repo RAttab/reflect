@@ -9,45 +9,32 @@
 
 #include "reflect.h"
 #include "reflect/basics.h"
+#include "reflect/template.h"
 #include "reflect/function.h"
 #include "reflect/operators.h"
 
 #include <vector>
 
-namespace reflect {
-
 /******************************************************************************/
 /* REFLECT VECTOR                                                             */
 /******************************************************************************/
 
-template<typename T>
-struct Reflect< std::vector<T> >
+reflectTemplate(std::vector, ValueT)
 {
-    typedef std::vector<T> T_;
-    static std::string id() { return "std::vector<" + typeId<T>() + ">"; }
+    reflectPlumbing();
 
-    reflectTemplateLoader()
+    reflectTrait(list);
+    reflectCustom(valueType) { return type<ValueT>(); };
 
-    static void reflect(Type* type_)
-    {
-        reflectPlumbing();
+    reflectFn(size);
+    reflectFnTyped(resize, void (T_::*) (size_t));
+    reflectFnTyped(push_back, void (T_::*) (const ValueT&));
+    reflectFnTyped(push_back, void (T_::*) (ValueT&&));
 
-        reflectTrait(list);
-        reflectCustom(valueType) { return type<T>(); };
-
-        reflectFn(size);
-        reflectFnTyped(resize, void (T_::*) (size_t));
-        reflectFnTyped(push_back, void (T_::*) (const T&));
-        reflectFnTyped(push_back, void (T_::*) (T&&));
-
-        reflectCustom(operator[]) (const T_& value, size_t i) -> const T& {
-            return value[i];
-        };
-        reflectCustom(operator[]) (T_& value, size_t i) -> T& {
-            return value[i];
-        };
-
-    }
-};
-
-} // namespace reflect
+    reflectCustom(operator[]) (const T_& value, size_t i) -> const ValueT& {
+        return value[i];
+    };
+    reflectCustom(operator[]) (T_& value, size_t i) -> ValueT& {
+        return value[i];
+    };
+}

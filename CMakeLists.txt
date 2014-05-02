@@ -149,6 +149,7 @@ install(
     src/reflect/field.h
     src/reflect/function.h
     src/reflect/scope.h
+    src/reflect/template.h
     src/reflect/operators.h
     src/reflect/plumbing.h
     DESTINATION

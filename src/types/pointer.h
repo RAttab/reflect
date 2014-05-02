@@ -10,6 +10,7 @@
 #include "reflect.h"
 #include "types/reflect/type.h"
 #include "reflect/basics.h"
+#include "reflect/template.h"
 #include "reflect/plumbing.h"
 #include "reflect/function.h"
 
