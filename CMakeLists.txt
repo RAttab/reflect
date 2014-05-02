@@ -213,6 +213,9 @@ target_link_libraries(json_test reflect_json)
 reflect_test(path)
 target_link_libraries(path_test reflect_config)
 
+reflect_test(config)
+target_link_libraries(config_test reflect_config)
+
 add_executable(blah_test tests/blah_test.cpp)
 
 

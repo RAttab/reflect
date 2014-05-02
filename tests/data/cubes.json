@@ -1,0 +1,11 @@
+{
+    "hello!StringCube": { "value": "Hello " },
+    "world!StringCube": { "value": "World!" },
+
+    "concat!ConcatCube": {
+        "#inFirst.connect": "hello.out",
+        "#inSecond.connect": "world.out"
+    },
+
+    "print!PrintCube": { "#in.connect": "concat.out" }
+}
