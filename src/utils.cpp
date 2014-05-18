@@ -13,10 +13,10 @@
 namespace reflect {
 
 /******************************************************************************/
-/* ERROR                                                                      */
+/* ERROR FORMAT                                                               */
 /******************************************************************************/
 
-void verror(bool except, const char* file, int line, const char* fmt, ...)
+std::string verrorFormat(const char* fmt, ...)
 {
     std::va_list args;
     va_start(args, fmt);
@@ -24,10 +24,17 @@ void verror(bool except, const char* file, int line, const char* fmt, ...)
     char buf[1024];
     int n = std::vsnprintf(buf, sizeof(buf) - 1, fmt, args);
 
-    std::string msg =
-        std::string(file) + ":" +
-        std::to_string(line) + ": " +
-        std::string(buf, n);
+    return std::string(buf, n);
+}
+
+
+/******************************************************************************/
+/* ERROR                                                                      */
+/******************************************************************************/
+
+void verror(bool except, const char* file, int line, std::string msg)
+{
+    msg = std::string(file) + ":" + std::to_string(line) + ": " + msg;
 
     if (except) throw ReflectError(msg);
 

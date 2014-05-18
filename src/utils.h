@@ -94,7 +94,7 @@ struct ReflectError : public std::logic_error
 
 
 /******************************************************************************/
-/* ERROR                                                                      */
+/* ERROR FORMAT                                                               */
 /******************************************************************************/
 
 template<typename T>
@@ -108,21 +108,27 @@ inline const char* errorConvert(std::string& value) { return value.c_str(); }
 inline const char* errorConvert(std::string&& value) { return value.c_str(); }
 inline const char* errorConvert(const std::string& value) { return value.c_str(); }
 
+std::string verrorFormat(const char* fmt, ...);
 
-// \todo Makes gcc extremely unhappy for whatever reason.
-#define REFLECT_PRINTF_ATTR \
-    __attribute__((format (printf, 3, 4)))
+template<typename... Args>
+std::string errorFormat(const char* fmt, Args&&... args)
+{
+    return verrorFormat(fmt, errorConvert(std::forward<Args>(args))...);
+}
 
 
-void verror(bool except, const char* file, int line, const char* fmt, ...);
+/******************************************************************************/
+/* ERROR                                                                      */
+/******************************************************************************/
+
+void verror(bool except, const char* file, int line, std::string msg);
 
 template<typename... Args>
 void error(const char* file, int line, const char* fmt, Args&&... args)
 {
-    verror(UseExceptions, file, line, fmt,
-            errorConvert(std::forward<Args>(args))...);
+    std::string msg = errorFormat(fmt, std::forward<Args>(args)...);
+    verror(UseExceptions, file, line, std::move(msg));
 }
-
 
 #define reflectError(...)                        \
     do {                                         \
