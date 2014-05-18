@@ -24,6 +24,15 @@ struct IsMovable
     typedef std::integral_constant<bool, value> type;
 };
 
+template<typename T>
+struct ValueDestructor
+{
+    void operator() (void* ptr) const
+    {
+        static_cast<T*>(ptr)->~T();
+    }
+};
+
 
 /******************************************************************************/
 /* VALUE                                                                      */
@@ -65,7 +74,7 @@ Value(T&& value) :
             typename IsMovable<T>::type(),
             typename std::is_copy_constructible<CleanT>::type());
 
-    storage.reset(value_);
+    storage.reset(value_, ValueDestructor<CleanT>());
 
     // We now own the value so we're now l-ref-ing our internal storage.
     arg = Argument(arg.type(), RefType::LValue, false);

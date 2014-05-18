@@ -18,12 +18,21 @@ using namespace std;
 using namespace reflect;
 
 
+/******************************************************************************/
+/* VOID                                                                       */
+/******************************************************************************/
+
 BOOST_AUTO_TEST_CASE(void_)
 {
     Value val;
     BOOST_CHECK(val.isVoid());
     BOOST_CHECK_EQUAL(Value().type(), val.type());
 }
+
+
+/******************************************************************************/
+/* CONSTRUCT                                                                  */
+/******************************************************************************/
 
 // Make sure that Value compiles regardless of whether the copy/move
 // constructors are there or not. We should instead break at runtime IF they are
@@ -47,6 +56,84 @@ BOOST_AUTO_TEST_CASE(construct)
 
     BOOST_TEST_CHECKPOINT("construct-done");
 }
+
+
+/******************************************************************************/
+/* DESTRUCT                                                                   */
+/******************************************************************************/
+
+struct Destruct
+{
+    ~Destruct() { count++; }
+    static void reset() { count = 0; }
+    static size_t count;
+};
+size_t Destruct::count = 0;
+
+reflectType(Destruct) { reflectPlumbing(); }
+
+BOOST_AUTO_TEST_CASE(destruct)
+{
+    auto check = [] (std::string name, size_t count) {
+        std::cerr << name << ": " << Destruct::count << std::endl;
+        BOOST_CHECK_EQUAL(Destruct::count, count);
+        Destruct::reset();
+    };
+
+    Destruct d;
+    Destruct::reset();
+
+    {
+        Value obj{d};
+        (void) obj;
+    }
+    check("lref", 0);
+
+    {
+        Value obj(std::move(d));
+        (void) obj;
+    }
+    check("rref", 1);
+
+    {
+        Value obj(std::move(d));
+        Value valueCopy(obj);
+        (void) valueCopy;
+    }
+    check("value-copy", 1);
+
+    // The reflected copy constructor is a lambda that returns a rvalue which is
+    // moved into the Value object but also destroyed. hence the 3 instead of
+    // the expected two.
+    {
+        Value obj(std::move(d));
+        Value objCopy = obj.copy();
+        (void) objCopy;
+    }
+    check("obj-copy", 2 + 1);
+
+    {
+        Value obj(std::move(d));
+        Value valueMove = std::move(obj);
+        (void) valueMove;
+    }
+    check("value-move", 1);
+
+    // Calling move creates lots of temporaries that are moved around quite a
+    // bit. I hand checked these to make sure that there's only call to the
+    // destructor that originates from a shared_ptr as we expect.
+    {
+        Value obj(std::move(d));
+        Value objMove = obj.move();
+        (void) objMove;
+    }
+    check("obj-move", 2 + 3);
+}
+
+
+/******************************************************************************/
+/* LVALUE                                                                     */
+/******************************************************************************/
 
 BOOST_AUTO_TEST_CASE(lValue)
 {
@@ -87,6 +174,11 @@ BOOST_AUTO_TEST_CASE(lValue)
     }
 }
 
+
+/******************************************************************************/
+/* CONST LVALUE                                                               */
+/******************************************************************************/
+
 BOOST_AUTO_TEST_CASE(constLValue)
 {
     const unsigned u = 10;
@@ -115,6 +207,11 @@ BOOST_AUTO_TEST_CASE(constLValue)
     BOOST_CHECK(!lValue.isMovable<unsigned>());
     BOOST_CHECK_THROW(lValue.move<unsigned>(), ReflectError);
 }
+
+
+/******************************************************************************/
+/* RVALUE                                                                     */
+/******************************************************************************/
 
 BOOST_AUTO_TEST_CASE(rValue)
 {
@@ -148,6 +245,11 @@ BOOST_AUTO_TEST_CASE(rValue)
     BOOST_CHECK(rValue.isVoid());
 }
 
+
+/******************************************************************************/
+/* CONST RVALUE                                                               */
+/******************************************************************************/
+
 BOOST_AUTO_TEST_CASE(constRValue)
 {
     const unsigned i = 0;
@@ -156,6 +258,11 @@ BOOST_AUTO_TEST_CASE(constRValue)
     BOOST_CHECK(!rValue.isConst());
     BOOST_CHECK_EQUAL(rValue.refType(), RefType::LValue);
 }
+
+
+/******************************************************************************/
+/* PARENT-CHILD                                                               */
+/******************************************************************************/
 
 BOOST_AUTO_TEST_CASE(parent)
 {
@@ -229,6 +336,11 @@ BOOST_AUTO_TEST_CASE(child)
     // BOOST_CHECK_THROW(&value.move<test::Interface>(), ReflectError);
 }
 
+
+/******************************************************************************/
+/* CONVERTIBLE                                                                */
+/******************************************************************************/
+
 BOOST_AUTO_TEST_CASE(convertible)
 {
     test::Object o(10);
@@ -254,6 +366,11 @@ BOOST_AUTO_TEST_CASE(convertible)
     value = Value(test::Convertible(o)); // previous test cleared it.
     BOOST_CHECK_EQUAL(value.move<test::Parent>().value, o);
 }
+
+
+/******************************************************************************/
+/* COMPILATION                                                                */
+/******************************************************************************/
 
 BOOST_AUTO_TEST_CASE(copyMove)
 {
