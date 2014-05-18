@@ -7,11 +7,11 @@
 
 #define REFLECT_USE_EXCEPTIONS 1
 
-#include <iostream>
-
 #include "reflect.h"
-// #include "reflect/all.h"
-// #include "types/primitives.h"
+#include "reflect/all.h"
+#include "types/primitives.h"
+
+#include <iostream>
 
 using namespace std;
 using namespace reflect;
@@ -66,19 +66,6 @@ struct NoMove
     NoMove& operator=(NoMove&&) = delete;
 };
 
-template<typename T>
-struct Blah
-{
-
-    static struct Loader
-    {
-        Loader() { std::cerr << "@@@ Blah loaded\n"; }
-    } loader;
-};
-
-template<typename T>
-typename Blah<T>::Loader Blah<T>::loader = {};
-
 
 template<typename T>
 void bleh()
@@ -93,8 +80,23 @@ void bleh()
 void ptr(int const*) {}
 
 
+struct Foo2 {
+    int bar(int a, int b) const { return a + b; }
+    int baz;
+};
+
+reflectType(Foo2) { 
+    reflectPlumbing();
+    reflectField(baz);
+    reflectFn(bar);
+}
+
+
+
 int main(int, char**)
 {
+    std::cerr << type("Foo2")->print() << std::endl;
+
     printf("\ncopy:\n"); bleh<typename CleanType<int>::type>();
     printf("\nlref:\n"); bleh<typename CleanType<int&>::type>();
     printf("\ncref:\n"); bleh<typename CleanType<const int&>::type>();
@@ -106,8 +108,6 @@ int main(int, char**)
     std::cerr << "rref: " << std::is_pointer<int*&&>::value << std::endl;
     std::cerr << "cref: " << std::is_pointer<int* const &>::value << std::endl;
     std::cerr << std::endl;
-
-    (void) Blah<int>::loader;
 
     {
         Baz baz;

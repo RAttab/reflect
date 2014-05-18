@@ -218,6 +218,8 @@ reflect_utils_test(config path)
 reflect_utils_test(config cubes)
 
 add_executable(blah_test tests/blah_test.cpp)
+target_link_libraries(blah_test reflect)
+force_target_link_libraries(blah_test reflect_primitives)
 
 
 #------------------------------------------------------------------------------#
