@@ -8,7 +8,7 @@
 #define REFLECT_USE_EXCEPTIONS 1
 
 #include "reflect.h"
-#include "reflect/all.h"
+#include "dsl/all.h"
 #include "types/primitives.h"
 #include "types/std/string.h"
 

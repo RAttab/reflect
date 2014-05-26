@@ -59,7 +59,7 @@ struct Overloads;
 #include "type.tcc"
 #include "scope.tcc"
 
-#include "reflect/type.h"
+#include "dsl/type.h"
 
 #include "types/primitives.h"
 #include "types/reflect/value.h"

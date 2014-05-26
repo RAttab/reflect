@@ -9,7 +9,7 @@
 #define BOOST_TEST_DYN_LINK
 
 #include "reflect.h"
-#include "reflect/all.h"
+#include "dsl/all.h"
 #include "types/std/map.h"
 #include "types/std/smart_ptr.h"
 

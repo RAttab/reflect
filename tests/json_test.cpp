@@ -14,9 +14,9 @@
 #include "types/std/string.h"
 #include "types/std/vector.h"
 #include "types/std/map.h"
-#include "reflect/plumbing.h"
-#include "reflect/type.h"
-#include "reflect/field.h"
+#include "dsl/plumbing.h"
+#include "dsl/type.h"
+#include "dsl/field.h"
 #include "utils/json/parser.h"
 #include "utils/json/printer.h"
 

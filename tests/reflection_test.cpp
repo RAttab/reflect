@@ -11,7 +11,7 @@
 
 #include "reflect.h"
 #include "types/primitives.h"
-#include "reflect/all.h"
+#include "dsl/all.h"
 
 #include <boost/test/unit_test.hpp>
 

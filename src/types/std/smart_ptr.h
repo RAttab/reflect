@@ -10,10 +10,10 @@
 #include "reflect.h"
 #include "vector.h"
 #include "types/reflect/type.h"
-#include "reflect/basics.h"
-#include "reflect/template.h"
-#include "reflect/plumbing.h"
-#include "reflect/operators.h"
+#include "dsl/basics.h"
+#include "dsl/template.h"
+#include "dsl/plumbing.h"
+#include "dsl/operators.h"
 
 #include <memory>
 

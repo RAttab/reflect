@@ -7,8 +7,8 @@
 
 #include "string.h"
 
-#include "reflect/basics.h"
-#include "reflect/plumbing.h"
+#include "dsl/basics.h"
+#include "dsl/plumbing.h"
 
 /******************************************************************************/
 /* STRING                                                                     */

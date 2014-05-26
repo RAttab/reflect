@@ -10,7 +10,7 @@
 #define REFLECT_USE_EXCEPTIONS 1
 
 #include "reflect.h"
-#include "reflect/all.h"
+#include "dsl/all.h"
 #include "types/std/string.h"
 #include "types/std/vector.h"
 #include "utils/config/includes.h"

@@ -104,6 +104,7 @@ add_library(reflect_std SHARED
     src/types/std/string.cpp)
 
 add_library(reflect_json SHARED src/utils/json/json.cpp)
+target_link_libraries(reflect_json reflect)
 
 add_library(reflect_config SHARED src/utils/config/compile.cpp)
 target_link_libraries(reflect_config reflect_json)
@@ -143,15 +144,15 @@ install(
 
 install(
     FILES
-    src/reflect/all.h
-    src/reflect/basics.h
-    src/reflect/type.h
-    src/reflect/field.h
-    src/reflect/function.h
-    src/reflect/scope.h
-    src/reflect/template.h
-    src/reflect/operators.h
-    src/reflect/plumbing.h
+    src/dsl/all.h
+    src/dsl/basics.h
+    src/dsl/type.h
+    src/dsl/field.h
+    src/dsl/function.h
+    src/dsl/scope.h
+    src/dsl/template.h
+    src/dsl/operators.h
+    src/dsl/plumbing.h
     DESTINATION
     include/reflect/reflect)
 

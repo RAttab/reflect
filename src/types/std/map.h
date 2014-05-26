@@ -8,10 +8,10 @@
 #pragma once
 
 #include "reflect.h"
-#include "reflect/basics.h"
-#include "reflect/template.h"
-#include "reflect/function.h"
-#include "reflect/operators.h"
+#include "dsl/basics.h"
+#include "dsl/template.h"
+#include "dsl/function.h"
+#include "dsl/operators.h"
 
 #include <map>
 

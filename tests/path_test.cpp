@@ -12,9 +12,9 @@
 #define REFLECT_USE_EXCEPTIONS 1
 
 #include "reflect.h"
-#include "reflect/type.h"
-#include "reflect/plumbing.h"
-#include "reflect/field.h"
+#include "dsl/type.h"
+#include "dsl/plumbing.h"
+#include "dsl/field.h"
 #include "types/std/map.h"
 #include "types/std/vector.h"
 #include "types/std/string.h"

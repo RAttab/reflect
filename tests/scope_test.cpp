@@ -10,9 +10,9 @@
 #define REFLECT_USE_EXCEPTIONS 1
 
 #include "reflect.h"
-#include "reflect/scope.h"
-#include "reflect/type.h"
-#include "reflect/plumbing.h"
+#include "dsl/scope.h"
+#include "dsl/type.h"
+#include "dsl/plumbing.h"
 
 #include <boost/test/unit_test.hpp>
 

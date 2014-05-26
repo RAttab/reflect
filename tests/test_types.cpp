@@ -7,10 +7,10 @@
 
 #include "test_types.h"
 
-#include "reflect/basics.h"
-#include "reflect/plumbing.h"
-#include "reflect/field.h"
-#include "reflect/operators.h"
+#include "dsl/basics.h"
+#include "dsl/plumbing.h"
+#include "dsl/field.h"
+#include "dsl/operators.h"
 
 
 /******************************************************************************/
