@@ -98,8 +98,8 @@ would expect from a regular function call which means that the proper hand-off
 method (copy, move or reference) is used for the given argument-parameter pair.
 
 What about that traits thing? Traits in Reflect are tags that can be associated
-with types and functions. They allow library writters to define concepts which
-can be used to create generic utilties. As an example, the `field` trait
+with types and functions. They allow library writers to define concepts which
+can be used to create generic utilities. As an example, the `field` trait
 indicates that either a getter or setter function is available in the overload
 pool. This can then used be used by utilities like [`json`](src/utils/json) and
 [`path`](src/utils/config/path.h) to list the members of an object and navigate
@@ -114,14 +114,14 @@ enjoy the templates.
 
 ## Macro-Based DSL ##
 
-The sad reality of C++ is that we have no builtin type introspection mechanism
+The sad reality of C++ is that we have no built-in type introspection mechanism
 which means that any reflection system will need to figure out a way to extract
 a type's make up. Historically, reflection systems have used external tools to
 process either a DSL file or the original source code.
 
 Reflect takes another approach: it uses macros to define a DSL which is compiled
 alongside the reflected type. The advantage is that we re-use all the existing
-machinery of the toolchains that is already familliar to the user. As a bonus,
+machinery of the tool-chains that is already familiar to the user. As a bonus,
 this allows the DSL to use C++'s template-based introspection mechanisms to
 simplify our DSL down to its bare essentials.
 
@@ -149,11 +149,11 @@ reflectType(Foo)
     reflectFn(bar);
 }
 
-auto desc = type<Foo>->call<std::string>("baz_desc");
+auto desc = type<Foo>()->call<std::string>("baz_desc");
 assert(desc == "well, that was easy");
 ```
 
-The key takeaway here is that, if you can represent an extension as a function,
+The key take-away here is that, if you can represent an extension as a function,
 then Reflect supports it with no modifications to the core. Handy.
 
 
@@ -171,9 +171,9 @@ bottlenecks which still need to be resolved (eg. reflection of templated
 classes).
 
 While compilation times can be high when reflecting types, Reflect allows for
-the seperation of the declaration of the reflection from its definition. This
+the separation of the declaration of the reflection from its definition. This
 means that definitions, which are expensive, will only need to be compiled once
-while the declartion, which are cheap, can be used many times at no additional
+while the declaration, which are cheap, can be used many times at no additional
 cost. It also helps if the definitions are spread out over multiple compilation
 units to parallelize the compilation.
 
