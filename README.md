@@ -58,9 +58,9 @@ assert(sum == 111);
 ```
 
 As a C++ programmer, those last 3 lines of code might feel a little... off. It's
-not something we're used to being able to do. To make things even more weird,
-those lines are also completely type-safe Reflect will raise an error if it
-detects an attempt at an invalid function call.
+not something we're used to being able to do and to make things even more weird,
+those lines are also completely type-safe which means that Reflect will raise an
+error if it detects an attempt at making an invalid function call.
 
 To get a better idea of what's going on, let's ask Reflect to dump what it knows
 about the `Foo` class.
@@ -93,9 +93,9 @@ which was just a plain `int` in the original type. Not only that but Reflect
 also keeps track of the reference-ness as well as the const-ness of each
 function parameter. In other words, whenever a reflected object is manipulated,
 it is done through function calls which are checked for type, reference-ness and
-const-ness at runtime. The rules emulated are relatively similar to what the C++
-standard allows which means that Reflect also uses the proper hand-off method
-for the giving argument-parameter pair (copy, move or reference).
+const-ness at runtime. The rules emulated are relatively similar to what you
+would expect from a regular function call which means that the proper hand-off
+method (copy, move or reference) is used for the given argument-parameter pair.
 
 What about that traits thing? Traits in Reflect are tags that can be associated
 with types and functions. They allow library writters to define concepts which
@@ -103,10 +103,10 @@ can be used to create generic utilties. As an example, the `field` trait
 indicates that either a getter or setter function is available in the overload
 pool. This can then used be used by utilities like [`json`](src/utils/json) and
 [`path`](src/utils/config/path.h) to list the members of an object and navigate
-an it completely generically.
+it completely generically.
 
 The list of features supported by Reflect is actually quite a bit longer then
-what I can fit herebut you can find a brief overview in
+what I can fit here but you can find a brief overview in
 [this example](tests/demo_test.cpp). For those who are curious to know what
 makes Reflect tick, head over to [value_function.h](src/value_function.h) and
 enjoy the templates.
@@ -117,7 +117,7 @@ enjoy the templates.
 The sad reality of C++ is that we have no builtin type introspection mechanism
 which means that any reflection system will need to figure out a way to extract
 a type's make up. Historically, reflection systems have used external tools to
-either parse a DSL file or the original source code.
+process either a DSL file or the original source code.
 
 Reflect takes another approach: it uses macros to define a DSL which is compiled
 alongside the reflected type. The advantage is that we re-use all the existing
@@ -126,10 +126,10 @@ this allows the DSL to use C++'s template-based introspection mechanisms to
 simplify our DSL down to its bare essentials.
 
 The result, as we've seen in the example of the previous section, is pretty
-clean and simple. It's also also easily extensible because the macros use the
-same simple interface that is available to the user of the library. As an
-example, let's enhance the `reflectField` macro so that it also adds a text
-description for the field:
+clean and simple. It's also easily extensible because the macros use the same
+simple interface that is available to the user of the library. As an example,
+let's enhance the `reflectField` macro so that it also adds a text description
+for the field:
 
 ```c++
 #define reflectFieldDesc(field, desc)                                   \
@@ -145,7 +145,7 @@ Now let's modify our reflection of `Foo` to make use of our new macro:
 reflectType(Foo)
 {
     reflectPlumbing();
-	reflectField(baz, "well, that was easy");
+	reflectFieldDesc(baz, "well, that was easy");
     reflectFn(bar);
 }
 
@@ -165,30 +165,33 @@ While Reflect is pretty nice overall, it does have one major downside:
 
 In other words, the build time for reflecting types can be quite high. Because
 of this, there's been a considerable amount of effort dedicated to optimizing
-for compilation times using a suite of [benchmark tests](tests/cpef). Note that
+for compilation times using a suite of [benchmark tests](tests/cperf). Note that
 this is an ongoing area of development and there are known compilation
-bottlenecks (reflection of templated classes) which still need to be resolved.
+bottlenecks which still need to be resolved (eg. reflection of templated
+classes).
 
-Note that while compilation times can be high when reflecting types, Reflect can
-seperate the declaration of the reflection from its definition. This means that
-definitions will usually be compiled once and used many times at no additional
-costs. It also helps to spread out the definitions over multiple compilation
-units to parallelize the compilation.
+While compilation times can be high when reflecting types, Reflect allows for
+the seperation of the declaration of the reflection from its definition. This
+means that definitions which are expensive will only need to be compiled once
+while the declartion which is cheap to compile is used many times. It also helps
+if the definitions are spread out over multiple compilation units to parallelize
+the compilation.
 
 
 ## How Do I Use It? ##
 
-The biggest requirement for Reflect is a C++11 compliant compiler and any
-version of boost that has `boost-test`. Here's a rundown of known compilers that
-can compile Reflect.
+The requirements for Reflect are a C++11 compliant compiler and any version of
+boost that has `boost-test`. Here's a rundown of known compilers that can
+compile Reflect:
 
 * gcc v4.7+
 * clang v??
 * mvcc v??
 
 Reflect uses `cmake` as its build system which should be available in your
-distribution's package manager or at the [cmake website](cmake.org). Once that's
-dealt with, building is straightforward:
+distribution's package manager or at the
+[cmake website](http://www.cmake.org). Once that's dealt with, building is
+straightforward:
 
 ```
 cmake .
@@ -219,3 +222,5 @@ and 2 sub-folders. Here's what a typical include set might look like.
 The `reflect.h` header includes the core library, the `dsl` folder contains the
 macros for the DSL and the `types` folder contains the default reflection for
 commonly used types.
+
+That's it!
