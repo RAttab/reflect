@@ -5,8 +5,8 @@ Yet another reflection system for C++.
 
 ## Why? ##
 
-The world of C++ already has several excellent reflection systems so why build a
-new one? To put it simply, Reflect does things differently:
+C++ already has several excellent reflection systems so why build a new one? To
+put it simply, Reflect does things differently:
 
 * It reflects functions
 * It uses a macro-based type description DSL (domain-specific language)
@@ -19,7 +19,7 @@ but first, here's a few more buzzword to pad out the description:
 * Non-intrusive
 * Lazy type loading
 * Self-contained (no external tool required)
-* Dark template voodoo-magic
+* Imbued with dark template voodoo-magic
 
 Before we get started, note that reflection systems are usually meant as a mean
 to an end. In other words, they provide basic tools that can be used by library
@@ -58,9 +58,9 @@ assert(sum == 111);
 ```
 
 As a C++ programmer, those last 3 lines of code might feel a little... off. It's
-not something we're used to being able to do and to make things even more weird,
-those lines are also completely type-safe which means that Reflect will raise an
-error if it detects an attempt at making an invalid function call.
+not something we're used to being able to do and, to make things even more
+weird, those lines are also completely type-safe which means that Reflect will
+raise an error if it detects an attempt at making an invalid function call.
 
 To get a better idea of what's going on, let's ask Reflect to dump what it knows
 about the `Foo` class.
@@ -90,9 +90,9 @@ type Foo
 
 Well this is interesting; there are only functions here even for our `baz` field
 which was just a plain `int` in the original type. Not only that but Reflect
-also keeps track of the reference-ness as well as the const-ness of each
-function parameter. In other words, whenever a reflected object is manipulated,
-it is done through function calls which are checked for type, reference-ness and
+also keeps track of the reference-ness and the const-ness of each function
+parameter. In other words, whenever a reflected object is manipulated, it is
+done through function calls which are checked for type, reference-ness and
 const-ness at runtime. The rules emulated are relatively similar to what you
 would expect from a regular function call which means that the proper hand-off
 method (copy, move or reference) is used for the given argument-parameter pair.
@@ -150,7 +150,7 @@ reflectType(Foo)
 }
 
 auto desc = type<Foo>->call<std::string>("baz_desc");
-// desc = "well, that was easy"
+assert(desc == "well, that was easy");
 ```
 
 The key takeaway here is that, if you can represent an extension as a function,
@@ -172,10 +172,10 @@ classes).
 
 While compilation times can be high when reflecting types, Reflect allows for
 the seperation of the declaration of the reflection from its definition. This
-means that definitions which are expensive will only need to be compiled once
-while the declartion which is cheap to compile is used many times. It also helps
-if the definitions are spread out over multiple compilation units to parallelize
-the compilation.
+means that definitions, which are expensive, will only need to be compiled once
+while the declartion, which are cheap, can be used many times at no additional
+cost. It also helps if the definitions are spread out over multiple compilation
+units to parallelize the compilation.
 
 
 ## How Do I Use It? ##
