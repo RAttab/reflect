@@ -10,6 +10,7 @@
 #include "reflect.h"
 #include "reflect/all.h"
 #include "types/primitives.h"
+#include "types/std/string.h"
 
 #include <iostream>
 
@@ -85,17 +86,25 @@ struct Foo2 {
     int baz;
 };
 
-reflectType(Foo2) { 
+
+#define reflectFieldDesc(field, desc)                                   \
+    do {                                                                \
+        reflectField(field);                                            \
+        type_->add(#field "_desc", [] { return std::string(desc); });   \
+    } while(false);
+
+reflectType(Foo2)
+{
     reflectPlumbing();
-    reflectField(baz);
+    reflectFieldDesc(baz, "I like candy");
     reflectFn(bar);
 }
-
 
 
 int main(int, char**)
 {
     std::cerr << type("Foo2")->print() << std::endl;
+    std::cerr << type("Foo2")->call<std::string>("baz_desc") << std::endl;
 
     printf("\ncopy:\n"); bleh<typename CleanType<int>::type>();
     printf("\nlref:\n"); bleh<typename CleanType<int&>::type>();

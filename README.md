@@ -2,19 +2,6 @@
 
 Yet another reflection system for C++.
 
-## Build ##
-
-Reflect is entirely build on top of C++11 and should therefor run anywhere where
-C++11 is supported. Here's a rundown of known compilers that can compile reflect.
-
-* gcc v4.7+
-* clang v??
-* mvcc v??
-
-The only external dependency at the moment is boost-test
-which is used for all the reflect tests.
-
-
 ## Why? ##
 
 I can hear your cries of anguish: Why another relfection system? Doesn't the
@@ -118,7 +105,44 @@ Reflect tick, head over to [value_function.h](src/value_function.h).
 
 The sad reality of C++ is that we have no builtin type introspection mechanism
 which means that any reflection system will need to figure out a way to extract
-the make up of a type
+information related to a type. Historically, reflection frameworks have used
+external tools to either parse a DSL file or the original source code.
+
+Reflect uses a different approach: use macros to define a DSL which is compiled
+alongside the reflected type. The advantage of this approach is that we re-use
+all the existing machinery of existing toolchains. As a bonus, this allows us to
+also use C++'s [template-based introspection](src/function_type.h) mechanisms to
+simplify our DSL down to its bare essentials.
+
+The result, as we've seen in the example of the previous section, is pretty
+clean and simple. Not only that but it's also easily extensible because it's all
+C++ and macros which you can easily add to. As an example, let's enhanced the
+`reflectField` macro so that it also adds a text description for the field:
+
+```c++
+#define reflectFieldDesc(field, desc)                                   \
+    do {                                                                \
+        reflectField(field);                                            \
+        type_->add(#field "_desc", [] { return std::string(desc); });   \
+    } while(false);
+```
+
+Now let's modify our reflection of our `Foo` class to make use of our new macro:
+
+```c++
+reflectType(Foo)
+{
+    reflectPlumbing();
+	reflectField(baz, "reflection is fuuuuun.");
+    reflectFn(bar);
+}
+
+auto desc = type<Foo>->call<std::string>("baz_desc");
+// desc = "reflection is fuuuuun."
+```
+
+The takeaway here is that if you can represent it as a function, Reflect
+supports it.
 
 
 ## So What's the Catch? ##
@@ -139,3 +163,30 @@ the help of [benchmark tests](tests/cperf). Unfortunately, this is a rather slow
 and tedious process and C++ currently has virtually no tools to help out so
 results have been a mixed so far.
 
+
+## Build ##
+
+Reflect is entirely build on top of C++11 and should therefor run anywhere where
+C++11 is supported. Here's a rundown of known compilers that can compile reflect.
+
+* gcc v4.7+
+* clang v??
+* mvcc v??
+
+The only external dependency at the moment is `boost-test` which is used for all
+the reflect tests. Once that's taken care of, here's how you build:
+
+```
+cmake .
+make -kj8
+make test
+```
+
+This will produce the following libraries which you'll want to link with:
+
+```
+libreflect.so
+libreflect_std.so
+libreflect_reflect.so
+libreflect_primitives.so
+```
