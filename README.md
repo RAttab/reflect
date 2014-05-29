@@ -18,6 +18,7 @@ but first, here's a few more buzzword to pad out the description:
 * Extensible
 * Non-intrusive
 * Lazy type loading
+* Run-time reflection
 * Self-contained (no external tool required)
 * Imbued with dark template voodoo-magic
 
