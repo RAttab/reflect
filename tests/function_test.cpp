@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE(basics)
     BOOST_CHECK_EQUAL(fn.returnType().type(), type<unsigned>());
     BOOST_CHECK_EQUAL(fn.returnType().refType(), RefType::Copy);
 
-    BOOST_CHECK_EQUAL(fn.arguments(), 4);
+    BOOST_CHECK_EQUAL(fn.arguments(), 4u);
 
     BOOST_CHECK(!fn.argument(0).isConst());
     BOOST_CHECK_EQUAL(fn.argument(0).type(), type<unsigned>());
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE(void_test)
     Function fn("foo", [] {});
 
     BOOST_CHECK_EQUAL(fn.returnType().type(), type<void>());
-    BOOST_CHECK_EQUAL(fn.arguments(), 0);
+    BOOST_CHECK_EQUAL(fn.arguments(), 0u);
 
     // void
     BOOST_CHECK_EQUAL(fn.test<void(void)>(), Match::Exact);

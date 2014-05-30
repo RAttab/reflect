@@ -85,12 +85,12 @@ BOOST_AUTO_TEST_CASE(parsing)
 
     BOOST_CHECK_EQUAL(blah.str, "I like candy");
 
-    BOOST_CHECK_EQUAL(blah.vec.size(), 3);
+    BOOST_CHECK_EQUAL(blah.vec.size(), 3u);
     checkBleh(blah.vec[0], 10, false);
     checkBleh(blah.vec[1], 0, true);
     checkBleh(blah.vec[2], 30, false);
 
-    BOOST_CHECK_EQUAL(blah.map.size(), 2);
+    BOOST_CHECK_EQUAL(blah.map.size(), 2u);
     checkBleh(blah.map["foo"], 20, true);
     checkBleh(blah.map["bar"], 0, true);
 

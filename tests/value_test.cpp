@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE(lValue)
     BOOST_CHECK(lValue.isMovable<unsigned>());
     {
         auto value = lValue.move<unsigned>();
-        BOOST_CHECK_EQUAL(value, 10);
+        BOOST_CHECK_EQUAL(value, 10u);
         BOOST_CHECK(lValue.isVoid());
 
         // primitives don't get wiped. Should use another type;
@@ -221,27 +221,27 @@ BOOST_AUTO_TEST_CASE(rValue)
 
     BOOST_CHECK(!rValue.isConst());
     BOOST_CHECK_EQUAL(rValue.refType(), RefType::LValue);
-    BOOST_CHECK_EQUAL(rValue.get<unsigned>(), 10);
+    BOOST_CHECK_EQUAL(rValue.get<unsigned>(), 10u);
 
     // copy
     BOOST_CHECK(rValue.isCopiable<unsigned>());
-    BOOST_CHECK_EQUAL(rValue.copy<unsigned>(), 10);
+    BOOST_CHECK_EQUAL(rValue.copy<unsigned>(), 10u);
 
     // l-ref
     BOOST_CHECK(rValue.isCastable<unsigned>());
-    BOOST_CHECK_EQUAL(rValue.cast<unsigned>(), 10);
+    BOOST_CHECK_EQUAL(rValue.cast<unsigned>(), 10u);
 
     // const l-ref
     BOOST_CHECK( rValue.isCastable<const unsigned>());
     {
         const auto& value = rValue.cast<const unsigned>();
         BOOST_CHECK_NE(&value, &u);
-        BOOST_CHECK_EQUAL(value, 10);
+        BOOST_CHECK_EQUAL(value, 10u);
     }
 
     // r-ref
     BOOST_CHECK(rValue.isMovable<unsigned>());
-    BOOST_CHECK_EQUAL(rValue.move<unsigned>(), 10);
+    BOOST_CHECK_EQUAL(rValue.move<unsigned>(), 10u);
     BOOST_CHECK(rValue.isVoid());
 }
 

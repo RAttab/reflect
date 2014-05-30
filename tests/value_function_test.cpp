@@ -35,10 +35,10 @@ BOOST_AUTO_TEST_CASE(fn)
 
     Value ret = (*valueFn)(Value(value), Value(10));
     BOOST_CHECK(ret.isVoid());
-    BOOST_CHECK_EQUAL(value, 10);
+    BOOST_CHECK_EQUAL(value, 10u);
 
     (*valueFn)(Value(value), Value(10));
-    BOOST_CHECK_EQUAL(value, 20);
+    BOOST_CHECK_EQUAL(value, 20u);
 }
 
 
@@ -56,8 +56,8 @@ BOOST_AUTO_TEST_CASE(lambda)
     auto valueFn = makeValueFunctionSafe(lambda);
 
     Value ret = (*valueFn)(Value(10u), Value(10u));
-    BOOST_CHECK_EQUAL(value, 110);
-    BOOST_CHECK_EQUAL(ret.get<unsigned>(), 110);
+    BOOST_CHECK_EQUAL(value, 110u);
+    BOOST_CHECK_EQUAL(ret.get<unsigned>(), 110u);
 }
 
 
@@ -88,12 +88,12 @@ BOOST_AUTO_TEST_CASE(functor)
         Value ret = (*valueFn)(Value(10u));
         BOOST_CHECK_EQUAL(ret.refType(), RefType::LValue);
         BOOST_CHECK(ret.isCastable<unsigned>());
-        BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 10);
+        BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 10u);
     }
 
     {
         Value ret = (*valueFn)(Value(10u));
-        BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 20);
+        BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 20u);
     }
 }
 
@@ -126,14 +126,14 @@ BOOST_AUTO_TEST_CASE(memberFn)
         Value ret = (*valueFn)(Value(foo), Value(10u));
         BOOST_CHECK_EQUAL(ret.refType(), RefType::LValue);
         BOOST_CHECK(ret.isCastable<unsigned>());
-        BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 10);
-        BOOST_CHECK_EQUAL(foo.value, 10);
+        BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 10u);
+        BOOST_CHECK_EQUAL(foo.value, 10u);
     }
 
     {
         Value ret = (*valueFn)(Value(foo), Value(10u));
-        BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 20);
-        BOOST_CHECK_EQUAL(foo.value, 20);
+        BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 20u);
+        BOOST_CHECK_EQUAL(foo.value, 20u);
     }
 }
 
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE(constness)
         BOOST_CHECK(ret.isConst());
         BOOST_CHECK_EQUAL(ret.refType(), RefType::LValue);
 
-        BOOST_CHECK_EQUAL(i, 10);
+        BOOST_CHECK_EQUAL(i, 10u);
         BOOST_CHECK_EQUAL(&ret.cast<const unsigned>(), &i);
     }
 }

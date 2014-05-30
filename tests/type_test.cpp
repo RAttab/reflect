@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(void_)
     BOOST_CHECK(t->isParentOf<void>());
     BOOST_CHECK(t->isChildOf<void>());
 
-    BOOST_CHECK_EQUAL(t->fields().size(), 0);
+    BOOST_CHECK_EQUAL(t->fields().size(), 0u);
 
     BOOST_CHECK(!t->isCopiable());
     BOOST_CHECK(!t->isMovable());
