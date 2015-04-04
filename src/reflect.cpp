@@ -12,9 +12,11 @@
 
 #include "registry.cpp"
 #include "argument.cpp"
+#include "traits.cpp"
 #include "value.cpp"
 #include "value_function.cpp"
+#include "scope.cpp"
+#include "type.cpp"
+#include "fied.cpp"
 #include "function.cpp"
 #include "overloads.cpp"
-#include "type.cpp"
-#include "scope.cpp"

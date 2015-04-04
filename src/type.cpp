@@ -42,13 +42,6 @@ traits() const
     return { traits_.begin(), traits_.end() };
 }
 
-void
-Type::
-addFunctionTrait(const std::string& fn, std::string trait)
-{
-    fnTraits_[fn].emplace(std::move(trait));
-}
-
 bool
 Type::
 functionIs(const std::string& fn, const std::string& trait) const
@@ -59,18 +52,6 @@ functionIs(const std::string& fn, const std::string& trait) const
 
     return parent_ ? parent_->functionIs(fn, trait) : false;
 }
-
-std::vector<std::string>
-Type::
-functionTraits(const std::string& fn) const
-{
-    auto it = fnTraits_.find(fn);
-    if (it != fnTraits_.end())
-        return { it->second.begin(), it->second.end() };
-
-    return parent_ ? parent_->functionTraits(fn) : std::vector<std::string>();
-}
-
 
 bool
 Type::
@@ -141,24 +122,22 @@ isMovable() const
 
 void
 Type::
-functions(std::vector<std::string>& result, const std::string& trait) const
+functions(std::vector<std::string>& result) const
 {
     result.reserve(result.size() + fns_.size());
 
-    for (const auto& f : fns_) {
-        if (!trait.empty() && !functionIs(f.first, trait)) continue;
+    for (const auto& f : fns_)
         result.push_back(f.first);
-    }
 
     if (parent_) parent_->functions(result, trait);
 }
 
 std::vector<std::string>
 Type::
-functions(const std::string& trait) const
+functions() const
 {
     std::vector<std::string> result;
-    functions(result, trait);
+    functions(result);
 
     std::sort(result.begin(), result.end());
     result.erase(std::unique(result.begin(), result.end()), result.end());
@@ -170,13 +149,13 @@ bool
 Type::
 hasFunction(const std::string& fn) const
 {
-    if (fns_.find(fn) != fns_.end()) return true;
+    if (fns_.count(fn)) return true;
     return parent_ ? parent_->hasFunction(fn) : false;
 }
 
-const Overloads&
+Overloads&
 Type::
-function(const std::string& fn) const
+function(const std::string& fn)
 {
     auto it = fns_.find(fn);
     if (it != fns_.end()) return it->second;
@@ -187,37 +166,65 @@ function(const std::string& fn) const
     return parent_->function(fn);
 }
 
+const Overloads&
+Type::
+function(const std::string& fn) const
+{
+    return const_cast<Type*>(this)->function(fn);
+}
+
+void
+Type::
+fields(std::vector<std::string>& result) const
+{
+    result.reserve(result.size() + fields_.size());
+
+    for (const auto& field : fields_)
+        result.push_back(field);
+
+    if (parent_) parent_->fields(result);
+}
+
 std::vector<std::string>
 Type::
 fields() const
 {
-    return functions("field");
+    std::vector<std::string> result;
+    fields(result);
+
+    std::sort(result.begin(), result.end());
+    result.erase(std::unique(result.begin(), result.end()), result.end());
+
+    return result;
 }
 
 bool
 Type::
 hasField(const std::string& field) const
 {
-    return functionIs(field, "field");
+    if (fields_.count(field)) return true;
+    return parent_ ? parent_->hasField(field) : false;
 }
 
-const Overloads&
+Field&
+Type::
+field(const std::string& field)
+{
+    auto it = fields_.find(field);
+    if (it != fields_.end()) return it->second;
+
+    if (!parent_)
+        reflectError("<%s> doesn't have a field <%s>", id_, field);
+
+    return parent_->field(field);
+}
+
+const Field&
 Type::
 field(const std::string& field) const
 {
-    if (!hasField(field))
-        reflectError("<%s> doesn't have a field <%s>", id_, field);
-
-    return function(field);
+    return const_cast<Type*>(this)->field(field);
 }
-
-const Type*
-Type::
-fieldType(const std::string& field) const
-{
-    return this->field(field).fieldType();
-}
-
 
 bool
 Type::
@@ -257,37 +264,19 @@ void
 Type::
 add(const std::string& name, Function&& fn)
 {
-    bool isField = fn.isGetter() || fn.isSetter();
     fns_[name].add(std::move(fn));
-
-    // let's add to fields if it passes the constructor and operator filter.
-
-    if (!isField) return;
-    if (name == id_) return;
-
-    static const std::string op = "operator";
-    size_t pos = name.find(op);
-
-    if (pos == 0 && name.size() > op.size()) {
-        char c = name[op.size()];
-        if (c != '_' && !std::isalpha(c)) return;
-    }
-
-    addFunctionTrait(name, "field");
 }
 
-
-namespace {
-
-void printTraits(
-        std::stringstream& ss, const std::unordered_set<std::string>& traits)
+void
+Type::
+add(Field&& field)
 {
-    ss<< "traits: [ ";
-    for (auto& trait : traits) ss << trait << " ";
-    ss << "]\n";
+    auto ret = fields_.emplace(field->name, std::move(field));
+    if (!ret.second) {
+        reflectError("unable to add field <%s>, already exists as <%s>",
+                field.print(), ret.first->first.print());
+    }
 }
-
-} // namespace anonymous
 
 std::string
 Type::
@@ -307,18 +296,16 @@ print(size_t indent) const
 
     if (parent_) ss << parent_->print(indent) << "\n";
 
-    if (!traits_.empty()) {
-        ss << pad1; printTraits(ss, traits_);
-    }
+    if (!traits().empty())
+        ss << pad1 << Traits::print() << "\n";
+
+    for (auto& field : fields_)
+        ss << pad1 << field->print() << "\n";
+
+    ss << pad1 << "\n";
 
     for (auto& fn : fns_) {
         ss << pad1 << fn.first << ":\n";
-
-        auto it = fnTraits_.find(fn.first);
-        if (it != fnTraits_.end()) {
-            ss << pad2; printTraits(ss, it->second);
-        }
-
         ss << fn.second.print(indent + PadInc);
     }
 

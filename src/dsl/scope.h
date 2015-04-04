@@ -11,7 +11,17 @@
 namespace reflect {
 
 /******************************************************************************/
-/* NAMESPACE                                                                  */
+/* TRAITS                                                                     */
+/******************************************************************************/
+
+#define reflectScopeTrait(trait)                \
+    scope_->addTrait(#trait)
+
+#define reflectScopeValue(trait, value)         \
+    scope_->addTrait(#trait, value)
+
+/******************************************************************************/
+/* SCOPE                                                                      */
 /******************************************************************************/
 
 #define reflectScopeImpl(sc, tag)                                       \
@@ -62,15 +72,15 @@ template<typename T>
 void reflectGlobalVar(Scope*, const std::string& name, T* var)
 {
     Scope* gScope = Registry::globalScope();
-    gScope->addFunction(name, [=] { return *var; });
-    gScope->addFunction(name, [=] (const T& other) { *var = other; });
+    gScope->add(name, [=] { return *var; });
+    gScope->add(name, [=] (const T& other) { *var = other; });
 }
 
 template<typename T>
 void reflectGlobalVar(Scope*, const std::string& name, const T* var)
 {
     Scope* gScope = Registry::globalScope();
-    gScope->addFunction(name, [=] { return *var; });
+    gScope->add(name, [=] { return *var; });
 }
 
 #define reflectGlobalVar(var)                   \

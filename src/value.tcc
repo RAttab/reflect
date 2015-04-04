@@ -209,17 +209,16 @@ call(const std::string& fn, Args&&... args) const
 template<typename Ret>
 Ret
 Value::
-get(const std::string& field) const
+field(const std::string& field) const
 {
-    return call<Ret>(field);
-}
+    const auto& f = type()->field(field);
+    bool isConst = f.arg().isConst() || isConst();
 
-template<typename Arg>
-void
-Value::
-set(const std::string& field, Arg&& arg) const
-{
-    call<void>(field, std::forward<Arg>(arg));
+    Value value;
+    value.arg = Argument(f.type(), RefType::LValue, isConst);
+    value.value_ = static_cast<uint8_t*>(value_) + f.offset();
+
+    return retCast<Ret>(value);
 }
 
 template<typename Arg>

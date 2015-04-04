@@ -14,7 +14,7 @@ namespace reflect {
 /* OVERLOADS                                                                  */
 /******************************************************************************/
 
-struct Overloads
+struct Overloads : public Traits
 {
     // For debugging purposes only.
     std::string name() const;
@@ -32,11 +32,6 @@ struct Overloads
 
     template<typename Ret, typename... Args>
     Ret call(Args&&... args) const;
-
-    bool isField() const;
-    const Type* fieldType() const;
-    bool hasGetter() const;
-    bool hasSetter() const;
 
     std::string print(size_t indent = 0) const;
 

@@ -14,7 +14,7 @@ namespace reflect {
 /* TYPE                                                                       */
 /******************************************************************************/
 
-struct Type
+struct Type : public Traits
 {
     explicit Type(std::string id, const Type* parent = nullptr);
 
@@ -31,22 +31,19 @@ struct Type
     void add(const std::string& name, Fn&& rawFn);
     void add(const std::string& name, Function&& fn);
 
-    std::vector<std::string> functions(const std::string& trait = "") const;
+    std::vector<std::string> functions() const;
     bool hasFunction(const std::string& fn) const;
+    Overloads& function(const std::string& fn);
     const Overloads& function(const std::string& fn) const;
+
+    template<typename T, typename M>
+    void add(const std::string& name, M T::* rawField);
+    void add(const std::string& name, Field&& field);
 
     std::vector<std::string> fields() const;
     bool hasField(const std::string& field) const;
-    const Overloads& field(const std::string& field) const;
-    const Type* fieldType(const std::string& field) const;
-
-    void addTrait(std::string trait);
-    bool is(const std::string& trait) const;
-    std::vector<std::string> traits() const;
-
-    void addFunctionTrait(const std::string& fn, std::string trait);
-    bool functionIs(const std::string& fn, const std::string& trait) const;
-    std::vector<std::string> functionTraits(const std::string& fn) const;
+    Field& field(const std::string& field);
+    const Field& field(const std::string& field) const;
 
     bool isPointer() const;
     std::string pointer() const;
@@ -85,7 +82,8 @@ struct Type
 
 private:
 
-    void functions(std::vector<std::string>& result, const std::string& trait) const;
+    void functions(std::vector<std::string>& result) const;
+    void fields(std::vector<std::string>& result) const;
 
     std::string id_;
     const Type* parent_;
@@ -93,10 +91,8 @@ private:
     std::string pointer_;
     const Type* pointee_;
 
+    std::unordered_map<std::string, Field> fields_;
     std::unordered_map<std::string, Overloads> fns_;
-
-    std::unordered_set<std::string> traits_;
-    std::unordered_map<std::string, std::unordered_set<std::string> > fnTraits_;
 };
 
 

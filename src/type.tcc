@@ -38,13 +38,20 @@ call(const std::string& fn, Args&&... args) const
     return function(fn).call<Ret>(std::forward<Args>(args)...);
 }
 
-
 template<typename Fn>
 void
 Type::
 add(const std::string& name, Fn&& rawFn)
 {
     add(name, Function(name, std::move(rawFn)));
+}
+
+template<typename T, typename M>
+void
+Type::
+add(const std::string& name, M T::* rawField)
+{
+    add(name, Field(name, rawField));
 }
 
 } // namespace reflect

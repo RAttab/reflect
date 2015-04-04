@@ -54,12 +54,6 @@ struct Function
     template<typename Ret, typename... Args>
     Ret call(Args&&... args) const;
 
-    bool isGetter() const;
-    const Type* getterType() const;
-
-    bool isSetter() const;
-    const Type* setterType() const;
-
 private:
 
     Match test(const Argument& value, const Argument& target) const;

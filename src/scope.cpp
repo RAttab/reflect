@@ -117,6 +117,9 @@ print(int indent) const
     ss << pad0 << "scope " << name_ << "\n";
     ss << pad0 << "{\n";
 
+    if (!traits().empty())
+        ss << pad1 << Traits::print() << "\n";
+
     for (auto& fn : functions_) {
         ss << pad1 << fn.first << ":\n";
         ss << fn.second.print(indent + PadInc);

@@ -10,6 +10,16 @@
 
 namespace reflect {
 
+/******************************************************************************/
+/* TRAITS                                                                     */
+/******************************************************************************/
+
+#define reflectFnTrait(fn, trait)               \
+    type_->function(#fn).addTrait(#trait)
+
+#define reflectFnValue(fn, trait, value)                \
+    type_->function(#fn).addTrait(#trait, value)
+
 
 /******************************************************************************/
 /* CONS                                                                       */
