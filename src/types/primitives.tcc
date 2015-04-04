@@ -37,7 +37,7 @@ void reflectNumberImpl(Type* type_)
 
     reflectTrait(primitive);
 
-    reflectCustom(operator+) (const int& obj, int value) {
+    reflectCustom(operator+) (const T_& obj, T_ value) {
         return obj + value;
     };
 
