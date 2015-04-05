@@ -35,15 +35,15 @@ struct Scope : public Traits
     Scope* scope(const std::string& name) const;
     Scope* scope(const std::string& name);
 
+    void addType(const std::string& name);
+
     std::vector<std::string> types(bool includeScopes = false) const;
     bool hasType(const std::string& name);
     const Type* type(const std::string& name);
 
-    void addType(const std::string& name);
-
     template<typename Fn>
-    void add(const std::string& name, Fn&& rawFn);
-    void add(const std::string& name, Function&& fn);
+    void addFunction(const std::string& name, Fn&& rawFn);
+    void addFunction(const std::string& name, Function&& fn);
 
     std::vector<std::string> functions(bool includeScopes = false) const;
     bool hasFunction(const std::string& name) const;

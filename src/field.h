@@ -19,14 +19,11 @@ struct Field : public Traits
     template<typename T, typename M>
     Field(std::string name, M T::* field);
 
-    Field(const Field&) = delete;
-    Field& operator=(const Field&) = delete;
-
     const std::string& name() const { return name_; }
     size_t offset() const { return offset_; }
 
     const Argument& argument() const { return arg; }
-    const Type* type() const { return arg->type(); }
+    const Type* type() const { return arg.type(); }
 
     std::string print() const;
 

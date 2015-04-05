@@ -103,13 +103,13 @@ add_library(reflect_primitives SHARED
 add_library(reflect_std SHARED
     src/types/std/string.cpp)
 
-add_library(reflect_json SHARED src/utils/json/json.cpp)
-target_link_libraries(reflect_json reflect)
+# add_library(reflect_json SHARED src/utils/json/json.cpp)
+# target_link_libraries(reflect_json reflect)
 
-add_library(reflect_config SHARED src/utils/config/compile.cpp)
-target_link_libraries(reflect_config reflect_json)
-force_target_link_libraries(reflect_config reflect_primitives)
-force_target_link_libraries(reflect_config reflect_std)
+# add_library(reflect_config SHARED src/utils/config/compile.cpp)
+# target_link_libraries(reflect_config reflect_json)
+# force_target_link_libraries(reflect_config reflect_primitives)
+# force_target_link_libraries(reflect_config reflect_std)
 
 
 #------------------------------------------------------------------------------#
@@ -214,9 +214,9 @@ reflect_test(function)
 reflect_test(pointer)
 reflect_test(reflection)
 reflect_test(demo)
-reflect_utils_test(json json)
-reflect_utils_test(config path)
-reflect_utils_test(config cubes)
+# reflect_utils_test(json json)
+# reflect_utils_test(config path)
+# reflect_utils_test(config cubes)
 
 add_executable(blah_test tests/blah_test.cpp)
 target_link_libraries(blah_test reflect)

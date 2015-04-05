@@ -16,7 +16,7 @@ namespace reflect {
 
 struct Type : public Traits
 {
-    explicit Type(std::string id, const Type* parent = nullptr);
+    explicit Type(std::string id);
 
     Type(Type&&) = delete;
     Type(const Type&) = delete;
@@ -25,11 +25,11 @@ struct Type : public Traits
 
     const std::string& id() const { return id_; }
     const Type* parent() const { return parent_; }
-    void parent(const Type* parent) { parent_ = parent; }
+    void parent(Type* parent) { parent_ = parent; }
 
     template<typename Fn>
-    void add(const std::string& name, Fn&& rawFn);
-    void add(const std::string& name, Function&& fn);
+    void addFunction(const std::string& name, Fn&& rawFn);
+    void addFunction(const std::string& name, Function&& fn);
 
     std::vector<std::string> functions() const;
     bool hasFunction(const std::string& fn) const;
@@ -37,8 +37,8 @@ struct Type : public Traits
     const Overloads& function(const std::string& fn) const;
 
     template<typename T, typename M>
-    void add(const std::string& name, M T::* rawField);
-    void add(const std::string& name, Field&& field);
+    void addField(const std::string& name, M T::* rawField);
+    void addField(const std::string& name, Field&& field);
 
     std::vector<std::string> fields() const;
     bool hasField(const std::string& field) const;
@@ -86,7 +86,7 @@ private:
     void fields(std::vector<std::string>& result) const;
 
     std::string id_;
-    const Type* parent_;
+    Type* parent_;
 
     std::string pointer_;
     const Type* pointee_;

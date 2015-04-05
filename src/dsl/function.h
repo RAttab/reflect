@@ -28,13 +28,13 @@ namespace reflect {
 template<typename T, typename... Args>
 void reflectConstructor(Type* type)
 {
-    type->add(type->id(), [] (Args... args) {
+    type->addFunction(type->id(), [] (Args... args) {
                 return T(std::forward<Args>(args)...);
             });
 }
 
 #define reflectCons(...)                        \
-    reflect::reflectConstructor<T_, __VA_ARGS__>(type_);
+    reflect::reflectConstructor<T_, __VA_ARGS__>(type_)
 
 
 /******************************************************************************/
@@ -44,13 +44,13 @@ void reflectConstructor(Type* type)
 template<typename T, typename... Args>
 void reflectAllocator(Type* type)
 {
-    type->add("new", [] (Args... args) {
+    type->addFunction("new", [] (Args... args) {
                 return new T(std::forward<Args>(args)...);
             });
 }
 
 #define reflectAlloc(...)                               \
-    reflect::reflectAllocator<T_, __VA_ARGS__>(type_);
+    reflect::reflectAllocator<T_, __VA_ARGS__>(type_)
 
 
 /******************************************************************************/
@@ -60,7 +60,7 @@ void reflectAllocator(Type* type)
 template<typename Fn>
 void reflectFunction(Type* type, std::string name, Fn fn)
 {
-    type->add(std::move(name), std::move(fn));
+    type->addFunction(std::move(name), std::move(fn));
 }
 
 #define reflectFn(fn)                           \
@@ -83,7 +83,7 @@ struct AddLambdaToType
     template<typename Fn>
     void operator+= (Fn fn)
     {
-        type->add(std::move(name), std::move(fn));
+        type->addFunction(std::move(name), std::move(fn));
     }
 
 private:

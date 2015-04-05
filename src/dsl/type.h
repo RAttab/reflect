@@ -57,7 +57,7 @@ namespace reflect {
     reflectTypeLoader(_type_)                   \
                                                 \
     void                                        \
-    reflect::Reflect<_type_>::                  \
+    ::reflect::Reflect<_type_>::                \
     reflect(reflectUnused Type* type_)
 
 #define reflectType(_type_)                     \

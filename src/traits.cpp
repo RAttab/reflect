@@ -15,12 +15,10 @@ namespace reflect {
 
 void
 Traits::
-addTrait(const std::string& trait, std::string value)
+addTrait(const std::string& trait, Value value)
 {
-    if (traits_.count(trait)) {
-        reflectError("trait <%s> already added with value <%s>",
-                trait, traits_[trait]);
-    }
+    if (traits_.count(trait))
+        reflectError("trait <%s> already exists", trait);
 
     traits_[trait] = std::move(value);
 }
@@ -53,7 +51,7 @@ print() const
 
     ss << "[ ";
     for (const auto& trait : traits_)
-        ss << trait << " ";
+        ss << trait.first << " ";
     ss << "]";
 
     return ss.str();

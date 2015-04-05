@@ -14,6 +14,22 @@ namespace reflect {
 /* TYPE                                                                       */
 /******************************************************************************/
 
+template<typename Fn>
+void
+Type::
+addFunction(const std::string& name, Fn&& rawFn)
+{
+    addFunction(name, Function(name, std::move(rawFn)));
+}
+
+template<typename T, typename M>
+void
+Type::
+addField(const std::string& name, M T::* rawField)
+{
+    addField(name, Field(name, rawField));
+}
+
 template<typename... Args>
 Value
 Type::
@@ -36,22 +52,6 @@ Type::
 call(const std::string& fn, Args&&... args) const
 {
     return function(fn).call<Ret>(std::forward<Args>(args)...);
-}
-
-template<typename Fn>
-void
-Type::
-add(const std::string& name, Fn&& rawFn)
-{
-    add(name, Function(name, std::move(rawFn)));
-}
-
-template<typename T, typename M>
-void
-Type::
-add(const std::string& name, M T::* rawField)
-{
-    add(name, Field(name, rawField));
 }
 
 } // namespace reflect

@@ -18,8 +18,8 @@ template<typename T, typename M>
 Field::
 Field(std::string name, M T::* field) :
     name_(std::move(name)),
-    arg(Argument<M>::make()),
-    offset_(reinterpret_cast<size_t>(field))
+    arg(Argument::make<M>()),
+    offset_(static_cast<size_t>(field))
 {
     if (arg.refType() != RefType::Copy) {
         reflectError("field <%s> of type <%s> uses unsupported references",

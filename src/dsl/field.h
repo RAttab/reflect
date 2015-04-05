@@ -28,10 +28,10 @@ namespace reflect {
 template<typename T, typename M>
 void reflectField(Type* type, std::string name, M T::* field)
 {
-    type->add(std::move(name), field);
+    type->addField(std::move(name), field);
 }
 
 #define reflectField(field)                             \
-    reflect::reflectField(type_, #field, &T_::field)
+    ::reflect::reflectField(type_, #field, &T_::field)
 
 } // reflect

@@ -18,5 +18,5 @@ reflectTypeImpl(std::string)
 {
     reflectPlumbing();
 
-    reflectTrait(string);
+    reflectTypeTrait(string);
 }

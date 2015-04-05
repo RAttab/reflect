@@ -17,17 +17,9 @@ namespace reflect {
 template<typename Fn>
 void
 Scope::
-add(const std::string& name, Fn&& rawFn)
+addFunction(const std::string& name, Fn&& rawFn)
 {
-    add(name, Function(tail(name).first, std::forward<Fn>(rawFn)));
-}
-
-template<typename T, typename M>
-void
-Type::
-add(const std::string& name, M T::* rawField)
-{
-    add(name, Field(tail(name).first, rawField));
+    addFunction(name, Function(tail(name).first, std::forward<Fn>(rawFn)));
 }
 
 template<typename Ret, typename... Args>

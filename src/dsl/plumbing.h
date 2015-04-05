@@ -13,6 +13,20 @@
 namespace reflect {
 
 /******************************************************************************/
+/* SIZEOF                                                                     */
+/******************************************************************************/
+
+template<typename T>
+void reflectSizeof(Type* type)
+{
+    type->addTrait("sizeof", sizeof(T));
+}
+
+#define reflectSizeof() \
+    reflect::reflectSizeof<T_>(type_)
+
+
+/******************************************************************************/
 /* CONS DEFAULT                                                               */
 /******************************************************************************/
 
@@ -22,14 +36,14 @@ template<typename T,
         std::is_move_constructible<T>::value>::type>
 void reflectDefaultConstructor(Type* type)
 {
-    type->add(type->id(), [] { return T(); });
+    type->addFunction(type->id(), [] { return T(); });
 }
 
 template<typename>
 void reflectDefaultConstructor(...) {}
 
 #define reflectDefaultCons() \
-    reflect::reflectDefaultConstructor<T_>(type_);
+    reflect::reflectDefaultConstructor<T_>(type_)
 
 
 /******************************************************************************/
@@ -41,14 +55,14 @@ template<typename T,
         std::is_default_constructible<T>::value>::type>
 void reflectAllocDefaultConstructor(Type* type)
 {
-    type->add("new", [] () -> T* { return new T(); });
+    type->addFunction("new", [] () -> T* { return new T(); });
 }
 
 template<typename>
 void reflectAllocDefaultConstructor(...) {}
 
 #define reflectAllocDefaultCons() \
-    reflect::reflectAllocDefaultConstructor<T_>(type_);
+    reflect::reflectAllocDefaultConstructor<T_>(type_)
 
 
 /******************************************************************************/
@@ -61,7 +75,7 @@ template<typename T,
         std::is_move_constructible<T>::value>::type>
 void reflectCopyConstructor(Type* type)
 {
-    type->add(type->id(), [] (const T& other) {
+    type->addFunction(type->id(), [] (const T& other) {
                 return T(other);
             });
 }
@@ -70,7 +84,7 @@ template<typename>
 void reflectCopyConstructor(...) {}
 
 #define reflectCopyCons() \
-    reflect::reflectCopyConstructor<T_>(type_);
+    reflect::reflectCopyConstructor<T_>(type_)
 
 
 /******************************************************************************/
@@ -81,7 +95,7 @@ template<typename T,
     class = typename std::enable_if<std::is_copy_constructible<T>::value>::type>
 void reflectAllocCopyConstructor(Type* type)
 {
-    type->add("new", [] (const T& other) -> T* {
+    type->addFunction("new", [] (const T& other) -> T* {
                 return new T(other);
             });
 }
@@ -91,7 +105,7 @@ void reflectAllocCopyConstructor(...) {}
 
 
 #define reflectAllocCopyCons() \
-    reflect::reflectAllocCopyConstructor<T_>(type_);
+    reflect::reflectAllocCopyConstructor<T_>(type_)
 
 
 /******************************************************************************/
@@ -102,7 +116,7 @@ template<typename T,
     class = typename std::enable_if<std::is_move_constructible<T>::value>::type>
 void reflectMoveConstructor(Type* type)
 {
-    type->add(type->id(), [] (T&& other) {
+    type->addFunction(type->id(), [] (T&& other) {
                 return T(std::move(other));
             });
 }
@@ -112,7 +126,7 @@ void reflectMoveConstructor(...) {}
 
 
 #define reflectMoveCons() \
-    reflect::reflectMoveConstructor<T_>(type_);
+    reflect::reflectMoveConstructor<T_>(type_)
 
 
 /******************************************************************************/
@@ -123,7 +137,7 @@ template<typename T,
     class = typename std::enable_if<std::is_move_constructible<T>::value>::type>
 void reflectAllocMoveConstructor(Type* type)
 {
-    type->add("new", [] (T&& other) -> T* {
+    type->addFunction("new", [] (T&& other) -> T* {
                 return new T(std::move(other));
             });
 }
@@ -133,7 +147,7 @@ void reflectAllocMoveConstructor(...) {}
 
 
 #define reflectAllocMoveCons() \
-    reflect::reflectAllocMoveConstructor<T_>(type_);
+    reflect::reflectAllocMoveConstructor<T_>(type_)
 
 
 /******************************************************************************/
@@ -144,7 +158,7 @@ template<typename T,
     class = typename std::enable_if<std::is_copy_assignable<T>::value>::type>
 void reflectCopyAssignOperator(Type* type)
 {
-    type->add("operator=", [] (T& obj, const T& other) -> T& {
+    type->addFunction("operator=", [] (T& obj, const T& other) -> T& {
                 return obj = other;
             });
 }
@@ -153,7 +167,7 @@ template<typename>
 void reflectCopyAssignOperator(...) {}
 
 #define reflectOpCopyAssign() \
-    reflect::reflectCopyAssignOperator<T_>(type_);
+    reflect::reflectCopyAssignOperator<T_>(type_)
 
 
 /******************************************************************************/
@@ -164,7 +178,7 @@ template<typename T,
     class = typename std::enable_if<std::is_move_assignable<T>::value>::type>
 void reflectMoveAssignOperator(Type* type)
 {
-    type->add("operator=", [] (T& obj, T&& other) -> T& {
+    type->addFunction("operator=", [] (T& obj, T&& other) -> T& {
                 return obj = std::move(other);
             });
 }
@@ -173,7 +187,7 @@ template<typename>
 void reflectMoveAssignOperator(...) {}
 
 #define reflectOpMoveAssign() \
-    reflect::reflectMoveAssignOperator<T_>(type_);
+    reflect::reflectMoveAssignOperator<T_>(type_)
 
 
 /******************************************************************************/
@@ -182,6 +196,7 @@ void reflectMoveAssignOperator(...) {}
 
 #define reflectPlumbing()                               \
     do {                                                \
+        reflectSizeof();                                \
         reflectDefaultCons();                           \
         reflectCopyCons();                              \
         reflectOpCopyAssign();                          \

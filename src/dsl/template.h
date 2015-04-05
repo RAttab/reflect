@@ -44,7 +44,7 @@ namespace reflect {
 #define reflectTemplateImpl(temp, type)                                 \
     template<typename type>                                             \
     void                                                                \
-    reflect::Reflect< temp<type> >::                                    \
+    ::reflect::Reflect< temp<type> >::                                  \
     reflect(reflectUnused Type* type_)
 
 #define reflectTemplate(temp, type)                \

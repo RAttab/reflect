@@ -20,7 +20,7 @@ namespace reflect {
 /******************************************************************************/
 
 #define reflectLimit(name) \
-    type_->add(#name, [] { return std::numeric_limits<T_>::name(); });
+    type_->addTrait(#name, std::numeric_limits<T_>::name())
 
 
 /******************************************************************************/
@@ -35,24 +35,24 @@ void reflectNumberImpl(Type* type_)
     reflectLimit(min);
     reflectLimit(max);
 
-    reflectTrait(primitive);
+    reflectTypeTrait(primitive);
 
     reflectCustom(operator+) (const T_& obj, T_ value) {
         return obj + value;
     };
 
     if (std::is_same<T_, bool>::value)
-        reflectTrait(bool);
+        reflectTypeTrait(bool);
 
     else if (std::numeric_limits<T_>::is_integer) {
-        reflectTrait(integer);
+        reflectTypeTrait(integer);
 
         if (std::numeric_limits<T_>::is_signed)
-            reflectTrait(signed);
-        else reflectTrait(unsigned);
+            reflectTypeTrait(signed);
+        else reflectTypeTrait(unsigned);
     }
 
-    else reflectTrait(float);
+    else reflectTypeTrait(float);
 }
 
 #define reflectNumber(num) \

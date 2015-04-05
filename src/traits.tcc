@@ -14,6 +14,14 @@ namespace reflect {
 /* TRAITS                                                                     */
 /******************************************************************************/
 
+template<typename T>
+void
+Traits::
+addTrait(const std::string& trait, T&& value)
+{
+    addTrait(trait, Value(std::forward<T>(value)));
+}
+
 template<typename Ret>
 Ret
 Traits::

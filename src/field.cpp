@@ -19,7 +19,7 @@ print() const
 {
     std::stringstream ss;
 
-    ss << offset_ << ": " << type_->id() << " " << name_;
+    ss << offset_ << ": " << arg.type()->id() << " " << name_;
     if (!traits().empty()) ss << " " << Traits::print();
 
     return ss.str();

@@ -16,7 +16,10 @@ namespace reflect {
 
 struct Traits
 {
+    template<typename T>
+    void addTrait(const std::string& trait, T&& value);
     void addTrait(const std::string& trait, Value value = {});
+
     std::vector<std::string> traits() const;
 
     bool is(const std::string& trait) const;

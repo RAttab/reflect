@@ -17,41 +17,9 @@ namespace reflect {
 /******************************************************************************/
 
 Type::
-Type(std::string id, const Type* parent) :
-    id_(std::move(id)), parent_(parent), pointee_(nullptr)
+Type(std::string id) :
+    id_(std::move(id)), parent_(nullptr), pointee_(nullptr)
 {}
-
-void
-Type::
-addTrait(std::string trait)
-{
-    traits_.emplace(std::move(trait));
-}
-
-bool
-Type::
-is(const std::string& trait) const
-{
-    return traits_.count(trait);
-}
-
-std::vector<std::string>
-Type::
-traits() const
-{
-    return { traits_.begin(), traits_.end() };
-}
-
-bool
-Type::
-functionIs(const std::string& fn, const std::string& trait) const
-{
-    auto it = fnTraits_.find(fn);
-    if (it != fnTraits_.end())
-        return it->second.count(trait);
-
-    return parent_ ? parent_->functionIs(fn, trait) : false;
-}
 
 bool
 Type::
@@ -119,6 +87,12 @@ isMovable() const
             { Argument(this, RefType::RValue, false) });
 }
 
+void
+Type::
+addFunction(const std::string& name, Function&& fn)
+{
+    fns_[name].add(std::move(fn));
+}
 
 void
 Type::
@@ -129,7 +103,7 @@ functions(std::vector<std::string>& result) const
     for (const auto& f : fns_)
         result.push_back(f.first);
 
-    if (parent_) parent_->functions(result, trait);
+    if (parent_) parent_->functions(result);
 }
 
 std::vector<std::string>
@@ -175,12 +149,23 @@ function(const std::string& fn) const
 
 void
 Type::
+addField(const std::string& name, Field&& field)
+{
+    auto ret = fields_.emplace(name, std::move(field));
+    if (!ret.second) {
+        reflectError("unable to add field <%s>, already exists as <%s>",
+                field.print(), ret.first->second.print());
+    }
+}
+
+void
+Type::
 fields(std::vector<std::string>& result) const
 {
     result.reserve(result.size() + fields_.size());
 
     for (const auto& field : fields_)
-        result.push_back(field);
+        result.push_back(field.first);
 
     if (parent_) parent_->fields(result);
 }
@@ -260,23 +245,25 @@ setPointer(std::string pointer, const Type* pointee)
     pointee_ = pointee;
 }
 
-void
-Type::
-add(const std::string& name, Function&& fn)
+namespace  {
+
+std::vector<const Field*>
+sortedFields(const std::unordered_map<std::string, Field>& fields)
 {
-    fns_[name].add(std::move(fn));
+    std::vector<const Field*> result;
+    result.reserve(fields.size());
+
+    for (const auto& field : fields)
+        result.push_back(&field.second);
+
+    std::sort(result.begin(), result.end(), [](const Field* lhs, const Field* rhs) {
+                return lhs->offset() < rhs->offset();
+            });
+
+    return result;
 }
 
-void
-Type::
-add(Field&& field)
-{
-    auto ret = fields_.emplace(field->name, std::move(field));
-    if (!ret.second) {
-        reflectError("unable to add field <%s>, already exists as <%s>",
-                field.print(), ret.first->first.print());
-    }
-}
+} // namespace anonymous
 
 std::string
 Type::
@@ -299,12 +286,12 @@ print(size_t indent) const
     if (!traits().empty())
         ss << pad1 << Traits::print() << "\n";
 
-    for (auto& field : fields_)
+    for (const auto& field : sortedFields(fields_))
         ss << pad1 << field->print() << "\n";
 
     ss << pad1 << "\n";
 
-    for (auto& fn : fns_) {
+    for (const auto& fn : fns_) {
         ss << pad1 << fn.first << ":\n";
         ss << fn.second.print(indent + PadInc);
     }

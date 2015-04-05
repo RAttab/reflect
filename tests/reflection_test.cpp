@@ -56,20 +56,17 @@ struct Foo : public Bar
 
     void void_() {}
 
-    const int& getter() const { return value; }
-    void setter(int i) { value = i; }
+    void copyArg(int i) { value = i; }
+    int copyRet() const { return value; }
 
-    void copy(int i) { value = i; }
-    int copy() const { return value; }
+    void lValueArg(int& i) { value = i; }
+    int& lValueRet() { return value; }
 
-    void lValue(int& i) { value = i; }
-    int& lValue() { return value; }
+    void constLValueArg(const int& i) { value = i; }
+    const int& constLValueRet() const { return value; }
 
-    void constLValue(const int& i) { value = i; }
-    const int& constLValue() const { return value; }
-
-    void rValue(int&& i) { value = std::move(i); }
-    int rValue() { return std::move(value); }
+    void rValueArg(int&& i) { value = std::move(i); }
+    int rValueRet() { return std::move(value); }
 
     void fn(int a, int b, int c) { value += a * b + c; }
     static int staticFn(int a, int b) { return a * b ;}
@@ -105,17 +102,21 @@ reflectType(test::Foo)
     reflectOpAssign();
     reflectOpArithmetic();
 
-    reflectField(void_);
+    reflectFn(void_);
     reflectField(field);
     reflectField(constField);
 
-    reflectField(getter);
-    reflectField(setter);
+    reflectFn(copyArg);
+    reflectFn(copyRet);
 
-    reflectField(copy);
-    reflectField(lValue);
-    reflectField(constLValue);
-    reflectField(rValue);
+    reflectFn(lValueArg);
+    reflectFn(lValueRet);
+
+    reflectFn(constLValueArg);
+    reflectFn(constLValueRet);
+
+    reflectFn(rValueArg);
+    reflectFn(rValueRet);
 
     reflectFn(fn);
     reflectFnTyped(staticFn, int(int, int));

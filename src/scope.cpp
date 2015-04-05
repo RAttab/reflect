@@ -304,6 +304,18 @@ addType(const std::string& name)
 /* FUNCTIONS                                                                  */
 /******************************************************************************/
 
+void
+Scope::
+addFunction(const std::string& name, Function&& fn)
+{
+    auto split = tail(name);
+
+    if (!split.second.empty())
+        return scope(split.second)->addFunction(split.first, std::move(fn));
+
+    functions_[split.first].add(std::move(fn));
+}
+
 std::vector<std::string>
 Scope::
 functions(bool includeScopes) const
@@ -340,9 +352,9 @@ hasFunction(const std::string& name) const
     return it != functions_.end();
 }
 
-const Overloads&
+Overloads&
 Scope::
-function(const std::string& name) const
+function(const std::string& name)
 {
     auto split = tail(name);
 
@@ -356,17 +368,11 @@ function(const std::string& name) const
     return it->second;
 }
 
-void
+const Overloads&
 Scope::
-addFunction(const std::string& name, Function fn)
+function(const std::string& name) const
 {
-    auto split = tail(name);
-
-    if (!split.second.empty())
-        return scope(split.second)->addFunction(split.first, std::move(fn));
-
-    functions_[split.first].add(std::move(fn));
+    return const_cast<Scope*>(this)->function(name);
 }
-
 
 } // reflect

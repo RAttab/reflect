@@ -60,7 +60,7 @@ namespace reflect {
 /******************************************************************************/
 
 #define reflectOpCast(type)                                     \
-    type_->add("operator " #type "()", &T_::operator type)
+    type_->addFunction("operator " #type "()", &T_::operator type)
 
 
 /******************************************************************************/
@@ -90,7 +90,7 @@ reflectOpFn(operator>>=, BitRShiftAssign)
         reflectOp(operator^=,  BitXorAssign);           \
         reflectOp(operator<<=, BitLShiftAssign);        \
         reflectOp(operator>>=, BitRShiftAssign);        \
-    } while(false);
+    } while(false)
 
 
 /******************************************************************************/
@@ -108,7 +108,7 @@ reflectOpTypedFn(operator--, DecPost, T (T::*)(int))
         reflectOp(operator--, DecPre);          \
         reflectOp(operator++, IncPost);         \
         reflectOp(operator--, DecPost);         \
-    } while(false);
+    } while(false)
 
 
 /******************************************************************************/
@@ -141,7 +141,7 @@ reflectOpFn(operator>>, BitRShift)
         reflectOp(operator^,  BitXor);          \
         reflectOp(operator<<, BitLShift);       \
         reflectOp(operator>>, BitRShift);       \
-    } while(false);
+    } while(false)
 
 
 /******************************************************************************/
@@ -157,7 +157,7 @@ reflectOpFn(operator||, LogicOr)
         reflectOp(operator!,  LogicNot);        \
         reflectOp(operator&&, LogicAnd);        \
         reflectOp(operator||, LogicOr);         \
-    } while(false);
+    } while(false)
 
 
 /******************************************************************************/
@@ -179,7 +179,7 @@ reflectOpFn(operator>=, GEComp)
         reflectOp(operator>,  GTComp);          \
         reflectOp(operator<=, LEComp);          \
         reflectOp(operator>=, GEComp);          \
-    } while(false);
+    } while(false)
 
 
 /******************************************************************************/
@@ -195,7 +195,7 @@ reflectOpFn(operator*,   Indirection)
         reflectOp(operator(),  Function);               \
         reflectOp(operator[],  Array);                  \
         reflectOp(operator*,   Indirection);            \
-    } while(false);
+    } while(false)
 
 
 /******************************************************************************/

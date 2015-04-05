@@ -87,16 +87,10 @@ struct Foo2 {
 };
 
 
-#define reflectFieldDesc(field, desc)                                   \
-    do {                                                                \
-        reflectField(field);                                            \
-        type_->add(#field "_desc", [] { return std::string(desc); });   \
-    } while(false);
-
 reflectType(Foo2)
 {
     reflectPlumbing();
-    reflectFieldDesc(baz, "I like candy");
+    reflectField(baz);
     reflectFn(bar);
 }
 

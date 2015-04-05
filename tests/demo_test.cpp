@@ -112,7 +112,7 @@ reflectType(test::Thingy)
         return obj.bob[i] + i;
     };
 
-    reflectTrait(thing);
+    reflectTypeTrait(thing);
     reflectFnTrait(weee, interesting);
 }
 

@@ -40,7 +40,7 @@ namespace reflect {
     }                                                                   \
                                                                         \
     void                                                                \
-    reflect::ReflectScope<tag>::                                        \
+    ::reflect::ReflectScope<tag>::                                      \
     reflect(reflectUnused Scope* scope_)
 
 #define reflectScope(scope)                                     \
@@ -72,15 +72,15 @@ template<typename T>
 void reflectGlobalVar(Scope*, const std::string& name, T* var)
 {
     Scope* gScope = Registry::globalScope();
-    gScope->add(name, [=] { return *var; });
-    gScope->add(name, [=] (const T& other) { *var = other; });
+    gScope->addFunction(name, [=] { return *var; });
+    gScope->addFunction(name, [=] (const T& other) { *var = other; });
 }
 
 template<typename T>
 void reflectGlobalVar(Scope*, const std::string& name, const T* var)
 {
     Scope* gScope = Registry::globalScope();
-    gScope->add(name, [=] { return *var; });
+    gScope->addFunction(name, [=] { return *var; });
 }
 
 #define reflectGlobalVar(var)                   \

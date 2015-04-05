@@ -63,7 +63,7 @@ print(size_t indent) const
     std::stringstream ss;
     std::string pad(indent, ' ');
 
-    if (!traits.empty())
+    if (!traits().empty())
         ss << pad << Traits::print() << "\n";
 
     for (const auto& fn : overloads)
