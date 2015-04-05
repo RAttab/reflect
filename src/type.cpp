@@ -298,25 +298,34 @@ print(size_t indent) const
     std::string pad1(indent, ' ');
     std::string pad2(indent + PadInc, ' ');
 
+    bool before = false;
+    auto sep = [&] (bool next) {
+        if (!next) return;
+        if (before) ss << pad1 << "\n";
+        before = next;
+    };
+
     ss << pad0 << "type " << id_ << "\n";
     ss << pad0 << "{\n";
 
+    sep(parent_);
     if (parent_) ss << parent_->print(indent) << "\n";
 
-    if (!traits().empty())
-        ss << pad1 << Traits::print() << "\n";
+    auto hasTraits = !traits().empty();
+    sep(hasTraits);
+    if (hasTraits) ss << pad1 << Traits::print() << "\n";
 
+    sep(!fields_.empty());
     for (const auto& field : sortedFields(fields_))
         ss << pad1 << field->print() << "\n";
 
-    ss << pad1 << "\n";
-
+    sep(!fns_.empty());
     for (const auto& fn : fns_) {
         ss << pad1 << fn.first << ":\n";
         ss << fn.second.print(indent + PadInc);
     }
 
-    ss << pad0 << "}\n";
+    ss << pad0 << "}";
 
     return ss.str();
 }

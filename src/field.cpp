@@ -29,7 +29,9 @@ print() const
 {
     std::stringstream ss;
 
-    ss << offset_ << ": " << arg.type()->id() << " " << name_;
+    ss << std::hex << "0x" << offset_ << std::dec << ": ";
+    ss << arg.type()->id() << " " << name_;
+
     if (!traits().empty()) ss << " " << Traits::print();
 
     return ss.str();

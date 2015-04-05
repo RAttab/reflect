@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(function_)
     const Type* tObject = type<test::Object>();
     BOOST_CHECK( tObject->hasFunction("test::Object"));
     BOOST_CHECK(!tObject->hasFunction("Object"));
-    BOOST_CHECK( tObject->hasFunction("value"));
+    BOOST_CHECK(!tObject->hasFunction("value"));
     BOOST_CHECK( tObject->hasFunction("operator="));
     BOOST_CHECK( tObject->hasFunction("operator+="));
     BOOST_CHECK( tObject->hasFunction("operator++"));
@@ -61,18 +61,18 @@ BOOST_AUTO_TEST_CASE(function_)
     const Type* tParent = type<test::Parent>();
     BOOST_CHECK( tParent->hasFunction("test::Parent"));
     BOOST_CHECK(!tParent->hasFunction("test::Child"));
-    BOOST_CHECK( tParent->hasFunction("value"));
+    BOOST_CHECK(!tParent->hasFunction("value"));
     BOOST_CHECK(!tParent->hasFunction("childValue"));
-    BOOST_CHECK( tParent->hasFunction("shadowed"));
+    BOOST_CHECK(!tParent->hasFunction("shadowed"));
     BOOST_CHECK( tParent->hasFunction("normalVirtual"));
     BOOST_CHECK( tParent->hasFunction("pureVirtual"));
 
     const Type* tChild = type<test::Child>();
     BOOST_CHECK( tChild->hasFunction("test::Child"));
     BOOST_CHECK( tChild->hasFunction("test::Parent"));
-    BOOST_CHECK( tChild->hasFunction("value"));
-    BOOST_CHECK( tChild->hasFunction("childValue"));
-    BOOST_CHECK( tChild->hasFunction("shadowed"));
+    BOOST_CHECK(!tChild->hasFunction("value"));
+    BOOST_CHECK(!tChild->hasFunction("childValue"));
+    BOOST_CHECK(!tChild->hasFunction("shadowed"));
     BOOST_CHECK( tChild->hasFunction("normalVirtual"));
     BOOST_CHECK( tChild->hasFunction("pureVirtual"));
 
