@@ -453,7 +453,7 @@ BOOST_AUTO_TEST_CASE(childParent_test)
     auto doConstLRef = [&] (const Parent&) -> const Child& { return child; };
     Function clrefFn("doConstLRef", doConstLRef);
 
-    auto doRRef = [] (Parent&& p) { return p.value.value() + 1; };
+    auto doRRef = [] (Parent&& p) { return p.value.value + 1; };
     Function rrefFn("doRRef", doRRef);
 
     BOOST_CHECK_EQUAL(copyFn.test<void(Child)>(),           Match::Exact);

@@ -67,8 +67,8 @@ reflectType(B)
 {
     reflectPlumbing();
     reflectField(p);
-    reflectField(m);
     reflectField(v);
+    reflectField(m);
     reflectField(fp);
     reflectField(fr);
 }

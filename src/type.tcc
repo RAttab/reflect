@@ -22,12 +22,12 @@ addFunction(const std::string& name, Fn&& rawFn)
     addFunction(name, Function(name, std::move(rawFn)));
 }
 
-template<typename T, typename M>
+template<typename T>
 void
 Type::
-addField(const std::string& name, M T::* rawField)
+addField(const std::string& name, size_t offset)
 {
-    addField(name, Field(name, rawField));
+    addField(name, Field::make<T>(name, offset));
 }
 
 template<typename... Args>

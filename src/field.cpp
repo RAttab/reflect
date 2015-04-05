@@ -13,6 +13,16 @@ namespace reflect {
 /* FIELD                                                                      */
 /******************************************************************************/
 
+Field::
+Field(std::string name, Argument arg, size_t offset) :
+    name_(std::move(name)), arg(std::move(arg)), offset_(offset)
+{
+    if (arg.refType() != RefType::Copy) {
+        reflectError("field <%s> of type <%s> uses unsupported references",
+                name, arg.print());
+    }
+}
+
 std::string
 Field::
 print() const

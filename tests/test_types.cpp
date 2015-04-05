@@ -23,9 +23,14 @@ reflectTypeImpl(test::Object)
     reflectCons(int);
 
     reflectField(value);
-    reflectField(ref);
-    reflectField(constRef);
-    reflectField(rref);
+
+    reflectFnTyped(ref, int& (test::Object::*)());
+    reflectFnTyped(ref, void (test::Object::*)(int&));
+
+    reflectFnTyped(constRef, const int& (test::Object::*)());
+    reflectFnTyped(constRef, void (test::Object::*)(const int&));
+
+    reflectFn(rref);
 
     reflectOperators();
 }

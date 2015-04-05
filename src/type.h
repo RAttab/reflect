@@ -25,7 +25,7 @@ struct Type : public Traits
 
     const std::string& id() const { return id_; }
     const Type* parent() const { return parent_; }
-    void parent(Type* parent) { parent_ = parent; }
+    void parent(const Type* parent) { parent_ = parent; }
 
     template<typename Fn>
     void addFunction(const std::string& name, Fn&& rawFn);
@@ -36,8 +36,8 @@ struct Type : public Traits
     Overloads& function(const std::string& fn);
     const Overloads& function(const std::string& fn) const;
 
-    template<typename T, typename M>
-    void addField(const std::string& name, M T::* rawField);
+    template<typename T>
+    void addField(const std::string& name, size_t offset);
     void addField(const std::string& name, Field&& field);
 
     std::vector<std::string> fields() const;
@@ -86,7 +86,7 @@ private:
     void fields(std::vector<std::string>& result) const;
 
     std::string id_;
-    Type* parent_;
+    const Type* parent_;
 
     std::string pointer_;
     const Type* pointee_;

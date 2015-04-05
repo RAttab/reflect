@@ -16,8 +16,10 @@ namespace reflect {
 
 struct Field : public Traits
 {
-    template<typename T, typename M>
-    Field(std::string name, M T::* field);
+    Field(std::string name, Argument arg, size_t offset);
+
+    template<typename T>
+    static Field make(std::string name, size_t offset);
 
     const std::string& name() const { return name_; }
     size_t offset() const { return offset_; }

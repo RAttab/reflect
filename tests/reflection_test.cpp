@@ -123,7 +123,7 @@ reflectType(test::Foo)
     reflectFnTyped(staticFn, int(int, int, int));
 
     reflectCustom(custom) (test::Foo& obj, int a, int b) {
-        obj.setter(a + b);
+        obj.value = a + b;
     };
 }
 
@@ -183,5 +183,5 @@ BOOST_AUTO_TEST_CASE(basics)
     BOOST_CHECK_EQUAL(foo.value, a.get<int>() + 2);
 
     Value result = typeFoo->construct(100) + typeFoo->construct(20);
-    BOOST_CHECK_EQUAL(result.get<int>("field"), 120);
+    BOOST_CHECK_EQUAL(result.field<int>("field"), 120);
 }

@@ -25,13 +25,13 @@ namespace reflect {
 /* FIELD                                                                      */
 /******************************************************************************/
 
-template<typename T, typename M>
-void reflectField(Type* type, std::string name, M T::* field)
+template<typename T>
+void reflectField(Type* type, std::string name, size_t offset)
 {
-    type->addField(std::move(name), field);
+    type->addField<T>(std::move(name), offset);
 }
 
 #define reflectField(field)                             \
-    ::reflect::reflectField(type_, #field, &T_::field)
+    ::reflect::reflectField<decltype(T_::field)>(type_, #field, offsetof(T_, field))
 
 } // reflect

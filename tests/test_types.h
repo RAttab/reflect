@@ -18,56 +18,52 @@ namespace test {
 
 struct Object
 {
-    Object() : value_(0) {}
-    Object(int i) : value_(i) {}
+    Object() : value(0) {}
+    Object(int i) : value(i) {}
 
-    Object(const Object& other) : value_(other.value_) {}
-    Object(Object&& other) : value_(other.value_) { other.value_ = 0; }
+    Object(const Object& other) : value(other.value) {}
+    Object(Object&& other) : value(other.value) { other.value = 0; }
 
     Object& operator=(const Object& other)
     {
-        value_ = other.value_;
+        value = other.value;
         return *this;
     }
 
     Object& operator=(Object&& other)
     {
-        value_ = other.value_;
-        other.value_ = 0;
+        value = other.value;
+        other.value = 0;
         return *this;
     }
 
-    int value() const { return value_; }
-    void value(int v) { value_ = v; }
+    int value;
 
-    int& ref() { return value_; }
-    void ref(int& v) { value_ = v; }
+    int& ref() { return value; }
+    void ref(int& v) { value = v; }
 
-    const int& constRef() { return value_; }
-    void constRef(const int& v) { value_ = v; }
+    const int& constRef() { return value; }
+    void constRef(const int& v) { value = v; }
 
     void rref(int&& v)
     {
-        value_ = v;
+        value = v;
         v = 0;
     }
 
-    Object& operator+= (int v) { value_ += v; return *this; }
-    Object& operator++ () { value_++; return *this; }
-    Object& operator++ (int) { value_++; return *this; }
-    Object operator+ (int v) const { return Object(value_ + v); }
+    Object& operator+= (int v) { value += v; return *this; }
+    Object& operator++ () { value++; return *this; }
+    Object& operator++ (int) { value++; return *this; }
+    Object operator+ (int v) const { return Object(value + v); }
     bool operator== (const Object& other) const
     {
-        return value_ == other.value_;
+        return value == other.value;
     }
-
-private:
-    int value_;
 };
 
 std::ostream& operator<<(std::ostream& stream, const test::Object& obj)
 {
-    stream << "<Object: " << obj.value() << ">";
+    stream << "<Object: " << obj.value << ">";
     return stream;
 }
 
@@ -206,12 +202,12 @@ struct Convertible
 
     Object value;
 
-    operator int() const { return value.value(); }
+    operator int() const { return value.value; }
     operator Parent() const
     {
         Parent p;
         p.value = value;
-        p.shadowed = value.value();
+        p.shadowed = value.value;
         return std::move(p);
     }
 

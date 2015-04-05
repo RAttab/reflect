@@ -91,6 +91,12 @@ void
 Type::
 addFunction(const std::string& name, Function&& fn)
 {
+    auto it = fields_.find(name);
+    if (it != fields_.end()) {
+        reflectError("function <%s> already exists as field <%s> in <%s>",
+                name, it->second.print(), id());
+    }
+
     fns_[name].add(std::move(fn));
 }
 
@@ -132,6 +138,17 @@ Type::
 function(const std::string& fn)
 {
     auto it = fns_.find(fn);
+    if (it == fns_.end())
+        reflectError("<%s> doesn't have an immediate function <%s>", id_, fn);
+
+    return it->second;
+}
+
+const Overloads&
+Type::
+function(const std::string& fn) const
+{
+    auto it = fns_.find(fn);
     if (it != fns_.end()) return it->second;
 
     if (!parent_)
@@ -140,21 +157,20 @@ function(const std::string& fn)
     return parent_->function(fn);
 }
 
-const Overloads&
-Type::
-function(const std::string& fn) const
-{
-    return const_cast<Type*>(this)->function(fn);
-}
-
 void
 Type::
 addField(const std::string& name, Field&& field)
 {
+    auto it = fns_.find(name);
+    if (it != fns_.end()) {
+        reflectError("field <%s> already exists as function <%s> in <%s>",
+                field.print(), it->second.print(), id());
+    }
+
     auto ret = fields_.emplace(name, std::move(field));
     if (!ret.second) {
-        reflectError("unable to add field <%s>, already exists as <%s>",
-                field.print(), ret.first->second.print());
+        reflectError("field <%s> already exists as field <%s> in <%s>",
+                field.print(), ret.first->second.print(), id());
     }
 }
 
@@ -196,19 +212,23 @@ Type::
 field(const std::string& field)
 {
     auto it = fields_.find(field);
-    if (it != fields_.end()) return it->second;
+    if (it == fields_.end())
+        reflectError("<%s> doesn't have an immediate field <%s>", id_, field);
 
-    if (!parent_)
-        reflectError("<%s> doesn't have a field <%s>", id_, field);
-
-    return parent_->field(field);
+    return it->second;
 }
 
 const Field&
 Type::
 field(const std::string& field) const
 {
-    return const_cast<Type*>(this)->field(field);
+    auto it = fields_.find(field);
+    if (it != fields_.end()) return it->second;
+
+    if (!parent_)
+        reflectError("<%s> doesn't have a field <%s>", id_, field);
+
+    return parent_->field(field);
 }
 
 bool

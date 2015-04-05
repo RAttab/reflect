@@ -16,6 +16,10 @@ enable_testing()
 
 add_definitions("-Wall -Wextra -Werror -pedantic -g -O4")
 
+# We use the offsetof macro on non-pod types to get the offset of fields. May
+# not be portable beyond gcc.
+add_definitions("-Wno-invalid-offsetof")
+
 # For cperf optimization only.
 # add_definitions("-Wno-unused-variable -Wno-unused-parameter")
 

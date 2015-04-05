@@ -212,7 +212,7 @@ Value::
 field(const std::string& field) const
 {
     const auto& f = type()->field(field);
-    bool isConst = f.arg().isConst() || this->isConst();
+    bool isConst = f.argument().isConst() || this->isConst();
 
     Value value;
     value.arg = Argument(f.type(), RefType::LValue, isConst);

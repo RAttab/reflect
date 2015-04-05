@@ -14,17 +14,12 @@ namespace reflect {
 /* FIELD                                                                      */
 /******************************************************************************/
 
-template<typename T, typename M>
+template<typename T>
+Field
 Field::
-Field(std::string name, M T::* field) :
-    name_(std::move(name)),
-    arg(Argument::make<M>()),
-    offset_(static_cast<size_t>(field))
+make(std::string name, size_t offset)
 {
-    if (arg.refType() != RefType::Copy) {
-        reflectError("field <%s> of type <%s> uses unsupported references",
-                name, arg.print());
-    }
+    return Field(std::move(name), Argument::make<T>(), offset);
 }
 
 

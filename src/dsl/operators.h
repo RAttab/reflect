@@ -203,11 +203,13 @@ reflectOpFn(operator*,   Indirection)
 /******************************************************************************/
 
 #define reflectOperators()                      \
-    reflectOpAssign()                           \
-    reflectOpIncDec()                           \
-    reflectOpArithmetic()                       \
-    reflectOpLogical()                          \
-    reflectOpComparaison()                      \
-    reflectOpOther()
+    do {                                        \
+        reflectOpAssign();                      \
+        reflectOpIncDec();                      \
+        reflectOpArithmetic();                  \
+        reflectOpLogical();                     \
+        reflectOpComparaison();                 \
+        reflectOpOther();                       \
+    } while(false)
 
 } // reflect

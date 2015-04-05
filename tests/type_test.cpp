@@ -125,16 +125,16 @@ BOOST_AUTO_TEST_CASE(fieldType)
     const Type* tInt = type<int>();
 
     const Type* tObject = type<test::Object>();
-    BOOST_CHECK_EQUAL(tObject->fieldType("value"), tInt);
+    BOOST_CHECK_EQUAL(tObject->field("value").type(), tInt);
 
     const Type* tParent = type<test::Parent>();
-    BOOST_CHECK_EQUAL(tParent->fieldType("value"), tObject);
-    BOOST_CHECK_EQUAL(tParent->fieldType("shadowed"), tInt);
+    BOOST_CHECK_EQUAL(tParent->field("value").type(), tObject);
+    BOOST_CHECK_EQUAL(tParent->field("shadowed").type(), tInt);
 
     const Type* tChild = type<test::Child>();
-    BOOST_CHECK_EQUAL(tChild->fieldType("value"), tObject);
-    BOOST_CHECK_EQUAL(tChild->fieldType("childValue"), tObject);
-    BOOST_CHECK_EQUAL(tChild->fieldType("shadowed"), type<bool>());
+    BOOST_CHECK_EQUAL(tChild->field("value").type(), tObject);
+    BOOST_CHECK_EQUAL(tChild->field("childValue").type(), tObject);
+    BOOST_CHECK_EQUAL(tChild->field("shadowed").type(), type<bool>());
 }
 
 BOOST_AUTO_TEST_CASE(moveCopy)
