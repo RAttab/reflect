@@ -103,6 +103,7 @@ reflectType(test::Foo)
     reflectOpArithmetic();
 
     reflectFn(void_);
+    reflectField(value);
     reflectField(field);
     reflectField(constField);
 
@@ -155,8 +156,6 @@ BOOST_AUTO_TEST_CASE(basics)
     BOOST_CHECK(!typeFoo->hasField("baz"));
     BOOST_CHECK(!typeFoo->hasField("void_"));
     BOOST_CHECK( typeFoo->hasField("field"));
-    BOOST_CHECK( typeFoo->hasField("getter"));
-    BOOST_CHECK( typeFoo->hasField("rValue"));
     BOOST_CHECK( typeFoo->hasFunction("fn"));
     BOOST_CHECK( typeFoo->hasFunction("custom"));
 
@@ -168,16 +167,16 @@ BOOST_AUTO_TEST_CASE(basics)
             typeFoo->call<int>("staticFn", 1, 2),
             test::Foo::staticFn(1,2));
 
-    vFoo.call<void>("bar", 1);
+    vFoo.field("bar").assign(1);
     BOOST_CHECK_EQUAL(foo.bar, 1);
     BOOST_CHECK_EQUAL(bar.bar, 1);
-    BOOST_CHECK_EQUAL(vFoo.call<int>("bar"), foo.bar);
+    BOOST_CHECK_EQUAL(vFoo.field<int>("bar"), foo.bar);
 
-    vFoo.call<void>("setter", 1);
+    vFoo.field("value").assign(1);
     BOOST_CHECK_EQUAL(foo.value, 1);
-    BOOST_CHECK_EQUAL(vFoo.call<int>("getter"), foo.value);
+    BOOST_CHECK_EQUAL(vFoo.field<int>("value"), foo.value);
 
-    Value a = vFoo.call<Value>("copy");
+    Value a = vFoo.call<Value>("copyRet");
 
     vFoo.call<void>("custom", a, 2);
     BOOST_CHECK_EQUAL(foo.value, a.get<int>() + 2);
