@@ -236,7 +236,7 @@ function(reflect_cperf name)
     if(CMAKE_SOURCE_DIR STREQUAL ${PROJECT_SOURCE_DIR})
         add_executable(${name}_test tests/cperf/${name}_test.cpp)
         target_link_libraries(${name}_test reflect)
-        add_test(${name} bin/${name}_test)
+        add_test(cperf_${name} bin/${name}_test)
     endif()
 endfunction()
 
