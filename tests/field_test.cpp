@@ -23,12 +23,16 @@ using namespace reflect;
 /* FOO                                                                        */
 /******************************************************************************/
 
+int global;
+
 struct Foo
 {
-    Foo() : field(0), constField(123), privateField(0) {}
+    Foo() : field(0), constField(123), ref(global), privateField(0) {}
 
     int field;
     const int constField;
+
+    int& ref; // \todo Not sure how to support this yet.
 
     int getPrivateField() const { return privateField; }
 

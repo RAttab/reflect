@@ -19,7 +19,7 @@ Field(std::string name, Argument arg, size_t offset) :
 {
     if (arg.refType() != RefType::Copy) {
         reflectError("field <%s> of type <%s> uses unsupported references",
-                name, arg.print());
+                name_, arg.print());
     }
 }
 
