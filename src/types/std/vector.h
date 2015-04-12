@@ -23,7 +23,7 @@ reflectTemplate(std::vector, ValueT)
 {
     reflectPlumbing();
 
-    reflectTrait(list);
+    reflectTypeTrait(list);
     reflectCustom(valueType) { return type<ValueT>(); };
 
     reflectFn(size);

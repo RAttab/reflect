@@ -117,11 +117,8 @@ struct Value
     template<typename Ret, typename... Args>
     Ret call(const std::string& fn, Args&&... args) const;
 
-    template<typename Ret>
-    Ret get(const std::string& field) const;
-
-    template<typename Arg>
-    void set(const std::string& field, Arg&& arg) const;
+    template<typename Ret = Value>
+    Ret field(const std::string& field) const;
 
     // operator= for the contained value.
     template<typename Arg>

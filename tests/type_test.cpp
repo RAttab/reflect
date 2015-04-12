@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(function_)
     const Type* tObject = type<test::Object>();
     BOOST_CHECK( tObject->hasFunction("test::Object"));
     BOOST_CHECK(!tObject->hasFunction("Object"));
-    BOOST_CHECK( tObject->hasFunction("value"));
+    BOOST_CHECK(!tObject->hasFunction("value"));
     BOOST_CHECK( tObject->hasFunction("operator="));
     BOOST_CHECK( tObject->hasFunction("operator+="));
     BOOST_CHECK( tObject->hasFunction("operator++"));
@@ -61,18 +61,18 @@ BOOST_AUTO_TEST_CASE(function_)
     const Type* tParent = type<test::Parent>();
     BOOST_CHECK( tParent->hasFunction("test::Parent"));
     BOOST_CHECK(!tParent->hasFunction("test::Child"));
-    BOOST_CHECK( tParent->hasFunction("value"));
+    BOOST_CHECK(!tParent->hasFunction("value"));
     BOOST_CHECK(!tParent->hasFunction("childValue"));
-    BOOST_CHECK( tParent->hasFunction("shadowed"));
+    BOOST_CHECK(!tParent->hasFunction("shadowed"));
     BOOST_CHECK( tParent->hasFunction("normalVirtual"));
     BOOST_CHECK( tParent->hasFunction("pureVirtual"));
 
     const Type* tChild = type<test::Child>();
     BOOST_CHECK( tChild->hasFunction("test::Child"));
     BOOST_CHECK( tChild->hasFunction("test::Parent"));
-    BOOST_CHECK( tChild->hasFunction("value"));
-    BOOST_CHECK( tChild->hasFunction("childValue"));
-    BOOST_CHECK( tChild->hasFunction("shadowed"));
+    BOOST_CHECK(!tChild->hasFunction("value"));
+    BOOST_CHECK(!tChild->hasFunction("childValue"));
+    BOOST_CHECK(!tChild->hasFunction("shadowed"));
     BOOST_CHECK( tChild->hasFunction("normalVirtual"));
     BOOST_CHECK( tChild->hasFunction("pureVirtual"));
 
@@ -125,16 +125,16 @@ BOOST_AUTO_TEST_CASE(fieldType)
     const Type* tInt = type<int>();
 
     const Type* tObject = type<test::Object>();
-    BOOST_CHECK_EQUAL(tObject->fieldType("value"), tInt);
+    BOOST_CHECK_EQUAL(tObject->field("value").type(), tInt);
 
     const Type* tParent = type<test::Parent>();
-    BOOST_CHECK_EQUAL(tParent->fieldType("value"), tObject);
-    BOOST_CHECK_EQUAL(tParent->fieldType("shadowed"), tInt);
+    BOOST_CHECK_EQUAL(tParent->field("value").type(), tObject);
+    BOOST_CHECK_EQUAL(tParent->field("shadowed").type(), tInt);
 
     const Type* tChild = type<test::Child>();
-    BOOST_CHECK_EQUAL(tChild->fieldType("value"), tObject);
-    BOOST_CHECK_EQUAL(tChild->fieldType("childValue"), tObject);
-    BOOST_CHECK_EQUAL(tChild->fieldType("shadowed"), type<bool>());
+    BOOST_CHECK_EQUAL(tChild->field("value").type(), tObject);
+    BOOST_CHECK_EQUAL(tChild->field("childValue").type(), tObject);
+    BOOST_CHECK_EQUAL(tChild->field("shadowed").type(), type<bool>());
 }
 
 BOOST_AUTO_TEST_CASE(moveCopy)

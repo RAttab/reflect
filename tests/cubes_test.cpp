@@ -54,7 +54,7 @@ reflectTemplate(Tube, ValueT)
 {
     reflectPlumbing();
 
-    reflectTrait(tube);
+    reflectTypeTrait(tube);
     reflectCustom(valueType) { return type<ValueT>(); };
 
     reflectFn(push);

@@ -11,6 +11,17 @@
 namespace reflect {
 
 /******************************************************************************/
+/* TRAITS                                                                     */
+/******************************************************************************/
+
+#define reflectTypeTrait(trait)                 \
+    type_->addTrait(#trait)
+
+#define reflectTypeValue(trait, value)          \
+    type_->addTrait(#trait, value)
+
+
+/******************************************************************************/
 /* REFLECT CLASS                                                              */
 /******************************************************************************/
 
@@ -46,7 +57,7 @@ namespace reflect {
     reflectTypeLoader(_type_)                   \
                                                 \
     void                                        \
-    reflect::Reflect<_type_>::                  \
+    ::reflect::Reflect<_type_>::                \
     reflect(reflectUnused Type* type_)
 
 #define reflectType(_type_)                     \

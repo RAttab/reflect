@@ -43,21 +43,17 @@ namespace test {
 
 struct Zorish
 {
-    Zorish() : value_(0) {}
-    Zorish(int value) : value_(value) {}
+    Zorish() : value(0) {}
+    Zorish(int value) : value(value) {}
 
-    int value() const { return value_; }
-    void value(int v) { value_ = v; }
+    int value;
 
     Zorish operator+ (const Zorish& other) const
     {
-        return Zorish(value_ + other.value_);
+        return Zorish(value + other.value);
     }
 
-    operator int() const { return value(); }
-
-private:
-    int value_;
+    operator int() const { return value; }
 };
 
 } // namespace test
@@ -112,7 +108,7 @@ reflectType(test::Thingy)
         return obj.bob[i] + i;
     };
 
-    reflectTrait(thing);
+    reflectTypeTrait(thing);
     reflectFnTrait(weee, interesting);
 }
 
@@ -150,10 +146,10 @@ BOOST_AUTO_TEST_CASE(type_)
     BOOST_CHECK(tThingy->is("thing"));
 
     BOOST_CHECK(tThingy->hasField("value"));
-    BOOST_CHECK_EQUAL(tThingy->fieldType("value"), type<int>());
-    BOOST_CHECK_EQUAL(vThingy.get<int>("value"), 10);
+    BOOST_CHECK_EQUAL(tThingy->field("value").type(), type<int>());
+    BOOST_CHECK_EQUAL(vThingy.field<int>("value"), 10);
 
-    BOOST_CHECK(tThingy->functionIs("weee", "interesting"));
+    BOOST_CHECK(tThingy->function("weee").is("interesting"));
     BOOST_CHECK(tThingy->hasFunction("weee"));
 }
 
@@ -167,7 +163,7 @@ BOOST_AUTO_TEST_CASE(containers)
     const Type* tThingy = type<test::Thingy>();
 
     Value thingy = tThingy->call<Value>("create", 10);
-    Value bob = (*thingy).get<Value>("bob");
+    Value bob = (*thingy).field<Value>("bob");
 
     BOOST_CHECK(bob.is("map"));
     BOOST_CHECK_EQUAL(bob.type()->call<const Type*>("keyType"), type<int>());

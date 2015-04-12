@@ -32,7 +32,7 @@ struct Reflect<T*>
     {
         reflectPlumbing();
 
-        reflectTrait(primitive);
+        reflectTypeTrait(primitive);
 
         reflectPointer(*, T);
         reflectCustom(operator*) (T* & value) -> T& {

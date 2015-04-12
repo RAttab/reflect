@@ -56,20 +56,17 @@ struct Foo : public Bar
 
     void void_() {}
 
-    const int& getter() const { return value; }
-    void setter(int i) { value = i; }
+    void copyArg(int i) { value = i; }
+    int copyRet() const { return value; }
 
-    void copy(int i) { value = i; }
-    int copy() const { return value; }
+    void lValueArg(int& i) { value = i; }
+    int& lValueRet() { return value; }
 
-    void lValue(int& i) { value = i; }
-    int& lValue() { return value; }
+    void constLValueArg(const int& i) { value = i; }
+    const int& constLValueRet() const { return value; }
 
-    void constLValue(const int& i) { value = i; }
-    const int& constLValue() const { return value; }
-
-    void rValue(int&& i) { value = std::move(i); }
-    int rValue() { return std::move(value); }
+    void rValueArg(int&& i) { value = std::move(i); }
+    int rValueRet() { return std::move(value); }
 
     void fn(int a, int b, int c) { value += a * b + c; }
     static int staticFn(int a, int b) { return a * b ;}
@@ -105,24 +102,29 @@ reflectType(test::Foo)
     reflectOpAssign();
     reflectOpArithmetic();
 
-    reflectField(void_);
+    reflectFn(void_);
+    reflectField(value);
     reflectField(field);
     reflectField(constField);
 
-    reflectField(getter);
-    reflectField(setter);
+    reflectFn(copyArg);
+    reflectFn(copyRet);
 
-    reflectField(copy);
-    reflectField(lValue);
-    reflectField(constLValue);
-    reflectField(rValue);
+    reflectFn(lValueArg);
+    reflectFn(lValueRet);
+
+    reflectFn(constLValueArg);
+    reflectFn(constLValueRet);
+
+    reflectFn(rValueArg);
+    reflectFn(rValueRet);
 
     reflectFn(fn);
     reflectFnTyped(staticFn, int(int, int));
     reflectFnTyped(staticFn, int(int, int, int));
 
     reflectCustom(custom) (test::Foo& obj, int a, int b) {
-        obj.setter(a + b);
+        obj.value = a + b;
     };
 }
 
@@ -154,8 +156,6 @@ BOOST_AUTO_TEST_CASE(basics)
     BOOST_CHECK(!typeFoo->hasField("baz"));
     BOOST_CHECK(!typeFoo->hasField("void_"));
     BOOST_CHECK( typeFoo->hasField("field"));
-    BOOST_CHECK( typeFoo->hasField("getter"));
-    BOOST_CHECK( typeFoo->hasField("rValue"));
     BOOST_CHECK( typeFoo->hasFunction("fn"));
     BOOST_CHECK( typeFoo->hasFunction("custom"));
 
@@ -167,20 +167,20 @@ BOOST_AUTO_TEST_CASE(basics)
             typeFoo->call<int>("staticFn", 1, 2),
             test::Foo::staticFn(1,2));
 
-    vFoo.call<void>("bar", 1);
+    vFoo.field("bar").assign(1);
     BOOST_CHECK_EQUAL(foo.bar, 1);
     BOOST_CHECK_EQUAL(bar.bar, 1);
-    BOOST_CHECK_EQUAL(vFoo.call<int>("bar"), foo.bar);
+    BOOST_CHECK_EQUAL(vFoo.field<int>("bar"), foo.bar);
 
-    vFoo.call<void>("setter", 1);
+    vFoo.field("value").assign(1);
     BOOST_CHECK_EQUAL(foo.value, 1);
-    BOOST_CHECK_EQUAL(vFoo.call<int>("getter"), foo.value);
+    BOOST_CHECK_EQUAL(vFoo.field<int>("value"), foo.value);
 
-    Value a = vFoo.call<Value>("copy");
+    Value a = vFoo.call<Value>("copyRet");
 
     vFoo.call<void>("custom", a, 2);
     BOOST_CHECK_EQUAL(foo.value, a.get<int>() + 2);
 
     Value result = typeFoo->construct(100) + typeFoo->construct(20);
-    BOOST_CHECK_EQUAL(result.get<int>("field"), 120);
+    BOOST_CHECK_EQUAL(result.field<int>("field"), 120);
 }

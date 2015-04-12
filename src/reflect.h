@@ -24,7 +24,7 @@
 #include <stdexcept>
 #include <cstddef>
 
-#include <iostream> // debug only
+#include <iostream> // used only in print functions.
 
 #include "utils.h"
 #include "clean_type.h"
@@ -37,6 +37,7 @@ namespace reflect {
 struct Type;
 struct Scope;
 struct Value;
+struct Field;
 struct Function;
 struct Overloads;
 
@@ -45,15 +46,19 @@ struct Overloads;
 #include "registry.h"
 #include "argument.h"
 #include "value.h"
+#include "traits.h"
 #include "cast.h"
 #include "value_function.h"
+#include "field.h"
 #include "function.h"
 #include "overloads.h"
 #include "type.h"
 #include "scope.h"
 
+#include "traits.tcc"
 #include "argument.tcc"
 #include "value.tcc"
+#include "field.tcc"
 #include "function.tcc"
 #include "overloads.tcc"
 #include "type.tcc"

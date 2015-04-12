@@ -14,6 +14,6 @@
 
 reflectTypeImpl(void)
 {
-    reflectTrait(primitive);
-    reflectTrait(void);
+    reflectTypeTrait(primitive);
+    reflectTypeTrait(void);
 }

@@ -11,7 +11,17 @@
 namespace reflect {
 
 /******************************************************************************/
-/* NAMESPACE                                                                  */
+/* TRAITS                                                                     */
+/******************************************************************************/
+
+#define reflectScopeTrait(trait)                \
+    scope_->addTrait(#trait)
+
+#define reflectScopeValue(trait, value)         \
+    scope_->addTrait(#trait, value)
+
+/******************************************************************************/
+/* SCOPE                                                                      */
 /******************************************************************************/
 
 #define reflectScopeImpl(sc, tag)                                       \
@@ -30,7 +40,7 @@ namespace reflect {
     }                                                                   \
                                                                         \
     void                                                                \
-    reflect::ReflectScope<tag>::                                        \
+    ::reflect::ReflectScope<tag>::                                      \
     reflect(reflectUnused Scope* scope_)
 
 #define reflectScope(scope)                                     \

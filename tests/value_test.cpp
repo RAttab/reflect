@@ -379,15 +379,15 @@ BOOST_AUTO_TEST_CASE(copyMove)
 
     {
         Value copy = vObj.copy();
-        BOOST_CHECK_EQUAL(copy.get<int>("value"), 10);
-        BOOST_CHECK_EQUAL(vObj.get<int>("value"), 10);
-        BOOST_CHECK_EQUAL(obj.value(), 10);
+        BOOST_CHECK_EQUAL(copy.field<int>("value"), 10);
+        BOOST_CHECK_EQUAL(vObj.field<int>("value"), 10);
+        BOOST_CHECK_EQUAL(obj.value, 10);
     }
 
     {
         Value moved = vObj.move();
-        BOOST_CHECK_EQUAL(moved.get<int>("value"), 10);
+        BOOST_CHECK_EQUAL(moved.field<int>("value"), 10);
         BOOST_CHECK(vObj.isVoid());
-        BOOST_CHECK_EQUAL(obj.value(), 0);
+        BOOST_CHECK_EQUAL(obj.value, 0);
     }
 }

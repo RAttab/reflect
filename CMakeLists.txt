@@ -16,6 +16,10 @@ enable_testing()
 
 add_definitions("-Wall -Wextra -Werror -pedantic -g -O4")
 
+# We use the offsetof macro on non-pod types to get the offset of fields. May
+# not be portable beyond gcc.
+add_definitions("-Wno-invalid-offsetof")
+
 # For cperf optimization only.
 # add_definitions("-Wno-unused-variable -Wno-unused-parameter")
 
@@ -103,13 +107,13 @@ add_library(reflect_primitives SHARED
 add_library(reflect_std SHARED
     src/types/std/string.cpp)
 
-add_library(reflect_json SHARED src/utils/json/json.cpp)
-target_link_libraries(reflect_json reflect)
+# add_library(reflect_json SHARED src/utils/json/json.cpp)
+# target_link_libraries(reflect_json reflect)
 
-add_library(reflect_config SHARED src/utils/config/compile.cpp)
-target_link_libraries(reflect_config reflect_json)
-force_target_link_libraries(reflect_config reflect_primitives)
-force_target_link_libraries(reflect_config reflect_std)
+# add_library(reflect_config SHARED src/utils/config/compile.cpp)
+# target_link_libraries(reflect_config reflect_json)
+# force_target_link_libraries(reflect_config reflect_primitives)
+# force_target_link_libraries(reflect_config reflect_std)
 
 
 #------------------------------------------------------------------------------#
@@ -209,14 +213,15 @@ reflect_test(ref)
 reflect_test(scope)
 reflect_test(type)
 reflect_test(value)
+reflect_test(field)
 reflect_test(value_function)
 reflect_test(function)
 reflect_test(pointer)
 reflect_test(reflection)
 reflect_test(demo)
-reflect_utils_test(json json)
-reflect_utils_test(config path)
-reflect_utils_test(config cubes)
+# reflect_utils_test(json json)
+# reflect_utils_test(config path)
+# reflect_utils_test(config cubes)
 
 add_executable(blah_test tests/blah_test.cpp)
 target_link_libraries(blah_test reflect)
@@ -232,7 +237,7 @@ function(reflect_cperf name)
     if(CMAKE_SOURCE_DIR STREQUAL ${PROJECT_SOURCE_DIR})
         add_executable(${name}_test tests/cperf/${name}_test.cpp)
         target_link_libraries(${name}_test reflect)
-        add_test(${name} bin/${name}_test)
+        add_test(cperf_${name} bin/${name}_test)
     endif()
 endfunction()
 

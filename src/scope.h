@@ -14,7 +14,7 @@ namespace reflect {
 /* SCOPE                                                                      */
 /******************************************************************************/
 
-struct Scope
+struct Scope : public Traits
 {
     Scope();
     Scope(const std::string& name, Scope* parent = nullptr);
@@ -35,19 +35,20 @@ struct Scope
     Scope* scope(const std::string& name) const;
     Scope* scope(const std::string& name);
 
+    void addType(const std::string& name);
+
     std::vector<std::string> types(bool includeScopes = false) const;
     bool hasType(const std::string& name);
     const Type* type(const std::string& name);
 
-    void addType(const std::string& name);
+    template<typename Fn>
+    void addFunction(const std::string& name, Fn&& rawFn);
+    void addFunction(const std::string& name, Function&& fn);
 
     std::vector<std::string> functions(bool includeScopes = false) const;
     bool hasFunction(const std::string& name) const;
+    Overloads& function(const std::string& name);
     const Overloads& function(const std::string& name) const;
-
-    template<typename Fn>
-    void addFunction(const std::string& name, Fn&& fn);
-    void addFunction(const std::string& name, Function fn);
 
     template<typename Ret, typename... Args>
     Ret call(const std::string& fn, Args&&... args) const;

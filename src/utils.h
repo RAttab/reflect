@@ -76,10 +76,16 @@ struct PrintType
     typedef typename T::_print type;
 };
 
+// Debugging tool which causes a compile error containing the string
+// representation of the type T as seen by the compiler.
 template<typename T>
 void printType()
 {
     typedef typename PrintType<T>::type type;
+
+    // To make the compiler shut-up about unused type definition. Very ironic...
+    type blah;
+    (void) blah;
 }
 
 

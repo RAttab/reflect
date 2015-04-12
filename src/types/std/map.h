@@ -36,7 +36,7 @@ struct Reflect< std::map<KeyT, ValueT> >
     {
         reflectPlumbing();
 
-        reflectTrait(map);
+        reflectTypeTrait(map);
         reflectCustom(keyType) { return type<KeyT>(); };
         reflectCustom(valueType) { return type<ValueT>(); };
 
