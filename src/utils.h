@@ -93,9 +93,9 @@ void printType()
 /* REFLECT ERROR                                                              */
 /******************************************************************************/
 
-struct ReflectError : public std::logic_error
+struct Error : public std::logic_error
 {
-    ReflectError(std::string what) : std::logic_error(std::move(what)) {}
+    Error(std::string what) : std::logic_error(std::move(what)) {}
 };
 
 

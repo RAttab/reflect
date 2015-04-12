@@ -36,7 +36,7 @@ void verror(bool except, const char* file, int line, std::string msg)
 {
     msg = std::string(file) + ":" + std::to_string(line) + ": " + msg;
 
-    if (except) throw ReflectError(msg);
+    if (except) throw Error(msg);
 
     printf("%s\n", msg.c_str());
     abort();

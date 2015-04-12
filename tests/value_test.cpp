@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(construct)
 
     BOOST_TEST_CHECKPOINT("construct-ncs");
     std::unique_ptr<test::NotConstructible> ncs(test::NotConstructible::make());
-    BOOST_CHECK_THROW(Value(std::move(*ncs)), ReflectError);
+    BOOST_CHECK_THROW(Value(std::move(*ncs)), Error);
 
     BOOST_TEST_CHECKPOINT("construct-done");
 }
@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE(constLValue)
 
     // l-ref
     BOOST_CHECK(!lValue.isCastable<unsigned>());
-    BOOST_CHECK_THROW(lValue.cast<unsigned>(), ReflectError);
+    BOOST_CHECK_THROW(lValue.cast<unsigned>(), Error);
 
     // const l-ref
     BOOST_CHECK(lValue.isCastable<const unsigned>());
@@ -205,7 +205,7 @@ BOOST_AUTO_TEST_CASE(constLValue)
 
     // r-ref
     BOOST_CHECK(!lValue.isMovable<unsigned>());
-    BOOST_CHECK_THROW(lValue.move<unsigned>(), ReflectError);
+    BOOST_CHECK_THROW(lValue.move<unsigned>(), Error);
 }
 
 
@@ -271,33 +271,33 @@ BOOST_AUTO_TEST_CASE(parent)
 
     BOOST_CHECK_EQUAL(&value.get<test::Interface>(), &p);
     BOOST_CHECK_EQUAL(&value.get<test::Parent>(), &p);
-    BOOST_CHECK_THROW(value.get<test::Child>(), ReflectError);
+    BOOST_CHECK_THROW(value.get<test::Child>(), Error);
 
     BOOST_CHECK( value.isCastable<test::Interface>());
     BOOST_CHECK( value.isCastable<test::Parent>());
     BOOST_CHECK(!value.isCastable<test::Child>());
     BOOST_CHECK_EQUAL(&value.cast<test::Interface>(), &p);
     BOOST_CHECK_EQUAL(&value.cast<test::Parent>(), &p);
-    BOOST_CHECK_THROW(value.cast<test::Child>(), ReflectError);
+    BOOST_CHECK_THROW(value.cast<test::Child>(), Error);
 
     BOOST_CHECK(!value.isCopiable<test::Interface>());
     BOOST_CHECK( value.isCopiable<test::Parent>());
     BOOST_CHECK(!value.isCopiable<test::Child>());
     BOOST_CHECK_EQUAL(value.copy<test::Parent>(), p);
-    BOOST_CHECK_THROW(value.copy<test::Child>(), ReflectError);
+    BOOST_CHECK_THROW(value.copy<test::Child>(), Error);
 
     // This will correctly fail during compilation.
-    // BOOST_CHECK_THROW(&value.copy<test::Interface>(), ReflectError);
+    // BOOST_CHECK_THROW(&value.copy<test::Interface>(), Error);
 
 
     BOOST_CHECK(!value.isMovable<test::Interface>());
     BOOST_CHECK( value.isMovable<test::Parent>());
     BOOST_CHECK(!value.isMovable<test::Child>());
     BOOST_CHECK_NO_THROW(value.move<test::Parent>());
-    BOOST_CHECK_THROW(value.move<test::Child>(), ReflectError);
+    BOOST_CHECK_THROW(value.move<test::Child>(), Error);
 
     // This will correctly fail during compilation.
-    // BOOST_CHECK_THROW(&value.move<test::Interface>(), ReflectError);
+    // BOOST_CHECK_THROW(&value.move<test::Interface>(), Error);
 }
 
 BOOST_AUTO_TEST_CASE(child)
@@ -323,7 +323,7 @@ BOOST_AUTO_TEST_CASE(child)
     BOOST_CHECK_EQUAL(value.copy<test::Child>(), c);
 
     // This will correctly fail during compilation.
-    // BOOST_CHECK_THROW(&value.copy<test::Interface>(), ReflectError);
+    // BOOST_CHECK_THROW(&value.copy<test::Interface>(), Error);
 
     BOOST_CHECK(!value.isMovable<test::Interface>());
     BOOST_CHECK( value.isMovable<test::Parent>());
@@ -333,7 +333,7 @@ BOOST_AUTO_TEST_CASE(child)
     BOOST_CHECK_NO_THROW(value.move<test::Child>());
 
     // This will correctly fail during compilation.
-    // BOOST_CHECK_THROW(&value.move<test::Interface>(), ReflectError);
+    // BOOST_CHECK_THROW(&value.move<test::Interface>(), Error);
 }
 
 
@@ -348,12 +348,12 @@ BOOST_AUTO_TEST_CASE(convertible)
     Value value(c);
 
     BOOST_CHECK_EQUAL(&value.get<test::Convertible>(), &c);
-    BOOST_CHECK_THROW(value.get<test::Parent>(), ReflectError);
+    BOOST_CHECK_THROW(value.get<test::Parent>(), Error);
 
     BOOST_CHECK( value.isCastable<test::Convertible>());
     BOOST_CHECK(!value.isCastable<test::Parent>());
     BOOST_CHECK_EQUAL(&value.cast<test::Convertible>(), &c);
-    BOOST_CHECK_THROW(value.cast<test::Parent>(), ReflectError);
+    BOOST_CHECK_THROW(value.cast<test::Parent>(), Error);
 
     BOOST_CHECK( value.isCopiable<test::Convertible>());
     BOOST_CHECK( value.isCopiable<test::Parent>());
