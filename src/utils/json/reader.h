@@ -43,7 +43,7 @@ struct Reader
     char pop() { return stream.pop(); pos_++; }
 
     void save(char c) { buffer_.push_back(c); }
-    std::string& buffer() { save('\0');  return buffer_; }
+    std::string& buffer() { return buffer_; }
 
     size_t pos() const { return pos_; }
     size_t line() const { return line_; }

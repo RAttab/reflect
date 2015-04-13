@@ -140,7 +140,7 @@ struct ArrayParser : public
         auto onItem = [&] (size_t) {
             Value item = inner.type->construct();
 
-            inner.parser->parse(reader);
+            inner.parser->parse(reader, item);
             if (!reader) return;
 
             if (inner.movable) value = value.rvalue();
@@ -164,7 +164,7 @@ struct MapParser : public Parser
 
     void parse(Reader& reader, Value& map) const
     {
-        auto onField = [&] (const std::string& key) {
+        auto onField = [&] (std::string key) {
             Value value = inner.type->construct();
 
             inner.parser->parse(reader, value);
