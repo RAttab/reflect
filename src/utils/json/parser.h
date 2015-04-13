@@ -15,10 +15,14 @@ namespace json {
 /* PARSER FN                                                                  */
 /******************************************************************************/
 
-template<typename Fn> void object(Reader& reader, const Fn& fn);
-template<typename Fn> void array(Reader& reader, const Fn& fn);
+template<typename T> void parseBool(Reader& reader, T& value);
+template<typename T> void parseInt(Reader& reader, T& value);
+template<typename T> void parseFloat(Reader& reader, T& value);
+template<typename T> void parseString(Reader& reader, T& value);
+template<typename Fn> void parseObject(Reader& reader, const Fn& fn);
+template<typename Fn> void parseArray(Reader& reader, const Fn& fn);
 
-
+void parse(Reader& reader, Value& value);
 
 } // namespace json
 } // namespace reflect

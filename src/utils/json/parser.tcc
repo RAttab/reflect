@@ -16,8 +16,32 @@ namespace json {
 /* PARSER FN                                                                  */
 /******************************************************************************/
 
+template<typename T>
+void parseBool(Reader& reader, T& value)
+{
+    value = expectToken(reader, Token::Bool).asBool();
+}
+
+template<typename T>
+void parseInt(Reader& reader, T& value)
+{
+    value = expectToken(reader, Token::Number).asInt();
+}
+
+template<typename T>
+void parseFloat(Reader& reader, T& value)
+{
+    value = expectToken(reader, Token::Number).asFloat();
+}
+
+template<typename T>
+void parseString(Reader& reader, T& value)
+{
+    value = expectToken(reader, Token::String).asString();
+}
+
 template<typename Fn>
-void object(Reader& reader, const Fn& fn)
+void parseObject(Reader& reader, const Fn& fn)
 {
     expectToken(reader, Token::ObjectStart);
 
@@ -37,10 +61,10 @@ void object(Reader& reader, const Fn& fn)
 }
 
 template<typename Fn>
-void array(Reader& reader, const Fn& fn)
+void parseArray(Reader& reader, const Fn& fn)
 {
     expectToken(reader, Token::ArrayStart);
-    
+
     Token token = nextToken(reader);
     if (token.type() == Token::ArrayEnd) return;
 

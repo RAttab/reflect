@@ -35,6 +35,7 @@ struct Reflect<T*>
         reflectTypeTrait(primitive);
 
         reflectPointer(*, T);
+        reflectOpCast(bool);
         reflectCustom(operator*) (T* & value) -> T& {
             return *value;
         };

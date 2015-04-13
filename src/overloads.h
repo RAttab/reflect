@@ -30,6 +30,11 @@ struct Overloads : public Traits
     bool test(const Function& fn) const;
     bool test(const Argument& ret, const std::vector<Argument>& args) const;
 
+    template<typename Fn>
+    const Function& get() const;
+    const Function& get(Function& fn) const;
+    const Function& get(const Argument& ret, const std::vector<Argument& args) const;
+
     template<typename Ret, typename... Args>
     Ret call(Args&&... args) const;
 

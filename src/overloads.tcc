@@ -26,6 +26,22 @@ test() const
 
 }
 
+template<typename Fn>
+const Function&
+Overloads::
+get() const
+{
+    for (const auto& fn : overloads) {
+        if (fn.test<Fn>() != Match::None) return fn;
+    }
+
+    reflectError("no overload <%s> available for function <%s>",
+            signature(
+                    Argument::make<Ret>(),
+                    reflectArguments(std::forward<Args>(args)...)),
+            name());
+}
+
 template<typename Ret, typename... Args>
 Ret
 Overloads::
@@ -53,7 +69,7 @@ call(Args&&... args) const
     }
 
     if (!bestFn) {
-        reflectError("no overloads available for <%s> for function <%s>",
+        reflectError("no overload <%s> available for function <%s>",
                 signature(
                         Argument::make<Ret>(),
                         reflectArguments(std::forward<Args>(args)...)),

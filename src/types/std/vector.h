@@ -27,6 +27,7 @@ reflectTemplate(std::vector, ValueT)
     reflectCustom(valueType) { return type<ValueT>(); };
 
     reflectFn(size);
+    reflectFn(clear);
     reflectFnTyped(resize, void (T_::*) (size_t));
     reflectFnTyped(push_back, void (T_::*) (const ValueT&));
     reflectFnTyped(push_back, void (T_::*) (ValueT&&));

@@ -248,11 +248,11 @@ void readString(Reader& reader)
     reader.error("unexpected end of string");
 }
 
-// \todo shouldn't allow leading 0s unless followed by a .
-// \todo enforce a number before a .
 void readNumber(Reader& reader, char c)
 {
     reader.buffer().clear();
+
+    // can be either - or [0-9].
     reader.save(c);
 
     auto readDigits = [&] {
@@ -275,9 +275,7 @@ void readNumber(Reader& reader, char c)
         return true;
     };
 
-    readChar('-');
     readDigits();
-
     if (readChar('.')) readDigits();
 
     if (readChars('e', 'E')) {

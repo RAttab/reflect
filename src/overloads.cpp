@@ -48,6 +48,30 @@ test(const Argument& ret, const std::vector<Argument>& args) const
     return false;
 }
 
+const Function&
+Overloads::
+get(const Function& fn) const
+{
+    for (const auto& other : overloads) {
+        if (fn.test(other) != Match::None) return fn;
+    }
+
+    reflectError("no overload <%s> available for function <%s>",
+            signature(fn), name());
+}
+
+const Function&
+Overloads::
+get(const Argument& ret, const std::vector<Argument>& args) const
+{
+    for (const auto& fn : overloads) {
+        if (fn.test(ret, args) != Match::None) return fn;
+    }
+
+    reflectError("no overload <%s> available for function <%s>",
+            signature(ret, args), name());
+}
+
 std::string
 Overloads::
 name() const

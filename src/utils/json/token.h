@@ -28,6 +28,7 @@ struct Token
         EOS
     };
 
+    Token(Type type) : type_(type) {}
     Token(Type type, bool value);
     Token(Type type, std::string& value);
 

@@ -24,7 +24,7 @@ struct Writer
         Pretty        = 1 << 0,
         EncodeUnicode = 1 << 1,
 
-        Default = 0,
+        Default = EncodeUnicode,
     };
 
     Writer(std::ostream& stream, Options options = Default) :
