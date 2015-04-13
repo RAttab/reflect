@@ -12,7 +12,7 @@ namespace json {
 
 
 /******************************************************************************/
-/* PARSER FN                                                                  */
+/* GENERIC PARSER                                                             */
 /******************************************************************************/
 
 template<typename T> void parseBool(Reader& reader, T& value);
@@ -22,7 +22,15 @@ template<typename T> void parseString(Reader& reader, T& value);
 template<typename Fn> void parseObject(Reader& reader, const Fn& fn);
 template<typename Fn> void parseArray(Reader& reader, const Fn& fn);
 
+
+/******************************************************************************/
+/* VALUE PARSER                                                               */
+/******************************************************************************/
+
 void parse(Reader& reader, Value& value);
+template<typename T> void parse(Reader& reader, T& value);
+template<typename T> Error parse(std::istream& stream, T& value);
+template<typename T> Error parse(const std::string& str, T& value);
 
 } // namespace json
 } // namespace reflect
