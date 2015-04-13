@@ -29,20 +29,22 @@ struct Token
     };
 
     Token(Type type, bool value);
-    Token(Type type, std::string& value);
+    Token(Type type, std::string value = "");
 
     Type type() const { return type_; }
 
-    bool asBool() const;
-    long asInt() const;
-    double asFloat() const;
-    std::string& asString() const { return value_; }
+    std::string stringValue() const;
+
+    double floatValue() const;
+    long intValue() const;
+
+    bool boolValue() const;
 
     std::string print() const;
 
 private:
     Type type_;
-    std::string* value_;
+    std::string value_;
 };
 
 std::string print(Token::Type type);
@@ -52,9 +54,8 @@ std::string print(Token::Type type);
 /* TOKENIZER                                                                  */
 /******************************************************************************/
 
-Token nextToken(Reader& reader);
-Token expectToken(Reader& reader, Token::Type expected);
-void assertToken(Reader& reader, Token token, Token::Type expected);
+Token nextToken(std::istream& json);
+void expectToken(Token token, Token::Type expected);
 
 
 /******************************************************************************/

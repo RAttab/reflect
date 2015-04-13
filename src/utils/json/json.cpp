@@ -1,10 +1,9 @@
 /* json.cpp                                 -*- C++ -*-
-   Rémi Attab (remi.attab@gmail.com), 27 Apr 2014
+   Rémi Attab (remi.attab@gmail.com), 12 Apr 2015
    FreeBSD-style copyright and disclaimer apply
 
-   Json build file.
+   JSON compilation unit.
 */
 
-#include "token.cpp"
-#include "parser.cpp"
-#include "printer.cpp"
+#include "json.h"
+

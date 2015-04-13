@@ -1,24 +1,25 @@
-/* parser.h                                 -*- C++ -*-
+/* error.h                                 -*- C++ -*-
    Rémi Attab (remi.attab@gmail.com), 12 Apr 2015
    FreeBSD-style copyright and disclaimer apply
 
-   Parser interface.
+   Error definitions for JSON serialization.
 */
 
+#include "json.h"
 #pragma once
 
 namespace reflect {
 namespace json {
 
-
 /******************************************************************************/
-/* PARSER FN                                                                  */
+/* ERROR                                                                      */
 /******************************************************************************/
 
-template<typename Fn> void object(Reader& reader, const Fn& fn);
-template<typename Fn> void array(Reader& reader, const Fn& fn);
-
-
+struct Error : public reflect::Error
+{
+    Error() : reflect::Error() {}
+    Error(std::string msg) : reflect::Error(std::move(msg)) {}
+};
 
 } // namespace json
 } // namespace reflect
