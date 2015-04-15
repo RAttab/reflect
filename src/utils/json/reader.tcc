@@ -22,7 +22,7 @@ error(const char* fmt, Args&&... args)
 {
     std::stringstream ss;
     ss << reader.line() << ":" << reader.pos() << ": ";
-    ss<< reflect::errorFormat(fmt, std::forward<Args>(args)...);
+    ss << reflect::errorFormat(fmt, std::forward<Args>(args)...);
     error_ = Error(ss.str());
 }
 

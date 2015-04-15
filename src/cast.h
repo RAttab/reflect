@@ -140,6 +140,14 @@ struct Cast<Value, Value>
     static const Value& cast(const Value&  value) { return value; }
 };
 
+template<>
+struct Cast<T, T>
+{
+    static       T& cast(      T&  value) { return value; }
+    static       T  cast(      T&& value) { return std::move(value); }
+    static const T& cast(const T&  value) { return value; }
+}
+
 template<typename Target, typename T>
 auto cast(T&& value) ->
     decltype(Cast<typename std::decay<T>::type, Target>::cast(std::forward<T>(value)))

@@ -24,7 +24,7 @@ reflectTemplate(std::vector, ValueT)
     reflectPlumbing();
 
     reflectTypeTrait(list);
-    reflectCustom(valueType) { return type<ValueT>(); };
+    reflectTypeValue(valueType, type<ValueT>());
 
     reflectFn(size);
     reflectFn(clear);

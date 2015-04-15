@@ -100,7 +100,7 @@ Error parse(std::istream& stream, T& value)
 template<typename T> 
 Error parse(const std::string& str, T& value)
 {
-    std::stringstream stream(str);
+    std::istringstream stream(str);
     return parse(stream, value);
 }
 

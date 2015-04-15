@@ -5,9 +5,6 @@
    JSON parser implementation.
 */
 
-#include "json.h"
-#pragma once
-
 namespace reflect {
 namespace json {
 namespace {
@@ -55,8 +52,8 @@ struct TypeDetails
 {
     TypeDetails(const Type* type) :
         movable(type->isMovable()),
-        type(type->call<const Type*>("valueType")),
-        parser(parser(innerType))
+        type(type),
+        parser(parser(type))
     {}
 
     bool movable;
@@ -108,7 +105,7 @@ struct StringParser : public Parser
 
 struct PointerParser : public Parser
 {
-    PointerParser(const Type* type) : inner(type) {}
+    PointerParser(const Type* type) : inner(type->pointee()) {}
 
     void parse(Reader& reader, Value& ptr) const
     {
@@ -131,9 +128,11 @@ private:
 /* ARRAY PARSER                                                               */
 /******************************************************************************/
 
-struct ArrayParser : public
+struct ArrayParser : public Printer
 {
-    ArrayParser(const Type* type) : inner(type) {}
+    ArrayParser(const Type* type) :
+        inner(type->getValue<const Type*>("valueType"))
+    {}
 
     void parse(Reader& reader, Value& array) const
     {
@@ -160,10 +159,14 @@ private:
 
 struct MapParser : public Parser
 {
-    MapParser(const Type* type) : value(type) {}
+    MapParser(const Type* type) :
+        inner(type->getValue<const Type*>("valueType"))
+    {}
 
     void parse(Reader& reader, Value& map) const
     {
+        // need to copy the key because we use the key only after we've parsed
+        // the value.
         auto onField = [&] (std::string key) {
             Value value = inner.type->construct();
 
@@ -190,7 +193,7 @@ struct ObjectParser : public Parser
 {
     ObjectParser(const Type* type)
     {
-        for (std::string key : type->fields()) {
+        for (const std::string& key : type->fields()) {
             const Field& field = type->field(field);
 
             if (field.is("json")) {
@@ -202,7 +205,7 @@ struct ObjectParser : public Parser
             if (fields.count(key))
                 reflectError("duplicate json key <%s> in <%s>", key, type->id());
 
-            fields.emplace(std::move(key), field.type());
+            fields.emplace(key, field.type());
         }
     }
 

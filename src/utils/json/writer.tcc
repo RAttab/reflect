@@ -1,9 +1,12 @@
-/* writer.cpp                                 -*- C++ -*-
+/* writer.tcc                                 -*- C++ -*-
    Rémi Attab (remi.attab@gmail.com), 14 Apr 2015
    FreeBSD-style copyright and disclaimer apply
 
-   Writer implementation details.
+   JSON writer template implementation.
 */
+
+#include "json.h"
+#pragma once
 
 namespace reflect {
 namespace json {
@@ -12,25 +15,14 @@ namespace json {
 /* WRITER                                                                     */
 /******************************************************************************/
 
-namespace { std::string spaces{4096, ' '}; }
-
-void
-Writer::
-seperator(char c)
+template<typename... Args>
+void 
+Reader::
+error(const char* fmt, Args&&... args)
 {
-    put(c);
-    if (pretty()) put(' ');
+    error_ = Error(reflect::errorFormat(fmt, std::forward<Args>(args)...));
 }
 
-void
-Writer::
-newline()
-{
-    if (!pretty()) return;
 
-    put("\n");
-    write(spaces.c_str(), indent_ * 4);
-}
-
-} // namespace json
+} // namespace json 
 } // namespace reflect

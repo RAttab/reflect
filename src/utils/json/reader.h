@@ -20,18 +20,20 @@ struct Reader
 {
     enum Options
     {
-        AllowComments = 1 << 0,
-        DecodeUnicode = 1 << 1,
+        AllowComments   = 1 << 0,
+        UnescapeUnicode = 1 << 1,
+        ValidateUnicode = 1 << 2,
 
-        Default = DecodeUnicode,
+        Default = DecodeUnicode | ValidateUnicode,
     };
 
     Reader(std::istream& stream, Options options = Default) :
         stream(stream),
-        buffer_(128),
         pos_(0), line_(0),
         options(options)
-    {}
+    {
+        buffer_.reserve(128);
+    }
 
     bool operator() const { return error_ && stream; }
 
@@ -40,17 +42,19 @@ struct Reader
     const Error& error() const { return error_; }
 
     char peek() { return stream.peek(); }
-    char pop() { return stream.pop(); pos_++; }
+    char pop() { pos_++; return stream.pop(); }
 
     void save(char c) { buffer_.push_back(c); }
-    std::string& buffer() { return buffer_; }
+    const std::string& buffer() { return buffer_; }
+    void resetBuffer() const { buffer_.reset(); }
 
     size_t pos() const { return pos_; }
     size_t line() const { return line_; }
     void newline() { pos_ = 0; line_++; }
 
     bool allowComments() const { return options & AllowComments; }
-    bool decodeUnicode() const { return options & DecodeUnicode; }
+    bool unescapeUnicode() const { return options & DecodeUnicode; }
+    bool validateUnicode() const { return options & ValidateUnicode; }
 
 private:
     std::istream& stream;

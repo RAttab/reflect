@@ -5,13 +5,6 @@
    Json tokenizer
 */
 
-#include "token.h"
-#include "reflect.h"
-
-#include <array>
-#include <sstream>
-#include <ctype.h>
-
 namespace reflect {
 namespace json {
 
@@ -216,12 +209,30 @@ void readUnicode(Reader& reader)
     if (reader && i != 4) reader.error("\\u requires 4 hex digits", i);
 }
 
+void validateUnicode(Reader& reader, char c)
+{
+    reader.save(c);
+
+    size_t bytes = clz(~c);
+    if (bytes > 6) reader.error("invalid UTF-8 header: %x", c);
+
+    for (size_t i = 0; reader && i < (bytes - 1); i++) {
+        reader.save(c = reader.get());
+        if ((c & 0xC) != 0x80) reader.error("invalid UTF-8 encoding");
+    }
+}
+
 void readString(Reader& reader)
 {
-    reader.buffer().clear();
+    reader.resetBuffer();
 
     while (reader) {
         char c = reader.get();
+
+        if ((c & 0x80) && reader.validateUnicode()) {
+            validateUnicode(reader, c);
+            continue;
+        }
 
         if (c == '"') return;
         if (c == '\\') {
@@ -250,7 +261,7 @@ void readString(Reader& reader)
 
 void readNumber(Reader& reader, char c)
 {
-    reader.buffer().clear();
+    reader.resetBuffer();
 
     // can be either - or [0-9].
     reader.save(c);
@@ -353,38 +364,6 @@ Token expectToken(Reader& reader, Token::Type expected)
     Token token = nextToken(reader);
     assertToken(reader, token, expected);
     return reader ? token : Token(Token::EOS);
-}
-
-
-/******************************************************************************/
-/* PRINTERS                                                                   */
-/******************************************************************************/
-
-void printNull(std::ostream& json)
-{
-    json << "null";
-}
-
-void printBool(bool value, std::ostream& json)
-{
-    json << (value ? "true" : "false");
-}
-
-void printString(const std::string& value, std::ostream& json)
-{
-    json << '"' << value << '"';
-}
-
-void printInteger(long value, std::ostream& json)
-{
-    json << value;
-}
-
-void printFloat(double value, std::ostream& json)
-{
-    std::array<char, 256> buffer;
-    (void) snprintf(buffer.data(), buffer.size(), "%e", value);
-    json << std::string(buffer.data());
 }
 
 } // namespace json

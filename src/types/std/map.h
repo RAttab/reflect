@@ -37,8 +37,8 @@ struct Reflect< std::map<KeyT, ValueT> >
         reflectPlumbing();
 
         reflectTypeTrait(map);
-        reflectCustom(keyType) { return type<KeyT>(); };
-        reflectCustom(valueType) { return type<ValueT>(); };
+        reflectTypeValue(keyType, type<KeyT>());
+        reflectTypeValue(valueType, type<ValueT>());
 
         reflectFn(size);
         reflectCustom(count) (const T_& value, const KeyT& k) -> size_t {

@@ -13,6 +13,13 @@
 
 #include "reflect.h"
 
-#include "reader.h"
 #include "error.h"
+#include "reader.h"
+#include "writer.h"
 #include "token.h"
+#include "traits.h"
+#include "parser.h"
+
+#include "reader.tcc"
+#include "writer.tcc"
+#include "parser.tcc"
