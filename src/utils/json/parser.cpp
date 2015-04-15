@@ -37,7 +37,9 @@ const Parser* parser(const Type* type)
     else if (type->is("map")) parser = new MapParser(type);
     else if (type->is("list")) parser = new ArrayParser(type);
     else if (type->is("json")) parser = new CustomParser(type);
+
     else if (type == reflect::type<void>()) parser = new ValueParser();
+
     else parser = new ObjectParser(type);
 
     parsers[type] = parser;

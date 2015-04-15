@@ -39,7 +39,7 @@ std::string parseString(Reader& reader)
 template<typename Fn>
 void parseObject(Reader& reader, const Fn& fn)
 {
-    Token token = reader.nextToken(reader);
+    Token token = reader.nextToken();
     if (token.type() == Token::Null) return;
     reader.assertToken(token, Token::ObjectStart);
 
