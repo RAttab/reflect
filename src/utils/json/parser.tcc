@@ -16,68 +16,64 @@ namespace json {
 /* GENERIC PARSER                                                             */
 /******************************************************************************/
 
-template<typename T>
-void parseBool(Reader& reader, T& value)
+bool parseBool(Reader& reader)
 {
-    value = expectToken(reader, Token::Bool).asBool();
+    return reader.expectToken(Token::Bool).asBool();
 }
 
-template<typename T>
-void parseInt(Reader& reader, T& value)
+int64_t parseInt(Reader& reader)
 {
-    value = expectToken(reader, Token::Number).asInt();
+    return reader.expectToken(Token::Number).asInt();
 }
 
-template<typename T>
-void parseFloat(Reader& reader, T& value)
+double parseFloat(Reader& reader)
 {
-    value = expectToken(reader, Token::Number).asFloat();
+    return reader.expectToken(Token::Number).asFloat();
 }
 
-template<typename T>
-void parseString(Reader& reader, T& value)
+std::string parseString(Reader& reader)
 {
-    value = expectToken(reader, Token::String).asString();
+    return reader.expectToken(Token::String).asString();
 }
 
 template<typename Fn>
 void parseObject(Reader& reader, const Fn& fn)
 {
-    Token token = nextToken(reader);
+    Token token = reader.nextToken(reader);
     if (token.type() == Token::Null) return;
-    assertToken(reader, token, Token::ObjectStart);
+    reader.assertToken(token, Token::ObjectStart);
 
-    token = nextToken(reader);
+    token = reader.nextToken();
     if (token.type() == Token::ObjectEnd) return;
 
     while (reader) {
-        assertToken(reader, token, Token::String);
-        expectToken(reader, Token::KeySeparator);
+        reader.assertToken(token, Token::String);
+        reader.expectToken(Token::KeySeparator);
 
         fn(reader, token.asString());
 
-        token = nextToken(reader);
+        token = reader.nextToken();
         if (token.type() == Token::ObjectEnd) return;
-        assertToken(reader, token, Token::Separator);
+        reader.assertToken(token, Token::Separator);
     }
 }
 
 template<typename Fn>
 void parseArray(Reader& reader, const Fn& fn)
 {
-    Token token = nextToken(reader);
+    Token token = reader.nextToken();
     if (token.type() == Token::Null) return;
-    assertToken(reader, token, Token::ArrayStart);
+    reader.assertToken(token, Token::ArrayStart);
 
-    Token token = nextToken(reader);
+    Token token = reader.nextToken();
     if (token.type() == Token::ArrayEnd) return;
 
     for (size_t i = 0; reader; ++i) {
         fn(reader, i);
 
-        token = nextToken(reader);
+        token = reader.nextToken();
         if (token.type() == Token::ArrayEnd) return;
-        assertToken(reader, token, Token::Separator);
+        reader.assertToken(token, Token::Separator);
     }
 }
 

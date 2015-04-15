@@ -15,10 +15,10 @@ namespace json {
 /* GENERIC PARSER                                                             */
 /******************************************************************************/
 
-template<typename T> void parseBool(Reader& reader, T& value);
-template<typename T> void parseInt(Reader& reader, T& value);
-template<typename T> void parseFloat(Reader& reader, T& value);
-template<typename T> void parseString(Reader& reader, T& value);
+inline bool parseBool(Reader& reader);
+inline int64_t parseInt(Reader& reader);
+inline double parseFloat(Reader& reader);
+inline std::string parseString(Reader& reader);
 template<typename Fn> void parseObject(Reader& reader, const Fn& fn);
 template<typename Fn> void parseArray(Reader& reader, const Fn& fn);
 

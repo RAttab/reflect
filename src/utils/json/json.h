@@ -13,10 +13,18 @@
 
 #include "reflect.h"
 
+namespace reflect {
+namespace json {
+
+struct Reader;
+
+} // namespace json
+} // namespace reflect
+
 #include "error.h"
+#include "token.h"
 #include "reader.h"
 #include "writer.h"
-#include "token.h"
 #include "traits.h"
 #include "parser.h"
 

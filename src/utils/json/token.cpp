@@ -297,6 +297,7 @@ void readNumber(Reader& reader, char c)
 
 } // namespace anonymous
 
+namespace details {
 
 Token nextToken(Reader& reader)
 {
@@ -348,23 +349,6 @@ Token nextToken(Reader& reader)
     }
 }
 
-void assertToken(Reader& reader, Token token, Token::Type expected)
-{
-    if (!reader) return;
-    if (token.type() == expected) return;
-    reader.error("unexpected <%s> expecting <%s>",
-            print(token.type()), print(expected));
-}
-
-
-Token expectToken(Reader& reader, Token::Type expected)
-{
-    if (!reader) return;
-
-    Token token = nextToken(reader);
-    assertToken(reader, token, expected);
-    return reader ? token : Token(Token::EOS);
-}
-
+} // namespace details
 } // namespace json
 } // reflect

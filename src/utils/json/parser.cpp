@@ -38,6 +38,8 @@ const Parser* parser(const Type* type)
     else if (type->is("string")) parser = new StringParser();
     else if (type->isPointer()) parser = new PointerParser();
 
+    else if (type == reflect::type<void>())
+        parser = new ValueParser();
     else parser = new ObjectParser(type);
 
     parsers[type] = parser;
@@ -70,7 +72,7 @@ struct BoolParser : public Parser
 {
     void parse(Reader& reader, Value& value) const
     {
-        parseBool(reader, value);
+        value.assign(parseBool(reader));
     }
 };
 
@@ -78,7 +80,7 @@ struct IntParser : public Parser
 {
     void parse(Reader& reader, Value& value) const
     {
-        parseInt(reader, value);
+        value.assign(parseInt(reader));
     }
 };
 
@@ -86,7 +88,7 @@ struct FloatParser : public Parser
 {
     void parse(Reader& reader, Value& value) const
     {
-        parseFloat(reader, value);
+        value.assign(parseFloat(reader));
     }
 };
 
@@ -94,7 +96,7 @@ struct StringParser : public Parser
 {
     void parse(Reader& reader, Value& value) const
     {
-        parseString(reader, value);
+        value.assign(parseString(reader));
     }
 };
 
@@ -109,6 +111,16 @@ struct PointerParser : public Parser
 
     void parse(Reader& reader, Value& ptr) const
     {
+        if (reader.peekToken().type() == Token::Null) {
+            reader.nextToken();
+
+            if (inner.type->is("smartPtr"))
+                ptr.call<void>("reset");
+            else ptr = inner.type->construct();
+
+            return;
+        }
+
         if (ptr.cast<bool>())
             inner.parse(reader, *ptr);
 
@@ -248,6 +260,54 @@ struct CustomParser : public Parser
 
 private:
     const Function* parser;
+};
+
+
+/******************************************************************************/
+/* VALUE PARSER                                                               */
+/******************************************************************************/
+
+struct ValueParser : public Parser
+{
+    void parse(Reader& reader, Value& value) const
+    {
+        Token token = reader.nextToken();
+
+        if (token.type() == Token::Null);
+
+        else if (token.type() == Token::Bool) value = Value(parseBool(reader));
+        else if (token.type() == Token::Int) value = Value(parseInt(reader));
+        else if (token.type() == Token::Float) value = Value(parseFloat(reader));
+        else if (token.type() == Token::String) value = Value(parseString(reader));
+
+        else if (token.type() == Token::ArrayStart) {
+            std::vector<Value> array;
+
+            auto onItem = [&] (size_t) {
+                Value item;
+                parse(reader, item);
+                array.push_back(item);
+            };
+            parseArray(reader, onItem);
+
+            value = Value(array);
+        }
+
+        else if (token.type() == Token::ObjectStart) {
+            std::unordered_map<std::string, Value> obj;
+
+            auto onField = [&] (std::string key) {
+                Value field;
+                parse(reader, field);
+                obj.emplace(std::move(key), field);
+            };
+            parseObject(reader, onField);
+
+            value = Value(obj);
+        }
+
+        else reader.error("unknown expected token <%s>", print(token);
+    }
 };
 
 } // namespace anonymous

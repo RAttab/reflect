@@ -20,6 +20,7 @@ struct Token
 {
     enum Type
     {
+        NoToken,
         ObjectStart, ObjectEnd, // {}
         ArrayStart, ArrayEnd,   // []
         Separator,              // ,
@@ -28,6 +29,7 @@ struct Token
         EOS
     };
 
+    Token() : type_(NoToken) {}
     Token(Type type) : type_(type) {}
     Token(Type type, bool value);
     Token(Type type, std::string& value);
@@ -49,25 +51,10 @@ private:
 std::string print(Token::Type type);
 
 
-/******************************************************************************/
-/* TOKENIZER                                                                  */
-/******************************************************************************/
+namespace details {
 
 Token nextToken(Reader& reader);
-Token expectToken(Reader& reader, Token::Type expected);
-void assertToken(Reader& reader, Token token, Token::Type expected);
 
-
-/******************************************************************************/
-/* PRINTERS                                                                   */
-/******************************************************************************/
-
-void printNull(std::ostream& json);
-void printBool(bool value, std::ostream& json);
-void printInteger(long value, std::ostream& json);
-void printFloat(double value, std::ostream& json);
-void printString(const std::string& value, std::ostream& json);
-
-
+} // namespace details
 } // namespace json
-} // reflect
+} // namespace reflect

@@ -11,6 +11,7 @@
 
 #include <mutex>
 
+#include "reader.cpp"
 #include "writer.cpp"
 #include "token.cpp"
 #include "traits.cpp"

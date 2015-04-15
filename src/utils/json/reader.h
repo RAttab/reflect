@@ -35,7 +35,8 @@ struct Reader
         buffer_.reserve(128);
     }
 
-    bool operator() const { return error_ && stream; }
+    bool ok() const { return error_ && stream; }
+    bool operator() const { return ok(); }
 
     template<typename... Args>
     void error(const char* fmt, Args&&... args);
@@ -43,6 +44,11 @@ struct Reader
 
     char peek() { return stream.peek(); }
     char pop() { pos_++; return stream.pop(); }
+
+    Token peekToken();
+    Token nextToken();
+    Token expectToken(Token::Type exp);
+    void assertToken(const Token& token, Token::Type exp);
 
     void save(char c) { buffer_.push_back(c); }
     const std::string& buffer() { return buffer_; }
@@ -65,6 +71,8 @@ private:
     size_t line_;
 
     Options options;
+
+    Token token;
 };
 
 } // namespace json

@@ -38,6 +38,9 @@ const Printer* printer(const Type* type)
     else if (type->is("string")) printer = new StringPrinter();
     else if (type->isPointer()) printer = new PointerPrinter();
 
+    else if (type == reflect::type<void>())
+        writer.error("unable to print void value");
+
     else printer = new ObjectPrinter(type);
 
     printers[type] = printer;
@@ -187,6 +190,8 @@ struct ObjectPrinter : public Printer
             keys.push_back(key);
             fields.emplace(key, field.type());
         }
+
+        std::sort(keys.begin(), keys.end());
     }
         
     void print(Writer& writer, const Value& obj) const
