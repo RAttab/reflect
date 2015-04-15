@@ -193,6 +193,8 @@ struct ObjectPrinter : public Printer
     {
         onField = [&] (const std::string& key) {
             Value field = obj.field(key);
+            if (field.isPointer() && !field) continue;
+
             fields.find(key)->second.printer->print(writer, field);
         };
         printObject(writer, keys, onField);

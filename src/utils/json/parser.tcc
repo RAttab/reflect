@@ -43,9 +43,11 @@ void parseString(Reader& reader, T& value)
 template<typename Fn>
 void parseObject(Reader& reader, const Fn& fn)
 {
-    expectToken(reader, Token::ObjectStart);
-
     Token token = nextToken(reader);
+    if (token.type() == Token::Null) return;
+    assertToken(reader, token, Token::ObjectStart);
+
+    token = nextToken(reader);
     if (token.type() == Token::ObjectEnd) return;
 
     while (reader) {
@@ -63,7 +65,9 @@ void parseObject(Reader& reader, const Fn& fn)
 template<typename Fn>
 void parseArray(Reader& reader, const Fn& fn)
 {
-    expectToken(reader, Token::ArrayStart);
+    Token token = nextToken(reader);
+    if (token.type() == Token::Null) return;
+    assertToken(reader, token, Token::ArrayStart);
 
     Token token = nextToken(reader);
     if (token.type() == Token::ArrayEnd) return;
