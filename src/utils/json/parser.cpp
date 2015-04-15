@@ -28,18 +28,16 @@ const Parser* parser(const Type* type)
 
     const Parser* parser = nullptr;
 
-    if (type->is("map")) parser = new MapParser(type);
-    else if (type->is("list")) parser = new ArrayParser(type);
-    else if (type->is("json")) parser = new CustomParser(type);
-
-    else if (type->is("bool")) parser = new BoolParser();
+    if (type->is("bool")) parser = new BoolParser();
     else if (type->is("integer")) parser = new IntParser();
     else if (type->is("float")) parser = new FloatParser();
     else if (type->is("string")) parser = new StringParser();
     else if (type->isPointer()) parser = new PointerParser();
 
-    else if (type == reflect::type<void>())
-        parser = new ValueParser();
+    else if (type->is("map")) parser = new MapParser(type);
+    else if (type->is("list")) parser = new ArrayParser(type);
+    else if (type->is("json")) parser = new CustomParser(type);
+    else if (type == reflect::type<void>()) parser = new ValueParser();
     else parser = new ObjectParser(type);
 
     parsers[type] = parser;

@@ -28,15 +28,15 @@ const Printer* printer(const Type* type)
 
     const Printer* = nullptr;
 
-    if (type->is("map")) printer = new MapPrinter(type);
-    else if (type->is("list")) printer = new ArrayPrinter(type);
-    else if (type->is("json")) printer = new CustomPrinter(type);
-
-    else if (type->is("bool")) printer = new BoolPrinter();
+    if (type->is("bool")) printer = new BoolPrinter();
     else if (type->is("integer")) printer = new IntPrinter();
     else if (type->is("float")) printer = new FloatPrinter();
     else if (type->is("string")) printer = new StringPrinter();
     else if (type->isPointer()) printer = new PointerPrinter();
+
+    else if (type->is("map")) printer = new MapPrinter(type);
+    else if (type->is("list")) printer = new ArrayPrinter(type);
+    else if (type->is("json")) printer = new CustomPrinter(type);
 
     else if (type == reflect::type<void>())
         writer.error("unable to print void value");
