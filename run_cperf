@@ -10,4 +10,4 @@ TEST_NAME=$1_test
 
 nice make -kj8 reflect \
     && touch tests/cperf/$TEST_NAME.cpp \
-    && time make $TEST_NAME
+    && time make cperf/$TEST_NAME
