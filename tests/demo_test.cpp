@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE(containers)
     Value bob = (*thingy).field<Value>("bob");
 
     BOOST_CHECK(bob.is("map"));
-    BOOST_CHECK_EQUAL(bob.type()->call<const Type*>("keyType"), type<int>());
+    BOOST_CHECK_EQUAL(bob.type()->getValue<const Type*>("keyType"), type<int>());
 
     auto keys = bob.call< std::vector<int> >("keys");
 

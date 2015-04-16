@@ -22,22 +22,22 @@ void printString(Writer& writer, const std::string& value)
     formatString(writer, value);
 }
 
-void printBool(Writer& writer, Value& value)
+void printBool(Writer& writer, const Value& value)
 {
     formatBool(writer, value.cast<bool>());
 }
 
-void printInt(Writer& writer, Value& value)
+void printInt(Writer& writer, const Value& value)
 {
     formatInt(writer, value.cast<int64_t>());
 }
 
-void printFloat(Writer& writer, Value& value)
+void printFloat(Writer& writer, const Value& value)
 {
     formatFloat(writer, value.cast<double>());
 }
 
-void printString(Writer& writer, Value& value)
+void printString(Writer& writer, const Value& value)
 {
     formatString(writer, value.cast<std::string>());
 }

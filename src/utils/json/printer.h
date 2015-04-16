@@ -20,10 +20,10 @@ inline void printInt(Writer& writer, int64_t value);
 inline void printFloat(Writer& writer, double value);
 inline void printString(Writer& writer, const std::string& value);
 
-inline void printBool(Writer& writer, Value& value);
-inline void printInt(Writer& writer, Value& value);
-inline void printFloat(Writer& writer, Value& value);
-inline void printString(Writer& writer, Value& value);
+inline void printBool(Writer& writer, const Value& value);
+inline void printInt(Writer& writer, const Value& value);
+inline void printFloat(Writer& writer, const Value& value);
+inline void printString(Writer& writer, const Value& value);
 
 template<typename Keys, typename Fn>
 void printObject(Writer& writer, const Keys& keys, const Fn& fn);

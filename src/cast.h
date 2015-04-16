@@ -50,7 +50,9 @@ struct Cast<Value, Target>
     typedef typename details::TargetRef<Target>::type TargetRef;
     typedef typename std::decay<Target>::type CleanTarget;
 
-    static TargetRef cast(Value& value)
+    // We make a copy of the argument to ensure that we support const-refs
+    // correctly.
+    static TargetRef cast(Value value)
     {
         return cast(value,
                 std::is_lvalue_reference<Target>(),

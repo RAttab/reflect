@@ -16,7 +16,7 @@ namespace {
 
 struct Printer
 {
-    virtual void print(Writer& writer, Value& value) const = 0;
+    virtual void print(Writer& writer, const Value& value) const = 0;
 };
 
 const Printer* getPrinter(const Type* type);
@@ -43,7 +43,7 @@ struct TypePrinter
 
 struct BoolPrinter : public Printer
 {
-    void print(Writer& writer, Value& value) const
+    void print(Writer& writer, const Value& value) const
     {
         printBool(writer, value);
     }
@@ -51,7 +51,7 @@ struct BoolPrinter : public Printer
 
 struct IntPrinter : public Printer
 {
-    void print(Writer& writer, Value& value) const
+    void print(Writer& writer, const Value& value) const
     {
         printInt(writer, value);
     }
@@ -59,7 +59,7 @@ struct IntPrinter : public Printer
 
 struct FloatPrinter : public Printer
 {
-    void print(Writer& writer, Value& value) const
+    void print(Writer& writer, const Value& value) const
     {
         printFloat(writer, value);
     }
@@ -67,7 +67,7 @@ struct FloatPrinter : public Printer
 
 struct StringPrinter : public Printer
 {
-    void print(Writer& writer, Value& value) const
+    void print(Writer& writer, const Value& value) const
     {
         printString(writer, value);
     }
@@ -82,7 +82,7 @@ struct PointerPrinter : public Printer
 {
     PointerPrinter(const Type* type) : inner(type->pointee()) {}
 
-    void print(Writer& writer, Value& ptr) const
+    void print(Writer& writer, const Value& ptr) const
     {
         if (ptr.cast<bool>()) printNull(writer);
         else {
@@ -106,7 +106,7 @@ struct ArrayPrinter : public Printer
         inner(type->getValue<const Type*>("valueType"))
     {}
 
-    void print(Writer& writer, Value& array) const
+    void print(Writer& writer, const Value& array) const
     {
         auto onItem = [&] (size_t i) {
             Value item = array[i];
@@ -130,7 +130,7 @@ struct MapPrinter : public Printer
         inner(type->getValue<const Type*>("valueType"))
     {}
 
-    void print(Writer& writer, Value& map) const
+    void print(Writer& writer, const Value& map) const
     {
         auto keys = map.call< std::vector<std::string> >("keys");
 
@@ -173,7 +173,7 @@ struct ObjectPrinter : public Printer
         std::sort(keys.begin(), keys.end());
     }
 
-    void print(Writer& writer, Value& obj) const
+    void print(Writer& writer, const Value& obj) const
     {
         auto onField = [&] (const std::string& key) {
             Value field = obj.field(key);
@@ -203,7 +203,7 @@ struct CustomPrinter : public Printer
         printer = &type->function(traits.printer).get<void(Writer&)>();
     }
 
-    void print(Writer& writer, Value& value) const
+    void print(Writer& writer, const Value& value) const
     {
         printer->call<void>(value, writer);
     }
@@ -255,7 +255,7 @@ const Printer* getPrinter(const Type* type)
 /* PRINT                                                                      */
 /******************************************************************************/
 
-void print(Writer& writer, Value& value)
+void print(Writer& writer, const Value& value)
 {
     getPrinter(value.type())->print(writer, value);
 }
