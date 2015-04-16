@@ -35,7 +35,7 @@ struct Reader
         buffer_.reserve(128);
     }
 
-    bool ok() const { return static_cast<bool>(error_) && stream; }
+    bool ok() const { return error_ && stream; }
     operator bool() const { return ok(); }
 
     template<typename... Args>
