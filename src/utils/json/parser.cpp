@@ -14,48 +14,24 @@ namespace {
 /* PARSER                                                                     */
 /******************************************************************************/
 
-struct Parser { virtual void parse(Reader& reader, Value& value) const = 0; };
-
-const Parser* parser(const Type* type)
+struct Parser
 {
-    static std::mutex mutex;
-    static std::unordered_map<const Type*, const Parser*> parsers;
+    virtual void parse(Reader& reader, Value& value) const = 0;
+};
 
-    std::lock_guard<std::mutex> guard(mutex);
+const Parser* getParser(const Type* type);
 
-    auto it = parsers.find(type);
-    if (it != parsers.end()) return it->second;
-
-    const Parser* parser = nullptr;
-
-    if (type->is("bool")) parser = new BoolParser();
-    else if (type->is("integer")) parser = new IntParser();
-    else if (type->is("float")) parser = new FloatParser();
-    else if (type->is("string")) parser = new StringParser();
-    else if (type->isPointer()) parser = new PointerParser();
-
-    else if (type->is("map")) parser = new MapParser(type);
-    else if (type->is("list")) parser = new ArrayParser(type);
-    else if (type->is("json")) parser = new CustomParser(type);
-
-    else if (type == reflect::type<void>()) parser = new ValueParser();
-
-    else parser = new ObjectParser(type);
-
-    parsers[type] = parser;
-    return parser;
-}
 
 /******************************************************************************/
 /* TypeDetails                                                                */
 /******************************************************************************/
 
-struct TypeDetails
+struct TypeParser
 {
-    TypeDetails(const Type* type) :
+    TypeParser(const Type* type) :
         movable(type->isMovable()),
         type(type),
-        parser(parser(type))
+        parser(getParser(type))
     {}
 
     bool movable;
@@ -121,18 +97,21 @@ struct PointerParser : public Parser
             return;
         }
 
-        if (ptr.cast<bool>())
-            inner.parse(reader, *ptr);
+        if (ptr.cast<bool>()) {
+            Value pointee = *ptr;
+            inner.parser->parse(reader, pointee);
+        }
 
         else {
             Value value = inner.type->alloc();
-            inner.parse(reader, *value);
+            Value pointee = *value;
+            inner.parser->parse(reader, pointee);
             ptr.assign(value);
         }
     }
 
 private:
-    TypeDetails inner;
+    TypeParser inner;
 };
 
 
@@ -140,7 +119,7 @@ private:
 /* ARRAY PARSER                                                               */
 /******************************************************************************/
 
-struct ArrayParser : public Printer
+struct ArrayParser : public Parser
 {
     ArrayParser(const Type* type) :
         inner(type->getValue<const Type*>("valueType"))
@@ -154,14 +133,14 @@ struct ArrayParser : public Printer
             inner.parser->parse(reader, item);
             if (!reader) return;
 
-            if (inner.movable) value = value.rvalue();
-            array.call<void>("push_back", value);
+            if (inner.movable) item = item.rvalue();
+            array.call<void>("push_back", item);
         };
         parseArray(reader, onItem);
     }
 
 private:
-    TypeDetails inner;
+    TypeParser inner;
 };
 
 
@@ -193,7 +172,7 @@ struct MapParser : public Parser
 
 
 private:
-    TypeDetails inner;
+    TypeParser inner;
 };
 
 
@@ -205,8 +184,8 @@ struct ObjectParser : public Parser
 {
     ObjectParser(const Type* type)
     {
-        for (const std::string& key : type->fields()) {
-            const Field& field = type->field(field);
+        for (std::string key : type->fields()) {
+            const Field& field = type->field(key);
 
             if (field.is("json")) {
                 auto traits = field.getValue<Traits>("json");
@@ -223,7 +202,7 @@ struct ObjectParser : public Parser
 
     void parse(Reader& reader, Value& obj) const
     {
-        onField = [&] (const std::string& key) {
+        auto onField = [&] (const std::string& key) {
             auto it = fields.find(key);
             if (it == fields.end()) return;
 
@@ -234,7 +213,7 @@ struct ObjectParser : public Parser
     }
 
 private:
-    std::unordered_map<std::string, TypeDetails> fields;
+    std::unordered_map<std::string, TypeParser> fields;
 };
 
 
@@ -255,7 +234,7 @@ struct CustomParser : public Parser
 
     void parse(Reader& reader, Value& value) const
     {
-        parser.call<void>(value, reader);
+        parser->call<void>(value, reader);
     }
 
 private:
@@ -306,9 +285,44 @@ struct ValueParser : public Parser
             value = Value(obj);
         }
 
-        else reader.error("unknown expected token <%s>", print(token);
+        else reader.error("unknown expected token <%s>", token.print());
     }
 };
+
+
+/******************************************************************************/
+/* GET PARSER                                                                 */
+/******************************************************************************/
+
+const Parser* getParser(const Type* type)
+{
+    static std::mutex mutex;
+    static std::unordered_map<const Type*, const Parser*> parsers;
+
+    std::lock_guard<std::mutex> guard(mutex);
+
+    auto it = parsers.find(type);
+    if (it != parsers.end()) return it->second;
+
+    const Parser* parser = nullptr;
+
+    if (type->is("bool")) parser = new BoolParser;
+    else if (type->is("float")) parser = new FloatParser;
+    else if (type->is("integer")) parser = new IntParser;
+    else if (type->is("string")) parser = new StringParser;
+
+    else if (type->isPointer()) parser = new PointerParser(type);
+    else if (type->is("map")) parser = new MapParser(type);
+    else if (type->is("list")) parser = new ArrayParser(type);
+    else if (type->is("json")) parser = new CustomParser(type);
+
+    else if (type == reflect::type<void>()) parser = new ValueParser;
+
+    else parser = new ObjectParser(type);
+
+    parsers[type] = parser;
+    return parser;
+}
 
 } // namespace anonymous
 
@@ -319,7 +333,7 @@ struct ValueParser : public Parser
 
 void parse(Reader& reader, Value& value)
 {
-    parser(value.type())->parse(reader, value);
+    getParser(value.type())->parse(reader, value);
 }
 
 } // namespace json

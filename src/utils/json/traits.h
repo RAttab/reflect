@@ -18,9 +18,8 @@ namespace json {
 
 struct Traits
 {
-    std::string alias;
     bool skip;
-
+    std::string alias;
     std::string parser;
     std::string printer;
 };
@@ -28,7 +27,7 @@ struct Traits
 Traits skip();
 Traits alias(std::string alias);
 
-} // namespace json 
+} // namespace json
 } // namespace reflect
 
-reflectTypeDecl(reflect::json::Traits);
+reflectTypeDecl(reflect::json::Traits)

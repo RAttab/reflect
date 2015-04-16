@@ -12,14 +12,14 @@ namespace json {
 /* WRITER                                                                     */
 /******************************************************************************/
 
-namespace { std::string spaces{4096, ' '}; }
+namespace { std::string spaces(4096ULL, ' '); }
 
 void
 Writer::
 seperator(char c)
 {
-    put(c);
-    if (pretty()) put(' ');
+    push(c);
+    if (pretty()) push(' ');
 }
 
 void
@@ -28,9 +28,14 @@ newline()
 {
     if (!pretty()) return;
 
-    put("\n");
-    write(spaces.c_str(), indent_ * 4);
+    push("\n");
+    push(spaces.c_str(), indent_ * 4);
 }
 
 } // namespace json
 } // namespace reflect
+
+reflectTypeImpl(reflect::json::Writer)
+{
+    reflectPlumbing();
+}

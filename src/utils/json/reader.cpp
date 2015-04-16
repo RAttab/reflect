@@ -14,19 +14,19 @@ namespace json {
 /* READER                                                                     */
 /******************************************************************************/
 
-Token 
+Token
 Reader::
 peekToken()
 {
     if (!ok()) return Token(Token::EOS);
 
-    if (token.type() == Token::NoToken) 
+    if (token.type() == Token::NoToken)
         token = details::nextToken(*this);
 
     return token;
 }
 
-Token 
+Token
 Reader::
 nextToken()
 {
@@ -40,7 +40,7 @@ nextToken()
     return result;
 }
 
-Token 
+Token
 Reader::
 expectToken(Token::Type exp)
 {
@@ -51,16 +51,20 @@ expectToken(Token::Type exp)
     return ok() ? token : Token(Token::EOS);
 }
 
-void 
+void
 Reader::
 assertToken(const Token& token, Token::Type exp)
 {
     if (!ok()) return;
-
     if (token.type() == exp) return;
-    error("unexpected token <%s>, expecting <%s>", 
-            print(token.type()), print(expected));
+    error("unexpected token <%s>, expecting <%s>", token.print(), print(exp));
 }
 
 } // namespace json
 } // namespace reflect
+
+
+reflectTypeImpl(reflect::json::Reader)
+{
+    reflectPlumbing();
+}

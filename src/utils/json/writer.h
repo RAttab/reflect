@@ -32,8 +32,8 @@ struct Writer
     {
         buffer_.reserve(128);
     }
-    
-    bool operator() const { return error_ && stream; }
+
+    operator bool() const { return error_ && stream; }
 
     template<typename... Args>
     void error(const char* fmt, Args&&... args);
@@ -43,10 +43,10 @@ struct Writer
     void push(const char* c, size_t n) { stream.write(c, n); }
     void push(const std::string& c) { stream.write(c.c_str(), c.size()); }
 
-    std::string& buffer() { return buffer_; }
+    std::vector<char>& buffer() { return buffer_; }
 
     bool pretty() const { return options & Pretty; }
-    bool escapeUnicode() const { return options & EncodeUnicode; }
+    bool escapeUnicode() const { return options & EscapeUnicode; }
 
     void indent() { indent_++; }
     void unindent() { indent_--; }
@@ -55,7 +55,7 @@ struct Writer
 
 private:
     std::ostream& stream;
-    std::string buffer_;
+    std::vector<char> buffer_;
     Error error_;
 
     size_t indent_;
@@ -65,3 +65,5 @@ private:
 
 } // namespace json
 } // namespace reflect
+
+reflectTypeDecl(reflect::json::Writer)

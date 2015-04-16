@@ -24,7 +24,7 @@ struct Reader
         UnescapeUnicode = 1 << 1,
         ValidateUnicode = 1 << 2,
 
-        Default = DecodeUnicode | ValidateUnicode,
+        Default = UnescapeUnicode | ValidateUnicode,
     };
 
     Reader(std::istream& stream, Options options = Default) :
@@ -35,15 +35,15 @@ struct Reader
         buffer_.reserve(128);
     }
 
-    bool ok() const { return error_ && stream; }
-    bool operator() const { return ok(); }
+    bool ok() const { return static_cast<bool>(error_) && stream; }
+    operator bool() const { return ok(); }
 
     template<typename... Args>
     void error(const char* fmt, Args&&... args);
     const Error& error() const { return error_; }
 
     char peek() { return stream.peek(); }
-    char pop() { pos_++; return stream.pop(); }
+    char pop() { pos_++; return stream.get(); }
 
     Token peekToken();
     Token nextToken();
@@ -52,14 +52,14 @@ struct Reader
 
     void save(char c) { buffer_.push_back(c); }
     const std::string& buffer() { return buffer_; }
-    void resetBuffer() const { buffer_.reset(); }
+    void resetBuffer() { buffer_.clear(); }
 
     size_t pos() const { return pos_; }
     size_t line() const { return line_; }
     void newline() { pos_ = 0; line_++; }
 
     bool allowComments() const { return options & AllowComments; }
-    bool unescapeUnicode() const { return options & DecodeUnicode; }
+    bool unescapeUnicode() const { return options & UnescapeUnicode; }
     bool validateUnicode() const { return options & ValidateUnicode; }
 
 private:
@@ -77,3 +77,5 @@ private:
 
 } // namespace json
 } // namespace reflect
+
+reflectTypeDecl(reflect::json::Reader)

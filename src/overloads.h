@@ -32,8 +32,7 @@ struct Overloads : public Traits
 
     template<typename Fn>
     const Function& get() const;
-    const Function& get(Function& fn) const;
-    const Function& get(const Argument& ret, const std::vector<Argument& args) const;
+    const Function& get(const Argument& ret, const std::vector<Argument>& args) const;
 
     template<typename Ret, typename... Args>
     Ret call(Args&&... args) const;

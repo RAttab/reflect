@@ -15,7 +15,7 @@ namespace json {
 void formatNull(Writer& writer)
 {
     static const std::string sNull = "null";
-    writer.write(sNull);
+    writer.push(sNull);
 }
 
 void formatBool(Writer& writer, bool value)
@@ -23,8 +23,8 @@ void formatBool(Writer& writer, bool value)
     static const std::string sTrue = "true";
     static const std::string sFalse = "false";
 
-    if (value) writer.write(sTrue);
-    else writer.write(sFalse);
+    if (value) writer.push(sTrue);
+    else writer.push(sFalse);
 }
 
 namespace {
@@ -34,13 +34,13 @@ void format(Writer& writer, const char* format, T value)
 {
     auto& buffer = writer.buffer();
 
-    size_t n = snprintf(buffer.c_str(), buffer.size(), format, value);
+    size_t n = snprintf(buffer.data(), buffer.size(), format, value);
     if (n == buffer.size()) {
         writer.error("buffer too small to format value");
         return;
     }
 
-    buffer.push(buffer.c_str(), n);
+    writer.push(buffer.data(), n);
 }
 
 } // namespace anonymous
@@ -57,22 +57,22 @@ void formatFloat(Writer& writer, double value)
 
 size_t escapeUnicode(Writer& writer, const std::string& value, size_t i)
 {
-    uint32_t code = 0;
-
     size_t bytes = clz(~value[i]);
-    if (bytes > 6) reader.error("invalid UTF-8 header");
-    if (i + bytes >= value.size()) reader.error("invalid UTF-8 encoding");
+    if (bytes > 6) writer.error("invalid UTF-8 header");
+    if (i + bytes >= value.size()) writer.error("invalid UTF-8 encoding");
 
     uint8_t leftover = 8 - (bytes + 1);
     uint32_t code = value[i] & ((1 << leftover) - 1);
 
     i++;
     for (; writer && i < (bytes - 1); ++i) {
-        if ((value[i] & 0xC0) != 0x80) reader.error("invalid UTF-8 encoding");
+        if ((value[i] & 0xC0) != 0x80) writer.error("invalid UTF-8 encoding");
         code = (code << 6) | (value[i] & 0x3F);
     }
 
     format(writer, "\\u%4x", code);
+
+    return i - 1;
 }
 
 void formatString(Writer& writer, const std::string& value)
@@ -81,7 +81,7 @@ void formatString(Writer& writer, const std::string& value)
 
     for (size_t i = 1; i < value.size(); ++i) {
         char c = value[i];
-        
+
         if ((c & 0x80) && writer.escapeUnicode()) {
             i = escapeUnicode(writer, value, i);
             continue;
@@ -105,5 +105,5 @@ void formatString(Writer& writer, const std::string& value)
 }
 
 
-} // namespace json 
+} // namespace json
 } // namespace reflect

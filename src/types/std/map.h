@@ -18,6 +18,48 @@
 namespace reflect {
 
 /******************************************************************************/
+/* GENERIC MAP REFLECT                                                        */
+/******************************************************************************/
+
+namespace details {
+
+template<typename T_, typename KeyT, typename ValueT>
+void reflectMap(Type* type_)
+{
+    reflectPlumbing();
+
+    reflectTypeTrait(map);
+    reflectTypeValue(keyType, type<KeyT>());
+    reflectTypeValue(valueType, type<ValueT>());
+
+    reflectFn(size);
+    reflectCustom(count) (const T_& value, const KeyT& k) -> size_t {
+        return value.count(k);
+    };
+    reflectCustom(operator[]) (T_& value, const KeyT& k) -> ValueT& {
+        return value[k];
+    };
+    reflectCustom(operator[]) (const T_& value, const KeyT& k) -> const ValueT& {
+        auto it = value.find(k);
+        if (it != value.end()) return it->second;
+
+        reflectError("accessing unknown key in const map");
+    };
+
+    reflectCustom(keys) (const T_& value) -> std::vector<KeyT> {
+        std::vector<KeyT> result;
+        result.reserve(value.size());
+
+        for (auto& item : value) result.push_back(item.first);
+
+        return result;
+    };
+}
+
+
+} // namespace details
+
+/******************************************************************************/
 /* REFLECT MAP                                                                */
 /******************************************************************************/
 
@@ -32,37 +74,31 @@ struct Reflect< std::map<KeyT, ValueT> >
 
     reflectTemplateLoader()
 
-    static void reflect(Type* type_)
+    static void reflect(Type* type)
     {
-        reflectPlumbing();
+        details::reflectMap<T_, KeyT, ValueT>(type);
+    }
+};
 
-        reflectTypeTrait(map);
-        reflectTypeValue(keyType, type<KeyT>());
-        reflectTypeValue(valueType, type<ValueT>());
 
-        reflectFn(size);
-        reflectCustom(count) (const T_& value, const KeyT& k) -> size_t {
-            return value.count(k);
-        };
-        reflectCustom(operator[]) (T_& value, const KeyT& k) -> ValueT& {
-            return value[k];
-        };
-        reflectCustom(operator[]) (const T_& value, const KeyT& k) -> const ValueT& {
-            auto it = value.find(k);
-            if (it != value.end()) return it->second;
+/******************************************************************************/
+/* REFLECT UNORDERED MAP                                                      */
+/******************************************************************************/
 
-            reflectError("accessing unknown key in const map");
-        };
+template<typename KeyT, typename ValueT>
+struct Reflect< std::unordered_map<KeyT, ValueT> >
+{
+    typedef std::map<KeyT, ValueT> T_;
+    static std::string id()
+    {
+        return "std::unordered_map<" + typeId<KeyT>() + "," + typeId<ValueT>() + ">";
+    }
 
-        reflectCustom(keys) (const T_& value) -> std::vector<KeyT> {
-            std::vector<KeyT> result;
-            result.reserve(value.size());
+    reflectTemplateLoader()
 
-            for (auto& item : value) result.push_back(item.first);
-
-            return result;
-        };
-
+    static void reflect(Type* type)
+    {
+        details::reflectMap<T_, KeyT, ValueT>(type);
     }
 };
 

@@ -22,7 +22,7 @@ Traits skip()
 Traits alias(std::string alias)
 {
     Traits traits;
-    traits.alias = std::move(alies);
+    traits.alias = std::move(alias);
     return traits;
 }
 
@@ -33,5 +33,7 @@ reflectTypeImpl(reflect::json::Traits)
 {
     reflectPlumbing();
     reflectField(skip);
-    reflectField(name);
+    reflectField(alias);
+    reflectField(parser);
+    reflectField(printer);
 }

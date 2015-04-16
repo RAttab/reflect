@@ -16,13 +16,13 @@ namespace json {
 /******************************************************************************/
 
 template<typename... Args>
-void 
-Reader::
+void
+Writer::
 error(const char* fmt, Args&&... args)
 {
     error_ = Error(reflect::errorFormat(fmt, std::forward<Args>(args)...));
 }
 
 
-} // namespace json 
+} // namespace json
 } // namespace reflect

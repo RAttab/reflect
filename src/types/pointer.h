@@ -13,6 +13,7 @@
 #include "dsl/template.h"
 #include "dsl/plumbing.h"
 #include "dsl/function.h"
+#include "dsl/operators.h"
 
 namespace reflect {
 
@@ -35,13 +36,11 @@ struct Reflect<T*>
         reflectTypeTrait(primitive);
 
         reflectPointer(*, T);
-        reflectOpCast(bool);
-        reflectCustom(operator*) (T* & value) -> T& {
-            return *value;
-        };
-        reflectCustom(operator*) (T* const& value) -> const T& {
-            return *value;
-        };
+
+        reflectCustom(operator bool) (T* value) -> bool { return value; };
+
+        reflectCustom(operator*) (T*      & value) ->       T& { return *value; };
+        reflectCustom(operator*) (T* const& value) -> const T& { return *value; };
     }
 };
 

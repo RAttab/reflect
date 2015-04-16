@@ -5,6 +5,7 @@
    JSON formatter
 */
 
+#include "json.h"
 #pragma once
 
 namespace reflect {
@@ -20,5 +21,5 @@ void formatInt(Writer& writer, int64_t value);
 void formatFloat(Writer& writer, double value);
 void formatString(Writer& writer, const std::string& value);
 
-} // namespace json 
+} // namespace json
 } // namespace reflect

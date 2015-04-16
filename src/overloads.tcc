@@ -36,10 +36,7 @@ get() const
     }
 
     reflectError("no overload <%s> available for function <%s>",
-            signature(
-                    Argument::make<Ret>(),
-                    reflectArguments(std::forward<Args>(args)...)),
-            name());
+            signature<Fn>(), name());
 }
 
 template<typename Ret, typename... Args>

@@ -5,7 +5,7 @@
    Reader template implementation.
 */
 
-#include "json"
+#include "json.h"
 #pragma once
 
 namespace reflect {
@@ -16,12 +16,12 @@ namespace json {
 /******************************************************************************/
 
 template<typename... Args>
-void 
+void
 Reader::
 error(const char* fmt, Args&&... args)
 {
     std::stringstream ss;
-    ss << reader.line() << ":" << reader.pos() << ": ";
+    ss << line_ << ":" << pos_ << ": ";
     ss << reflect::errorFormat(fmt, std::forward<Args>(args)...);
     error_ = Error(ss.str());
 }

@@ -27,7 +27,10 @@ struct Reader;
 #include "writer.h"
 #include "traits.h"
 #include "parser.h"
+#include "format.h"
+#include "printer.h"
 
 #include "reader.tcc"
 #include "writer.tcc"
 #include "parser.tcc"
+#include "printer.tcc"

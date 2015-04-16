@@ -50,12 +50,10 @@ void printType()
 
 struct Error : public std::logic_error
 {
-    Error() : active(false) {}
-    Error(std::string what) : 
-        std::logic_error(std::move(what)), active(true)
-    {}
+    Error() : std::logic_error(""), active(false) {}
+    Error(std::string what) : std::logic_error(std::move(what)), active(true) {}
 
-    bool operator() { return active; }
+    operator bool() const { return active; }
 
 private:
     bool active;

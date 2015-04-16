@@ -25,27 +25,27 @@ struct Token
         ArrayStart, ArrayEnd,   // []
         Separator,              // ,
         KeySeparator,           // :
-        String, Number, Bool, Null,
+        String, Int, Float, Bool, Null,
         EOS
     };
 
     Token() : type_(NoToken) {}
     Token(Type type) : type_(type) {}
     Token(Type type, bool value);
-    Token(Type type, std::string& value);
+    Token(Type type, const std::string& value);
 
     Type type() const { return type_; }
 
     bool asBool() const;
-    long asInt() const;
+    int64_t asInt() const;
     double asFloat() const;
-    std::string& asString() const { return value_; }
+    const std::string& asString() const { return *value_; }
 
     std::string print() const;
 
 private:
     Type type_;
-    std::string* value_;
+    const std::string* value_;
 };
 
 std::string print(Token::Type type);

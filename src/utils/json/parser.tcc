@@ -23,12 +23,17 @@ bool parseBool(Reader& reader)
 
 int64_t parseInt(Reader& reader)
 {
-    return reader.expectToken(Token::Number).asInt();
+    return reader.expectToken(Token::Int).asInt();
 }
 
 double parseFloat(Reader& reader)
 {
-    return reader.expectToken(Token::Number).asFloat();
+    Token token = reader.nextToken();
+
+    if (token.type() == Token::Int);
+    else reader.assertToken(token, Token::Float);
+
+    return token.asFloat();
 }
 
 std::string parseString(Reader& reader)
@@ -50,7 +55,7 @@ void parseObject(Reader& reader, const Fn& fn)
         reader.assertToken(token, Token::String);
         reader.expectToken(Token::KeySeparator);
 
-        fn(reader, token.asString());
+        fn(token.asString());
 
         token = reader.nextToken();
         if (token.type() == Token::ObjectEnd) return;
@@ -65,11 +70,11 @@ void parseArray(Reader& reader, const Fn& fn)
     if (token.type() == Token::Null) return;
     reader.assertToken(token, Token::ArrayStart);
 
-    Token token = reader.nextToken();
+    token = reader.nextToken();
     if (token.type() == Token::ArrayEnd) return;
 
     for (size_t i = 0; reader; ++i) {
-        fn(reader, i);
+        fn(i);
 
         token = reader.nextToken();
         if (token.type() == Token::ArrayEnd) return;
@@ -82,22 +87,22 @@ void parseArray(Reader& reader, const Fn& fn)
 /* VALUE PARSER                                                               */
 /******************************************************************************/
 
-template<typename T> 
+template<typename T>
 Error parse(Reader& reader, T& value)
 {
-    Value value = cast<Value>(value);
-    parse(reader, value);
+    Value v = cast<Value>(value);
+    parse(reader, v);
     return reader.error();
 }
 
-template<typename T> 
+template<typename T>
 Error parse(std::istream& stream, T& value)
 {
     Reader reader(stream);
     return parse(reader, value);
 }
 
-template<typename T> 
+template<typename T>
 Error parse(const std::string& str, T& value)
 {
     std::istringstream stream(str);

@@ -107,8 +107,8 @@ add_library(reflect_primitives SHARED
 add_library(reflect_std SHARED
     src/types/std/string.cpp)
 
-# add_library(reflect_json SHARED src/utils/json/json.cpp)
-# target_link_libraries(reflect_json reflect)
+add_library(reflect_json SHARED src/utils/json/json.cpp)
+target_link_libraries(reflect_json reflect)
 
 # add_library(reflect_config SHARED src/utils/config/compile.cpp)
 # target_link_libraries(reflect_config reflect_json)

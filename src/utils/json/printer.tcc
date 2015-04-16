@@ -13,39 +13,39 @@ namespace json {
 /* GENERIC PRINTER                                                            */
 /******************************************************************************/
 
-void printNull(Writer& writer)
+void printNull(Writer& writer) { formatNull(writer); }
+void printBool(Writer& writer, bool value) { formatBool(writer, value); }
+void printInt(Writer& writer, int64_t value) { formatInt(writer, value); }
+void printFloat(Writer& writer, double value) { formatFloat(writer, value); }
+void printString(Writer& writer, const std::string& value)
 {
-    formatNull(writer);
+    formatString(writer, value);
 }
 
-template<typename T>
-void printBool(Writer& writer, const T& value)
+void printBool(Writer& writer, Value& value)
 {
-    formatBool(writer, cast<bool>(value));
+    formatBool(writer, value.cast<bool>());
 }
 
-template<typename T>
-void printInt(Writer& writer, const T& value)
+void printInt(Writer& writer, Value& value)
 {
-    formatInt(writer, cast<int32_t>(value));
+    formatInt(writer, value.cast<int64_t>());
 }
 
-template<typename T>
-void printFloat(Writer& writer, const T& value)
+void printFloat(Writer& writer, Value& value)
 {
-    formatFloat(writer, cast<double>(value));
+    formatFloat(writer, value.cast<double>());
 }
 
-template<typename T>
-void printString(Writer& writer, const T& value)
+void printString(Writer& writer, Value& value)
 {
-    formatFloat(writer, cast<std::string>(value));
+    formatString(writer, value.cast<std::string>());
 }
 
-template<typename T>
-void printObject(Writer& writer, const T& keys, const Fn& fn)
+template<typename Keys, typename Fn>
+void printObject(Writer& writer, const Keys& keys, const Fn& fn)
 {
-    writer.put('{');
+    writer.push('{');
     writer.indent();
     writer.newline();
 
@@ -66,13 +66,13 @@ void printObject(Writer& writer, const T& keys, const Fn& fn)
 
     writer.newline();
     writer.unindent();
-    writer.put('}');
+    writer.push('}');
 }
 
-template<typename T, typename Fn>
+template<typename Fn>
 void printArray(Writer& writer, size_t n, const Fn& fn)
 {
-    writer.put('[');
+    writer.push('[');
     writer.indent();
     writer.newline();
 
@@ -91,7 +91,7 @@ void printArray(Writer& writer, size_t n, const Fn& fn)
 
     writer.newline();
     writer.unindent();
-    writer.put(']');
+    writer.push(']');
 }
 
 
@@ -102,9 +102,9 @@ void printArray(Writer& writer, size_t n, const Fn& fn)
 template<typename T>
 Error print(Writer& writer, const T& value)
 {
-    Value value = cast<Value>(value);
-    print(reader, value);
-    return reader.error();
+    Value v = cast<Value>(value);
+    print(writer, v);
+    return writer.error();
 }
 
 template<typename T>
