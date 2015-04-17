@@ -16,10 +16,12 @@ using namespace std;
 using namespace reflect;
 using namespace reflect::json;
 
-void checkToken(const std::string& s, Token::Type type)
+void checkToken(
+        const std::string& s, Token::Type type,
+        Reader::Options options = Reader::Default)
 {
     std::istringstream stream(s);
-    Reader reader(stream);
+    Reader reader(stream, options);
 
     Token token = reader.expectToken(type);
 
@@ -33,12 +35,15 @@ void check(Token token, bool exp) { BOOST_CHECK_EQUAL(token.asBool(), exp); }
 void check(Token token, int exp) { BOOST_CHECK_EQUAL(token.asInt(), exp); }
 void check(Token token, double exp) { BOOST_CHECK_CLOSE(token.asFloat(), exp, 0.0000001); }
 void check(Token token, const char* exp) { BOOST_CHECK_EQUAL(token.asString(), exp); }
+void check(Token token, std::string exp) { BOOST_CHECK_EQUAL(token.asString(), exp); }
 
 template<typename T>
-void checkToken(const std::string& s, Token::Type type, T exp)
+void checkToken(
+        const std::string& s, Token::Type type, T exp,
+        Reader::Options options = Reader::Default)
 {
     std::istringstream stream(s);
-    Reader reader(stream);
+    Reader reader(stream, options);
 
     Token token = reader.expectToken(type);
 
@@ -51,10 +56,10 @@ void checkToken(const std::string& s, Token::Type type, T exp)
     check(token, exp);
 }
 
-void errorToken(const std::string& s)
+void errorToken(const std::string& s, Reader::Options options = Reader::Default)
 {
     std::istringstream stream(s);
-    Reader reader(stream);
+    Reader reader(stream, options);
 
     Token token = reader.nextToken();
 
@@ -76,7 +81,11 @@ BOOST_AUTO_TEST_CASE(test_basics)
     checkToken("]", Token::ArrayEnd);
     checkToken(",", Token::Separator);
     checkToken(":", Token::KeySeparator);
+    errorToken("<");
+
     checkToken("null", Token::Null);
+    errorToken("nul");
+    errorToken("nul l");
 
     checkToken("true", Token::Bool, true);
     checkToken("false", Token::Bool, false);
@@ -85,9 +94,9 @@ BOOST_AUTO_TEST_CASE(test_basics)
     checkToken(" \t  ,", Token::Separator);
     checkToken(" \n  ,", Token::Separator);
 
-    errorToken("<");
-    errorToken("nul");
-    errorToken("nul l");
+    checkToken(" // weeeeeeeee\n,", Token::Separator, Reader::AllowComments);
+    errorToken(" // weeeeeeeee\n,");
+
 }
 
 BOOST_AUTO_TEST_CASE(test_number)
@@ -124,16 +133,44 @@ BOOST_AUTO_TEST_CASE(test_string)
     checkToken(s("\\\\"), Token::String, "\\");
     checkToken(s("\\\""), Token::String, "\"");
     errorToken(s("\\g"));
+    errorToken(s("\n"));
 
     checkToken(s("\u1234"), Token::String, "\u1234");
     checkToken(s("\uFFFF"), Token::String, "\uFFFF");
     checkToken(s("\u0FFF"), Token::String, "\u0FFF");
     checkToken(s("\u00FF"), Token::String, "\u00FF");
     checkToken(s("\u000F"), Token::String, "\u000F");
+    checkToken(s("0\u12345"), Token::String, "0\u12345");
+    checkToken(s("\u1234\u1234"), Token::String, "\u1234\u1234");
 
     checkToken(s("\\u1234"), Token::String, "\u1234");
     checkToken(s("\\uFFFF"), Token::String, "\uFFFF");
     checkToken(s("\\u0FFF"), Token::String, "\u0FFF");
     checkToken(s("\\u00FF"), Token::String, "\u00FF");
     checkToken(s("\\u000F"), Token::String, "\u000F");
+    checkToken(s("0\\u12345"), Token::String, "0\u12345");
+    errorToken(s("\\u123"));
+    errorToken(s("\\u123G"));
+    errorToken(s("\\uG234"));
+
+    checkToken(s("\\u1234"), Token::String, "\\u1234", Reader::ValidateUnicode);
+    errorToken(s("\\u123"), Reader::ValidateUnicode);
+    errorToken(s("\\u123G"), Reader::ValidateUnicode);
+    errorToken(s("\\uG234"), Reader::ValidateUnicode);
+
+    auto u = [&] (std::initializer_list<int> c) {
+        return std::string(c.begin(), c.end());
+    };
+
+    checkToken(s(u({ 0x0F })), Token::String, "\u000F");
+
+    checkToken(s(u({ 0xF0 })), Token::String, u({ 0xF0 }), {});
+    checkToken(s(u({ 0xC0, 0x8F })), Token::String, u({ 0xC0, 0x8F }), {});
+    checkToken(s(u({ 0xE0, 0x8F })), Token::String, u({ 0xE0, 0x8F }), {});
+    checkToken(s(u({ 0xE0, 0x8F, 0x0F })), Token::String, u({ 0xE0, 0x8F, 0x0F }), {});
+
+    errorToken(s(u({ 0xF0 })));
+    errorToken(s(u({ 0xC0, 0x8F })));
+    errorToken(s(u({ 0xE0, 0x8F })));
+    errorToken(s(u({ 0xE0, 0x8F, 0x0F })));
 }

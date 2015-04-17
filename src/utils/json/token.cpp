@@ -101,6 +101,7 @@ char nextChar(Reader& reader)
         char c = reader.pop();
 
         if (std::isspace(c)) continue;
+        if (c == '\n') reader.newline();
 
         if (c == '/' && reader.peek() == '/') {
             if (!reader.allowComments())
@@ -169,6 +170,8 @@ void unescapeUnicode(Reader& reader)
         encode(1, 0x3F, 0x80);
         encode(0, 0x3F, 0x80);
     }
+
+    else reflectError("code point <%u> is too big", code);
 }
 
 void readUnicode(Reader& reader)
@@ -177,6 +180,9 @@ void readUnicode(Reader& reader)
         unescapeUnicode(reader);
         return;
     }
+
+    reader.save('\\');
+    reader.save('u');
 
     size_t i = 0;
     for (i = 0; reader && i < 4; ++i) {
@@ -198,7 +204,8 @@ void validateUnicode(Reader& reader, char c)
     size_t bytes = clz(~c);
     if (bytes > 4) reader.error("invalid UTF-8 header: %x", c);
 
-    uint32_t code = (c << (bytes+1)) >> (bytes+1);
+    uint32_t mask = (1 << (7 - bytes)) - 1;
+    uint32_t code = uint32_t(c) & mask;
 
     for (size_t i = 1; reader && i < bytes; i++) {
         reader.save(c = reader.pop());
@@ -221,6 +228,11 @@ void readString(Reader& reader)
 
     while (reader) {
         char c = reader.pop();
+
+        if (c == '\n') {
+            reader.error("invalid \\n character in a string");
+            continue;
+        }
 
         if ((c & 0x80) && reader.validateUnicode()) {
             validateUnicode(reader, c);
