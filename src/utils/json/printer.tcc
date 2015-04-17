@@ -13,35 +13,6 @@ namespace json {
 /* GENERIC PRINTER                                                            */
 /******************************************************************************/
 
-void printNull(Writer& writer) { formatNull(writer); }
-void printBool(Writer& writer, bool value) { formatBool(writer, value); }
-void printInt(Writer& writer, int64_t value) { formatInt(writer, value); }
-void printFloat(Writer& writer, double value) { formatFloat(writer, value); }
-void printString(Writer& writer, const std::string& value)
-{
-    formatString(writer, value);
-}
-
-void printBool(Writer& writer, const Value& value)
-{
-    formatBool(writer, value.cast<bool>());
-}
-
-void printInt(Writer& writer, const Value& value)
-{
-    formatInt(writer, value.cast<int64_t>());
-}
-
-void printFloat(Writer& writer, const Value& value)
-{
-    formatFloat(writer, value.cast<double>());
-}
-
-void printString(Writer& writer, const Value& value)
-{
-    formatString(writer, value.cast<std::string>());
-}
-
 template<typename Keys, typename Fn>
 void printObject(Writer& writer, const Keys& keys, const Fn& fn)
 {

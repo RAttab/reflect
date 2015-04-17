@@ -52,6 +52,8 @@ std::string print(Token::Type type)
 {
     switch (type)
     {
+    case Token::NoToken: return "notok";
+
     case Token::ObjectStart: return "{";
     case Token::ObjectEnd:   return "}";
 
@@ -121,7 +123,7 @@ void readLiteral(Reader& reader, const char* literal)
     const char* l = literal;
     while (reader && *l && (c = reader.pop()) == *l) l++;
 
-    reader.error("expected literal <%s>", literal);
+    if (*l) reader.error("expected literal <%s>", literal);
 }
 
 void unescapeUnicode(Reader& reader)
@@ -163,23 +165,6 @@ void unescapeUnicode(Reader& reader)
 
     else if (code <= 0x1FFFFF) {
         encode(3, 0x07, 0xF0);
-        encode(2, 0x3F, 0x80);
-        encode(1, 0x3F, 0x80);
-        encode(0, 0x3F, 0x80);
-    }
-
-    else if (code <= 0x3FFFFFFF) {
-        encode(4, 0x03, 0xF8);
-        encode(3, 0x3F, 0x80);
-        encode(2, 0x3F, 0x80);
-        encode(1, 0x3F, 0x80);
-        encode(0, 0x3F, 0x80);
-    }
-
-    else {
-        encode(5, 0x01, 0xFC);
-        encode(4, 0x3F, 0x80);
-        encode(3, 0x3F, 0x80);
         encode(2, 0x3F, 0x80);
         encode(1, 0x3F, 0x80);
         encode(0, 0x3F, 0x80);
@@ -259,11 +244,8 @@ void readString(Reader& reader)
 Token::Type readNumber(Reader& reader, char c)
 {
     Token::Type type = Token::Int;
-
     reader.resetBuffer();
-
-    // can be either - or [0-9].
-    reader.save(c);
+    reader.save(c); // can be either - or [0-9].
 
     auto readDigits = [&] {
         while (reader && std::isdigit(c = reader.peek()))
@@ -311,10 +293,6 @@ Token nextToken(Reader& reader)
     char c = nextChar(reader);
     if (!reader) return Token(Token::EOS);
 
-    auto check = [&] (Token token) {
-        return reader ? token : Token(Token::EOS);
-    };
-
     switch(c)
     {
     case '{': return Token(Token::ObjectStart);
@@ -326,13 +304,13 @@ Token nextToken(Reader& reader)
     case ',': return Token(Token::Separator);
     case ':': return Token(Token::KeySeparator);
 
-    case 'n': readLiteral(reader, "ull");  return check(Token(Token::Null));
-    case 't': readLiteral(reader, "rue");  return check(Token(Token::Bool, true));
-    case 'f': readLiteral(reader, "alse"); return check(Token(Token::Bool, false));
+    case 'n': readLiteral(reader, "ull");  return Token(Token::Null);
+    case 't': readLiteral(reader, "rue");  return Token(Token::Bool, true);
+    case 'f': readLiteral(reader, "alse"); return Token(Token::Bool, false);
 
     case '"':
         readString(reader);
-        return check(Token(Token::String, reader.buffer()));
+        return Token(Token::String, reader.buffer());
 
     case '-':
     case '0':
@@ -347,7 +325,7 @@ Token nextToken(Reader& reader)
     case '9':
     {
         Token::Type type = readNumber(reader, c);
-        return check(Token(type, reader.buffer()));
+        return Token(type, reader.buffer());
     }
     default:
         reader.error("unexpected character <%c>", c);

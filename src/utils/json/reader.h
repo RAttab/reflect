@@ -35,7 +35,7 @@ struct Reader
         buffer_.reserve(128);
     }
 
-    bool ok() const { return error_ && stream; }
+    bool ok() const { return !error_ && stream; }
     operator bool() const { return ok(); }
 
     template<typename... Args>
@@ -48,7 +48,7 @@ struct Reader
     Token peekToken();
     Token nextToken();
     Token expectToken(Token::Type exp);
-    void assertToken(const Token& token, Token::Type exp);
+    bool assertToken(const Token& token, Token::Type exp);
 
     void save(char c) { buffer_.push_back(c); }
     const std::string& buffer() { return buffer_; }

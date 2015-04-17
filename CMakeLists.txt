@@ -250,7 +250,7 @@ reflect_test(pointer)
 reflect_test(reflection)
 reflect_test(demo)
 
-reflect_utils_test(json basic)
+reflect_utils_test(json reader)
 
 # reflect_utils_test(config path)
 # reflect_utils_test(config cubes)

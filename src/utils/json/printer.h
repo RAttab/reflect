@@ -14,16 +14,16 @@ namespace json {
 /* GENERIC PRINTER                                                            */
 /******************************************************************************/
 
-inline void printNull(Writer& writer);
-inline void printBool(Writer& writer, bool value);
-inline void printInt(Writer& writer, int64_t value);
-inline void printFloat(Writer& writer, double value);
-inline void printString(Writer& writer, const std::string& value);
+void printNull(Writer& writer);
+void printBool(Writer& writer, bool value);
+void printInt(Writer& writer, int64_t value);
+void printFloat(Writer& writer, double value);
+void printString(Writer& writer, const std::string& value);
 
-inline void printBool(Writer& writer, const Value& value);
-inline void printInt(Writer& writer, const Value& value);
-inline void printFloat(Writer& writer, const Value& value);
-inline void printString(Writer& writer, const Value& value);
+void printBool(Writer& writer, const Value& value);
+void printInt(Writer& writer, const Value& value);
+void printFloat(Writer& writer, const Value& value);
+void printString(Writer& writer, const Value& value);
 
 template<typename Keys, typename Fn>
 void printObject(Writer& writer, const Keys& keys, const Fn& fn);

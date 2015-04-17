@@ -47,17 +47,17 @@ expectToken(Token::Type exp)
     if (!ok()) return {};
 
     Token token = nextToken();
-    assertToken(token, exp);
-    return ok() ? token : Token(Token::EOS);
+    return assertToken(token, exp) ? token : Token(Token::EOS);
 }
 
-void
+bool
 Reader::
 assertToken(const Token& token, Token::Type exp)
 {
-    if (!ok()) return;
-    if (token.type() == exp) return;
+    if (token.type() == exp) return true;
+
     error("unexpected token <%s>, expecting <%s>", token.print(), print(exp));
+    return false;
 }
 
 } // namespace json

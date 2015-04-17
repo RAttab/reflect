@@ -1,0 +1,130 @@
+/* reader_test.cpp                                 -*- C++ -*-
+   Rémi Attab (remi.attab@gmail.com), 16 Apr 2015
+   FreeBSD-style copyright and disclaimer apply
+*/
+
+#define BOOST_TEST_MAIN
+#define BOOST_TEST_DYN_LINK
+#define REFLECT_USE_EXCEPTIONS 1
+
+#include "reflect.h"
+#include "utils/json/json.h"
+
+#include <boost/test/unit_test.hpp>
+
+using namespace std;
+using namespace reflect;
+using namespace reflect::json;
+
+void checkToken(const std::string& s, Token::Type type)
+{
+    std::istringstream stream(s);
+    Reader reader(stream);
+
+    Token token = reader.expectToken(type);
+
+    std::cerr << "<" << s << "> -> ";
+    if (!reader.error()) std::cerr << token.print();
+    else std::cerr << reader.error().what();
+    std::cerr << std::endl;
+}
+
+void check(Token token, bool exp) { BOOST_CHECK_EQUAL(token.asBool(), exp); }
+void check(Token token, int exp) { BOOST_CHECK_EQUAL(token.asInt(), exp); }
+void check(Token token, double exp) { BOOST_CHECK_CLOSE(token.asFloat(), exp, 0.0000001); }
+void check(Token token, const char* exp) { BOOST_CHECK_EQUAL(token.asString(), exp); }
+
+template<typename T>
+void checkToken(const std::string& s, Token::Type type, T exp)
+{
+    std::istringstream stream(s);
+    Reader reader(stream);
+
+    Token token = reader.expectToken(type);
+
+    std::cerr << "<" << s << "> -> ";
+    if (!reader.error()) std::cerr << token.print();
+    else std::cerr << reader.error().what();
+    std::cerr << std::endl;
+
+    BOOST_CHECK(!reader.error());
+
+    check(token, exp);
+}
+
+void errorToken(const std::string& s)
+{
+    std::istringstream stream(s);
+    Reader reader(stream);
+
+    Token token = reader.nextToken();
+
+    std::cerr << "<" << s << "> -> ";
+    if (!reader.error()) std::cerr << token.print();
+    else std::cerr << reader.error().what();
+    std::cerr << std::endl;
+
+    BOOST_CHECK(!!reader.error());
+}
+
+BOOST_AUTO_TEST_CASE(test_basics)
+{
+    checkToken("", Token::EOS);
+    checkToken(" ", Token::EOS);
+    checkToken("{", Token::ObjectStart);
+    checkToken("}", Token::ObjectEnd);
+    checkToken("[", Token::ArrayStart);
+    checkToken("]", Token::ArrayEnd);
+    checkToken(",", Token::Separator);
+    checkToken(":", Token::KeySeparator);
+    checkToken("null", Token::Null);
+
+    checkToken("true", Token::Bool, true);
+    checkToken("false", Token::Bool, false);
+
+    checkToken("   ,", Token::Separator);
+    checkToken(" \t  ,", Token::Separator);
+    checkToken(" \n  ,", Token::Separator);
+
+    errorToken("<");
+    errorToken("nul");
+    errorToken("nul l");
+}
+
+BOOST_AUTO_TEST_CASE(test_number)
+{
+    checkToken("123", Token::Int, 123);
+    checkToken("-123", Token::Int, -123);
+    checkToken("000001", Token::Int, 1); // \todo Should fail
+
+    checkToken("0.1", Token::Float, 0.1);
+    checkToken("-0.1", Token::Float, -0.1);
+    checkToken("123.321", Token::Float, 123.321);
+    checkToken("123e10", Token::Float, 123e10);
+    checkToken("123E10", Token::Float, 123e10);
+    checkToken("123e-10", Token::Float, 123e-10);
+    checkToken("123e+10", Token::Float, 123e+10);
+    checkToken("1.23e4", Token::Float, 1.23e4);
+    checkToken("123.456e78", Token::Float, 123.456e78);
+
+    errorToken(".1");
+    checkToken("1.1.1", Token::Float, 1.1);
+}
+
+BOOST_AUTO_TEST_CASE(test_string)
+{
+    auto s = [] (std::string str) { return '"' + str + '"'; };
+
+    checkToken(s("abc"), Token::String, "abc");
+    checkToken(s("\\/"), Token::String, "/");
+    checkToken(s("\\b"), Token::String, "\b");
+    checkToken(s("\\f"), Token::String, "\f");
+    checkToken(s("\\n"), Token::String, "\n");
+    checkToken(s("\\r"), Token::String, "\r");
+    checkToken(s("\\t"), Token::String, "\t");
+    checkToken(s("\\\\"), Token::String, "\\");
+    checkToken(s("\\\""), Token::String, "\"");
+    errorToken(s("\\g"));
+
+    checkToken(s("\\u1234"), Token::String, "\u1234");
+}

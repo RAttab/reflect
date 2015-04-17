@@ -33,7 +33,7 @@ struct Writer
         buffer_.reserve(128);
     }
 
-    operator bool() const { return error_ && stream; }
+    operator bool() const { return !error_ && stream; }
 
     template<typename... Args>
     void error(const char* fmt, Args&&... args);
