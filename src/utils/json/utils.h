@@ -14,8 +14,7 @@ namespace json {
 /* BIT OPS                                                                    */
 /******************************************************************************/
 
-template<typename T>
-size_t clz(T value) { return __builtin_clz(value); }
+size_t clz(char value) { return __builtin_clz(uint32_t(value) << 24); }
 
 } // namespace json
 } // namespace reflect

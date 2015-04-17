@@ -134,7 +134,7 @@ void unescapeUnicode(Reader& reader)
     for (i = 0; reader && i < 4; ++i) {
 
         char c = reader.pop();
-        code <<= 8;
+        code <<= 4;
 
              if (c >= '0' && c <= '9') code |= c - '0';
         else if (c >= 'a' && c <= 'f') code |= c - 'a' + 10;
@@ -196,12 +196,23 @@ void validateUnicode(Reader& reader, char c)
     reader.save(c);
 
     size_t bytes = clz(~c);
-    if (bytes > 6) reader.error("invalid UTF-8 header: %x", c);
+    if (bytes > 4) reader.error("invalid UTF-8 header: %x", c);
 
-    for (size_t i = 0; reader && i < (bytes - 1); i++) {
+    uint32_t code = (c << (bytes+1)) >> (bytes+1);
+
+    for (size_t i = 1; reader && i < bytes; i++) {
         reader.save(c = reader.pop());
-        if ((c & 0xC) != 0x80) reader.error("invalid UTF-8 encoding");
+        if ((c & 0xC0) != 0x80) reader.error("invalid UTF-8 encoding");
+        code = (code << 6) | (c & 0x3F);
     }
+
+    switch (bytes) {
+    case 4: if (code > 0xFFFF) return; break;
+    case 3: if (code > 0x7FF) return; break;
+    case 2: if (code > 0x7F) return; break;
+    }
+
+    reader.error("invalid UTF-8 encoding");
 }
 
 void readString(Reader& reader)

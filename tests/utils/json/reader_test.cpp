@@ -25,7 +25,7 @@ void checkToken(const std::string& s, Token::Type type)
 
     std::cerr << "<" << s << "> -> ";
     if (!reader.error()) std::cerr << token.print();
-    else std::cerr << reader.error().what();
+    else std::cerr << "<" << reader.error().what() << ">";
     std::cerr << std::endl;
 }
 
@@ -44,11 +44,10 @@ void checkToken(const std::string& s, Token::Type type, T exp)
 
     std::cerr << "<" << s << "> -> ";
     if (!reader.error()) std::cerr << token.print();
-    else std::cerr << reader.error().what();
+    else std::cerr << "<" << reader.error().what() << ">";
     std::cerr << std::endl;
 
     BOOST_CHECK(!reader.error());
-
     check(token, exp);
 }
 
@@ -61,7 +60,7 @@ void errorToken(const std::string& s)
 
     std::cerr << "<" << s << "> -> ";
     if (!reader.error()) std::cerr << token.print();
-    else std::cerr << reader.error().what();
+    else std::cerr << "expected<" << reader.error().what() << ">";
     std::cerr << std::endl;
 
     BOOST_CHECK(!!reader.error());
@@ -126,5 +125,15 @@ BOOST_AUTO_TEST_CASE(test_string)
     checkToken(s("\\\""), Token::String, "\"");
     errorToken(s("\\g"));
 
+    checkToken(s("\u1234"), Token::String, "\u1234");
+    checkToken(s("\uFFFF"), Token::String, "\uFFFF");
+    checkToken(s("\u0FFF"), Token::String, "\u0FFF");
+    checkToken(s("\u00FF"), Token::String, "\u00FF");
+    checkToken(s("\u000F"), Token::String, "\u000F");
+
     checkToken(s("\\u1234"), Token::String, "\u1234");
+    checkToken(s("\\uFFFF"), Token::String, "\uFFFF");
+    checkToken(s("\\u0FFF"), Token::String, "\u0FFF");
+    checkToken(s("\\u00FF"), Token::String, "\u00FF");
+    checkToken(s("\\u000F"), Token::String, "\u000F");
 }

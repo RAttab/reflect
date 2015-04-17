@@ -20,6 +20,8 @@ void
 Reader::
 error(const char* fmt, Args&&... args)
 {
+    if (error_) return;
+
     std::stringstream ss;
     ss << line_ << ":" << pos_ << ": ";
     ss << reflect::errorFormat(fmt, std::forward<Args>(args)...);
