@@ -1,8 +1,6 @@
 /* reader.h                                 -*- C++ -*-
    Rémi Attab (remi.attab@gmail.com), 12 Apr 2015
    FreeBSD-style copyright and disclaimer apply
-
-   JSON buffered reader.
 */
 
 #include "json.h"
@@ -29,7 +27,7 @@ struct Reader
 
     Reader(std::istream& stream, Options options = Default) :
         stream(stream),
-        pos_(0), line_(0),
+        pos_(1), line_(1),
         options(options)
     {
         buffer_.reserve(128);
@@ -56,7 +54,7 @@ struct Reader
 
     size_t pos() const { return pos_; }
     size_t line() const { return line_; }
-    void newline() { pos_ = 0; line_++; }
+    void newline() { pos_ = 1; line_++; }
 
     bool allowComments() const { return options & AllowComments; }
     bool unescapeUnicode() const { return options & UnescapeUnicode; }

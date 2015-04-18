@@ -1,8 +1,6 @@
 /* token.cpp                                 -*- C++ -*-
    Rémi Attab (remi.attab@gmail.com), 19 Apr 2014
    FreeBSD-style copyright and disclaimer apply
-
-   Json tokenizer
 */
 
 namespace reflect {

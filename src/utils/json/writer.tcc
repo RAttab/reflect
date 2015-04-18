@@ -1,8 +1,6 @@
 /* writer.tcc                                 -*- C++ -*-
    Rémi Attab (remi.attab@gmail.com), 14 Apr 2015
    FreeBSD-style copyright and disclaimer apply
-
-   JSON writer template implementation.
 */
 
 #include "json.h"

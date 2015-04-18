@@ -1,8 +1,6 @@
 /* format.cpp                                 -*- C++ -*-
    Rémi Attab (remi.attab@gmail.com), 14 Apr 2015
    FreeBSD-style copyright and disclaimer apply
-
-   Formatter implementation.
 */
 
 namespace reflect {

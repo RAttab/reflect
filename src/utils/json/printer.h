@@ -1,8 +1,6 @@
 /* printer.h                                 -*- C++ -*-
    Rémi Attab (remi.attab@gmail.com), 14 Apr 2015
    FreeBSD-style copyright and disclaimer apply
-
-   Printer interface.
 */
 
 #pragma once

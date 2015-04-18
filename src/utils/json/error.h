@@ -1,8 +1,6 @@
 /* error.h                                 -*- C++ -*-
    Rémi Attab (remi.attab@gmail.com), 12 Apr 2015
    FreeBSD-style copyright and disclaimer apply
-
-   Error definitions for JSON serialization.
 */
 
 #include "json.h"

@@ -1,8 +1,6 @@
 /* parser.tcc                                 -*- C++ -*-
    Rémi Attab (remi.attab@gmail.com), 12 Apr 2015
    FreeBSD-style copyright and disclaimer apply
-
-   Template implementation of the JSON parser.
 */
 
 #include "json.h"
@@ -48,7 +46,7 @@ void parseObject(Reader& reader, const Fn& fn)
     if (token.type() == Token::Null) return;
     reader.assertToken(token, Token::ObjectStart);
 
-    token = reader.nextToken();
+    token = reader.peekToken();
     if (token.type() == Token::ObjectEnd) return;
 
     while (reader) {
@@ -70,7 +68,7 @@ void parseArray(Reader& reader, const Fn& fn)
     if (token.type() == Token::Null) return;
     reader.assertToken(token, Token::ArrayStart);
 
-    token = reader.nextToken();
+    token = reader.peekToken();
     if (token.type() == Token::ArrayEnd) return;
 
     for (size_t i = 0; reader; ++i) {

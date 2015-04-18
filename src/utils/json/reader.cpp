@@ -1,8 +1,6 @@
 /* reader.cpp                                 -*- C++ -*-
    Rémi Attab (remi.attab@gmail.com), 12 Apr 2015
    FreeBSD-style copyright and disclaimer apply
-
-   JSON Reader implementation
 */
 
 #include "json.h"
@@ -18,8 +16,6 @@ Token
 Reader::
 peekToken()
 {
-    if (!ok()) return Token(Token::EOS);
-
     if (token.type() == Token::NoToken)
         token = details::nextToken(*this);
 
@@ -30,8 +26,6 @@ Token
 Reader::
 nextToken()
 {
-    if (!ok()) return Token(Token::EOS);
-
     if (token.type() == Token::NoToken)
         return details::nextToken(*this);
 
@@ -44,8 +38,6 @@ Token
 Reader::
 expectToken(Token::Type exp)
 {
-    if (!ok()) return {};
-
     Token token = nextToken();
     return assertToken(token, exp) ? token : Token(Token::EOS);
 }

@@ -102,7 +102,8 @@ add_library(reflect_primitives SHARED
     src/types/primitive_short.cpp
     src/types/primitive_int.cpp
     src/types/primitive_long.cpp
-    src/types/primitive_long_long.cpp)
+    src/types/primitive_long_long.cpp
+    src/types/primitive_float.cpp)
 
 add_library(reflect_std SHARED
     src/types/std/string.cpp)
@@ -251,6 +252,7 @@ reflect_test(reflection)
 reflect_test(demo)
 
 reflect_utils_test(json reader)
+reflect_utils_test(json parser)
 
 # reflect_utils_test(config path)
 # reflect_utils_test(config cubes)

@@ -1,8 +1,6 @@
 /* printer.cpp                                 -*- C++ -*-
    Rémi Attab (remi.attab@gmail.com), 15 Apr 2015
    FreeBSD-style copyright and disclaimer apply
-
-   Printer implementation.
 */
 
 namespace reflect {
