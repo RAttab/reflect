@@ -14,7 +14,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-using namespace std;
 using namespace reflect;
 
 BOOST_AUTO_TEST_CASE(void_)

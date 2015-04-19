@@ -14,7 +14,6 @@
 
 #include <iostream>
 
-using namespace std;
 using namespace reflect;
 
 struct Bar {};

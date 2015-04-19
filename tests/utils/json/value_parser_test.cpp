@@ -19,7 +19,6 @@
 #include <boost/test/unit_test.hpp>
 #include <fstream>
 
-using namespace std;
 using namespace reflect;
 using namespace reflect::json;
 
