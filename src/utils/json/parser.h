@@ -27,7 +27,7 @@ template<typename Fn> void parseArray(Reader& reader, const Fn& fn);
 /******************************************************************************/
 
 void parse(Reader& reader, Value& value);
-template<typename T> void parse(Reader& reader, T& value);
+template<typename T> Error parse(Reader& reader, T& value);
 template<typename T> Error parse(std::istream& stream, T& value);
 template<typename T> Error parse(const std::string& str, T& value);
 

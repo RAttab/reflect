@@ -29,6 +29,9 @@ bool
 Token::
 asBool() const
 {
+    if (type_ != Bool)
+        reflectError("invalid conversion of token %s to <bool>", print());
+
     return value_ == &trueValue;
 }
 
@@ -36,6 +39,9 @@ int64_t
 Token::
 asInt() const
 {
+    if (type_ != Int)
+        reflectError("invalid conversion of token %s to <int>", print());
+
     return std::stol(*value_);
 }
 
@@ -43,7 +49,20 @@ double
 Token::
 asFloat() const
 {
+    if (type_ != Float)
+        reflectError("invalid conversion of token %s to <float>", print());
+
     return std::stod(*value_);
+}
+
+const std::string&
+Token::
+asString() const
+{
+    if (type_ != String)
+        reflectError("invalid conversion of token %s to <string>", print());
+
+    return *value_;
 }
 
 std::string print(Token::Type type)

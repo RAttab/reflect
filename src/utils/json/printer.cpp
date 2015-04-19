@@ -48,6 +48,8 @@ namespace {
 
 struct Printer
 {
+    virtual ~Printer() {}
+    virtual void init(const Type*) {}
     virtual void print(Writer& writer, const Value& value) const = 0;
 };
 
@@ -60,9 +62,10 @@ const Printer* getPrinter(const Type* type);
 
 struct TypePrinter
 {
-    TypePrinter(const Type* type) :
-        type(type), printer(getPrinter(type))
-    {}
+    void init(const Type* type)
+    {
+        printer = getPrinter(this->type = type);
+    }
 
     const Type* type;
     const Printer* printer;
@@ -112,7 +115,7 @@ struct StringPrinter : public Printer
 
 struct PointerPrinter : public Printer
 {
-    PointerPrinter(const Type* type) : inner(type->pointee()) {}
+    void init(const Type* type) { inner.init(type->pointee()); }
 
     void print(Writer& writer, const Value& ptr) const
     {
@@ -134,9 +137,10 @@ private:
 
 struct ArrayPrinter : public Printer
 {
-    ArrayPrinter(const Type* type) :
-        inner(type->getValue<const Type*>("valueType"))
-    {}
+    void init(const Type* type)
+    {
+        inner.init(type->getValue<const Type*>("valueType"));
+    }
 
     void print(Writer& writer, const Value& array) const
     {
@@ -158,9 +162,10 @@ private:
 
 struct MapPrinter : public Printer
 {
-    MapPrinter(const Type* type) :
-        inner(type->getValue<const Type*>("valueType"))
-    {}
+    void init(const Type* type)
+    {
+        inner.init(type->getValue<const Type*>("valueType"));
+    }
 
     void print(Writer& writer, const Value& map) const
     {
@@ -184,7 +189,7 @@ private:
 
 struct ObjectPrinter : public Printer
 {
-    ObjectPrinter(const Type* type)
+    void init(const Type* type)
     {
         for (std::string& key : type->fields()) {
             const Field& field = type->field(key);
@@ -199,7 +204,10 @@ struct ObjectPrinter : public Printer
                 reflectError("duplicate json key <%s> in <%s>", key, type->id());
 
             keys.push_back(key);
-            fields.emplace(key, field.type());
+
+            TypePrinter printer;
+            printer.init(field.type());
+            fields.emplace(key, printer);
         }
 
         std::sort(keys.begin(), keys.end());
@@ -226,7 +234,7 @@ private:
 
 struct CustomPrinter : public Printer
 {
-    CustomPrinter(const Type* type)
+    void init(const Type* type)
     {
         auto traits = type->getValue<Traits>("json");
         if (!traits.printer.empty())
@@ -251,33 +259,40 @@ private:
 
 const Printer* getPrinter(const Type* type)
 {
-    static std::mutex mutex;
     static std::unordered_map<const Type*, const Printer*> printers;
-
-    std::lock_guard<std::mutex> guard(mutex);
 
     auto it = printers.find(type);
     if (it != printers.end()) return it->second;
 
-    const Printer* printer = nullptr;
+    Printer* printer = nullptr;
 
     if (type->is("bool")) printer = new BoolPrinter;
     else if (type->is("integer")) printer = new IntPrinter;
     else if (type->is("float")) printer = new FloatPrinter;
     else if (type->is("string")) printer = new StringPrinter;
 
-    else if (type->isPointer()) printer = new PointerPrinter(type);
-    else if (type->is("map")) printer = new MapPrinter(type);
-    else if (type->is("list")) printer = new ArrayPrinter(type);
-    else if (type->is("json")) printer = new CustomPrinter(type);
+    else if (type->isPointer()) printer = new PointerPrinter;
+    else if (type->is("map")) printer = new MapPrinter;
+    else if (type->is("list")) printer = new ArrayPrinter;
+    else if (type->is("json")) printer = new CustomPrinter;
 
     else if (type == reflect::type<void>())
         reflectError("unable to print void value");
 
-    else printer = new ObjectPrinter(type);
+    else printer = new ObjectPrinter;
 
     printers[type] = printer;
+    printer->init(type);
+
     return printer;
+}
+
+const Printer* getPrinterLocked(const Type* type)
+{
+    static std::mutex mutex;
+    std::lock_guard<std::mutex> guard(mutex);
+
+    return getPrinter(type);
 }
 
 } // namespace anonymous

@@ -8,7 +8,7 @@
 #define REFLECT_USE_EXCEPTIONS 1
 
 #include "reflect.h"
-#include "utils/json/json.h"
+#include "utils/json.h"
 
 #include <boost/test/unit_test.hpp>
 

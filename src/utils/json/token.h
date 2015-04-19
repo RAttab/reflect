@@ -37,7 +37,7 @@ struct Token
     bool asBool() const;
     int64_t asInt() const;
     double asFloat() const;
-    const std::string& asString() const { return *value_; }
+    const std::string& asString() const;
 
     std::string print() const;
 

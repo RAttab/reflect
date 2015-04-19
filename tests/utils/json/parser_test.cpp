@@ -8,7 +8,7 @@
 #define REFLECT_USE_EXCEPTIONS 1
 
 #include "reflect.h"
-#include "utils/json/json.h"
+#include "utils/json.h"
 #include "types/primitives.h"
 #include "types/std/string.h"
 
@@ -232,5 +232,4 @@ BOOST_AUTO_TEST_CASE(test_basics)
     check("{ \"a\": [ 1, 2 ] }", { p(".a.0", 1), p(".a.1", 2) });
     check("{ \"a\": 1, \"b\": { \"c\": 2 }, \"d\": {}, \"e\": 3 }", {
                 p(".a", 1), p(".b.c", 2), p(".e", 3) });
-
 }
