@@ -41,16 +41,14 @@ void reflectConstructor(Type* type)
 /* ALLOC                                                                      */
 /******************************************************************************/
 
-template<typename T, typename... Args>
+template<typename T>
 void reflectAllocator(Type* type)
 {
-    type->addFunction("new", [] (Args... args) {
-                return new T(std::forward<Args>(args)...);
-            });
+    type->addFunction("new", [] { return new T; });
 }
 
-#define reflectAlloc(...)                               \
-    reflect::reflectAllocator<T_, __VA_ARGS__>(type_)
+#define reflectAlloc()                          \
+    reflect::reflectAllocator<T_>(type_)
 
 
 /******************************************************************************/

@@ -265,6 +265,13 @@ setPointer(std::string pointer, const Type* pointee)
     pointee_ = pointee;
 }
 
+Value
+Type::
+alloc() const
+{
+    return call<Value>("new");
+}
+
 namespace  {
 
 std::vector<const Field*>
