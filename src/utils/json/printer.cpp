@@ -304,7 +304,7 @@ const Printer* getPrinterLocked(const Type* type)
 
 void print(Writer& writer, const Value& value)
 {
-    getPrinter(value.type())->print(writer, value);
+    getPrinterLocked(value.type())->print(writer, value);
 }
 
 } // namespace json
