@@ -83,21 +83,24 @@ struct StringParser : public Parser
 
 struct PointerParser : public Parser
 {
-    void init(const Type* type) { inner.init(type->pointee()); }
+    void init(const Type* type)
+    {
+        inner.init(type->pointee());
+        isSmartPtr = type->is("smartPtr");
+    }
 
     void parse(Reader& reader, Value& ptr) const
     {
         if (reader.peekToken().type() == Token::Null) {
             reader.nextToken();
 
-            if (inner.type->is("smartPtr"))
-                ptr.call<void>("reset");
+            if (isSmartPtr) ptr.call<void>("reset");
             else ptr = inner.type->construct();
 
             return;
         }
 
-        if (ptr.cast<bool>()) {
+        if (cast<bool>(ptr)) {
             Value pointee = *ptr;
             inner.parser->parse(reader, pointee);
         }
@@ -106,12 +109,15 @@ struct PointerParser : public Parser
             Value value = inner.type->alloc();
             Value pointee = *value;
             inner.parser->parse(reader, pointee);
-            ptr.assign(value);
+
+            if (isSmartPtr) ptr.call<void>("reset", value);
+            else ptr.assign(value);
         }
     }
 
 private:
     TypeParser inner;
+    bool isSmartPtr;
 };
 
 
@@ -167,7 +173,7 @@ struct MapParser : public Parser
             if (!reader) return;
 
             if (inner.movable) value = value.rvalue();
-            map[key] = value;
+            map[key].assign(value);
         };
         parseObject(reader, onField);
     }

@@ -1,7 +1,5 @@
 {
     "boolean": true,
-    "booleanPtr": true,
-
     "integer": 123,
     "floating": 123.321,
 

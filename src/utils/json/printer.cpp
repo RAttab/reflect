@@ -21,22 +21,22 @@ void printString(Writer& writer, const std::string& value)
 
 void printBool(Writer& writer, const Value& value)
 {
-    formatBool(writer, value.cast<bool>());
+    formatBool(writer, cast<bool>(value));
 }
 
 void printInt(Writer& writer, const Value& value)
 {
-    formatInt(writer, value.cast<int64_t>());
+    formatInt(writer, cast<bool>(value));
 }
 
 void printFloat(Writer& writer, const Value& value)
 {
-    formatFloat(writer, value.cast<double>());
+    formatFloat(writer, cast<double>(value));
 }
 
 void printString(Writer& writer, const Value& value)
 {
-    formatString(writer, value.cast<std::string>());
+    formatString(writer, cast<std::string>(value));
 }
 
 
@@ -119,7 +119,7 @@ struct PointerPrinter : public Printer
 
     void print(Writer& writer, const Value& ptr) const
     {
-        if (ptr.cast<bool>()) printNull(writer);
+        if (cast<bool>(ptr)) printNull(writer);
         else {
             Value pointee = *ptr;
             inner.printer->print(writer, pointee);
@@ -172,7 +172,7 @@ struct MapPrinter : public Printer
         auto keys = map.call< std::vector<std::string> >("keys");
 
         auto onKey = [&] (const std::string& key) {
-            Value value = map[key];
+            Value value = map.call<Value>("at", key);
             inner.printer->print(writer, value);
         };
         printObject(writer, keys, onKey);

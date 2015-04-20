@@ -30,8 +30,6 @@ using namespace reflect::json;
 struct Basics
 {
     bool boolean;
-    bool* booleanPtr;
-
     int64_t integer;
     double floating;
 
@@ -48,15 +46,12 @@ struct Basics
     Basics* next;
 
     Basics() :
-        boolean(false), booleanPtr(nullptr),
-        integer(0), floating(0),
-        stringPtr(nullptr),
-        next(nullptr)
+        boolean(false), integer(0), floating(0),
+        stringPtr(nullptr), next(nullptr)
     {}
 
     ~Basics()
     {
-        if (booleanPtr) delete booleanPtr;
         if (stringPtr) delete stringPtr;
 
         for (const auto& item : vectorPtr) delete item;
@@ -67,81 +62,88 @@ struct Basics
 
     bool operator==(const Basics& other) const
     {
+        auto err = [] (const std::string& msg) {
+            std::cerr << "ERROR: " << msg << std::endl;
+            return false;
+        };
+
         bool ok = boolean == other.boolean
-            && *booleanPtr == *other.booleanPtr
             && integer == other.integer
-            && floating == other.integer
-            && string == other.string
-            && *stringPtr == *other.stringPtr;
+            && floating == other.floating
+            && string == other.string;
+        if (!ok) return err("basics");
 
-        if (!ok) return false;
+        if ((stringPtr == nullptr) != (other.stringPtr == nullptr)) return err("ptr.nil");
+        if (stringPtr && (*stringPtr != *other.stringPtr)) return err("ptr.eq");
 
-        if (vector.size() != other.vector.size()) return false;
+        if (vector.size() != other.vector.size()) return err("vec.size");
         for (size_t i = 0; i < vector.size(); ++i) {
-            if (vector[i] != other.vector[i]) return false;
+            if (vector[i] != other.vector[i]) return err("vec.item");
         }
 
-        if (vectorPtr.size() != other.vectorPtr.size()) return false;
+        if (vectorPtr.size() != other.vectorPtr.size()) return err("vecPtr.size");
         for (size_t i = 0; i < vectorPtr.size(); ++i) {
-            if (*vectorPtr[i] != *other.vectorPtr[i]) return false;
+            if (*vectorPtr[i] != *other.vectorPtr[i]) return err("vecPtr.item");
         }
 
-        if (map.size() != other.map.size()) return false;
+        if (map.size() != other.map.size()) return err("map.size");
         for (const auto& entry : map) {
             auto it = other.map.find(entry.first);
-            if (it == other.map.end() || entry.second != it->second) return false;
+            if (it == other.map.end() || entry.second != it->second) return err("map.entry");
         }
 
-        if (mapPtr.size() != other.mapPtr.size()) return false;
+        if (mapPtr.size() != other.mapPtr.size()) return err("map.size");
         for (const auto& entry : mapPtr) {
             auto it = other.mapPtr.find(entry.first);
-            if (it == other.mapPtr.end() || *entry.second != *it->second) return false;
+            if (it == other.mapPtr.end() || *entry.second != *it->second) return err("map.entry");
         }
 
-        if ((next == nullptr) != (other.next == nullptr)) return false;
+        if ((next == nullptr) != (other.next == nullptr)) return err("next");
         return next != nullptr ? (*next) == (*other.next) : true;
     }
+
+    template<typename T>
+    static std::string toString(T value) { return std::to_string(value); }
+    static std::string toString(std::string value) { return value; }
 
     template<typename Ptr>
     static std::string printPtr(Ptr ptr)
     {
         std::stringstream ss;
-        ss << '<' << ptr << (ptr ? std::to_string(*ptr) : "nil") << '>';
+        ss << '<' << ptr << ":" << (ptr ? toString(*ptr) : "nil") << '>';
         return ss.str();
     }
 
     std::string print(size_t indent = 0) const
     {
-
         std::string i0(indent * 4, ' ');
         std::string i1(++indent * 4, ' ');
 
         std::stringstream ss;
 
-        ss << i0 << "{\n"
+        ss << "{\n"
             << i1 << "boolean: " << boolean << '\n'
-            << i1 << "booleanPtr: " << printPtr(booleanPtr) << '\n'
             << i1 << "integer: " << integer << '\n'
             << i1 << "floating: " << floating << '\n'
             << i1 << "string: " << string << '\n'
-            << i1 << "stringPtr: " << stringPtr << '\n'
-            << i1 << "stringShared: " << stringShared << '\n';
+            << i1 << "stringPtr: " << printPtr(stringPtr) << '\n'
+            << i1 << "stringShared: " << printPtr(stringShared) << '\n';
 
         ss << i1 << "vector: " << vector.size() << "[ ";
         for (const auto& item : vector) ss << item << ' ';
-        ss << i1 << "]\n";
+        ss << "]\n";
 
         ss << i1 << "vectorPtr: " << vectorPtr.size() << "[ ";
         for (const auto& item : vectorPtr) ss << printPtr(item) << ' ';
-        ss << i1 << "]\n";
+        ss << "]\n";
 
         ss << i1 << "map: " << map.size() << "[ ";
         for (const auto& entry : map) ss << entry.first << ':' << entry.second << ' ';
-        ss << i1 << "]\n";
+        ss << "]\n";
 
         ss << i1 << "mapPtr: " << mapPtr.size() << "[ ";
         for (const auto& entry : mapPtr) ss << entry.first << ':' << printPtr(entry.second) << ' ';
-        ss << i1 << "]\n";
+        ss << "]\n";
 
         ss << i1 << "next: " << (next ? next->print(indent) : "nil") << '\n';
 
@@ -162,8 +164,6 @@ reflectType(Basics)
     reflectAlloc();
 
     reflectField(boolean);
-    reflectField(booleanPtr);
-
     reflectField(integer);
     reflectField(floating);
 
@@ -206,8 +206,6 @@ BOOST_AUTO_TEST_CASE(test_basics)
     Basics exp;
     {
         exp.boolean = true;
-        exp.booleanPtr = new bool(true);
-
         exp.integer = 123;
         exp.floating = 123.321;
 
@@ -217,11 +215,11 @@ BOOST_AUTO_TEST_CASE(test_basics)
 
         auto pInt = [](int64_t i) { return new int64_t(i); };
 
-        exp.vector = std::vector<int64_t>({ 1, 2, 3 });
-        exp.vectorPtr = std::vector<int64_t*>({ pInt(4), pInt(5), pInt(6) });
+        exp.vector = { 1, 2, 3 };
+        exp.vectorPtr = { pInt(4), pInt(5), pInt(6) };
 
-        exp.map = std::map<std::string, int64_t>({ {"abc", 10}, {"def", 20} });
-        exp.mapPtr = std::map<std::string, int64_t*>({ {"hig", pInt(30)} });
+        exp.map = { {"abc", 10}, {"def", 20} };
+        exp.mapPtr = { {"hig", pInt(30)} };
 
         exp.next = new Basics;
         exp.next->integer = 10;
@@ -231,6 +229,5 @@ BOOST_AUTO_TEST_CASE(test_basics)
     }
 
     Basics obj = parseFile("basics.json");
-
-    BOOST_CHECK_EQUAL(exp, obj);
+    BOOST_CHECK_EQUAL(obj, exp);
 }
