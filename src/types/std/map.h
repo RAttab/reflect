@@ -39,7 +39,7 @@ void reflectMap(Type* type_)
     reflectCustom(operator[]) (T_& value, const KeyT& k) -> ValueT& {
         return value[k];
     };
-    reflectCustom(operator[]) (const T_& value, const KeyT& k) -> const ValueT& {
+    reflectCustom(at) (const T_& value, const KeyT& k) -> const ValueT& {
         auto it = value.find(k);
         if (it != value.end()) return it->second;
 

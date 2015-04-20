@@ -37,7 +37,7 @@ struct Reflect<T*>
 
         reflectPointer(*, T);
 
-        reflectCustom(operator bool) (T* value) -> bool { return value; };
+        reflectCustom(operator bool()) (T* value) -> bool { return value; };
 
         reflectCustom(operator*) (T*      & value) ->       T& { return *value; };
         reflectCustom(operator*) (T* const& value) -> const T& { return *value; };
