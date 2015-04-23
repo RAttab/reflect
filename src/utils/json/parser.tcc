@@ -124,18 +124,18 @@ void skip(Reader& reader)
 /******************************************************************************/
 
 template<typename T>
-Error parse(Reader& reader, T& value)
+void parse(Reader& reader, T& value)
 {
     Value v = cast<Value>(value);
     parse(reader, v);
-    return reader.error();
 }
 
 template<typename T>
 Error parse(std::istream& stream, T& value)
 {
     Reader reader(stream);
-    return parse(reader, value);
+    parse(reader, value);
+    return reader.error();
 }
 
 template<typename T>

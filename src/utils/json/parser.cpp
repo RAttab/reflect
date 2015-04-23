@@ -279,6 +279,9 @@ private:
 
 struct ValueParser : public Parser
 {
+    typedef std::vector<Value> ArrayT;
+    typedef std::unordered_map<std::string, Value> ObjectT;
+
     void parse(Reader& reader, Value& value) const
     {
         Token token = reader.nextToken();
@@ -291,7 +294,7 @@ struct ValueParser : public Parser
         else if (token.type() == Token::String) value = Value(parseString(reader));
 
         else if (token.type() == Token::ArrayStart) {
-            std::vector<Value> array;
+            ArrayT array;
 
             auto onItem = [&] (size_t) {
                 Value item;
@@ -304,7 +307,7 @@ struct ValueParser : public Parser
         }
 
         else if (token.type() == Token::ObjectStart) {
-            std::unordered_map<std::string, Value> obj;
+            ObjectT obj;
 
             auto onField = [&] (std::string key) {
                 Value field;
@@ -376,3 +379,13 @@ void parse(Reader& reader, Value& value)
 
 } // namespace json
 } // namespace reflect
+
+
+/******************************************************************************/
+/* LOADER                                                                     */
+/******************************************************************************/
+// Since the ValueParser templated types are unlikely to show up in a reflection
+// somewhere, we therefore need to manually ensure that they're registered.
+
+reflectTypeLoader(reflect::json::ValueParser::ArrayT)
+reflectTypeLoader(reflect::json::ValueParser::ObjectT)
