@@ -211,13 +211,13 @@ struct ObjectParser : public Parser
                 if (!traits.alias.empty()) alias = traits.alias;
             }
 
-            if (fields.count(key))
-                reflectError("duplicate json key <%s> in <%s>", key, type->id());
+            if (keys.count(alias))
+                reflectError("duplicate json key <%s> in <%s>", alias, type->id());
+            keys[alias] = key;
 
             TypeParser inner;
             inner.init(field.type());
             fields.emplace(key, inner);
-            keys[alias] = key;
         }
     }
 
