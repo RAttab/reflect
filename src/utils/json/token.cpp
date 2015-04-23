@@ -117,8 +117,8 @@ char nextChar(Reader& reader)
     while (reader) {
         char c = reader.pop();
 
-        if (std::isspace(c)) continue;
         if (c == '\n') reader.newline();
+        if (std::isspace(c)) continue;
 
         if (c == '/' && reader.peek() == '/') {
             if (!reader.allowComments())

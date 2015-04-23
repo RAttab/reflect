@@ -88,6 +88,37 @@ void parseArray(Reader& reader, const Fn& fn)
 }
 
 
+void skip(Reader& reader)
+{
+    Token token = reader.peekToken();
+    if (!reader) return;
+
+    switch (token.type()) {
+
+    case Token::Null:
+    case Token::Bool:
+    case Token::Int:
+    case Token::Float:
+    case Token::String:
+        (void) reader.nextToken();
+        break;
+
+    case Token::ArrayStart:
+        parseArray(reader, [&] (size_t) { skip(reader); });
+        break;
+
+    case Token::ObjectStart:
+        parseObject(reader, [&] (const std::string&) { skip(reader); });
+        break;
+
+    default:
+        reader.error("unable to skip token %s", token);
+        break;
+
+    }
+}
+
+
 /******************************************************************************/
 /* VALUE PARSER                                                               */
 /******************************************************************************/

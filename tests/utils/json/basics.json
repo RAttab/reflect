@@ -7,6 +7,10 @@
     "stringPtr": "def",
     "stringShared": "ghi",
 
+    "skip": 456,
+    "bob": 654,
+    "custom": "789",
+
     "vector": [ 1, 2, 3 ],
     "vectorPtr": [4, 5, 6 ],
 

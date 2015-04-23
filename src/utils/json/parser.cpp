@@ -7,6 +7,15 @@ namespace reflect {
 namespace json {
 namespace {
 
+/******************************************************************************/
+/* CUSTOM PARSER                                                              */
+/******************************************************************************/
+
+std::string customParser(const Type* type)
+{
+    if (!type->is("json")) return "";
+    return type->getValue<json::Traits>("json").parser;
+}
 
 /******************************************************************************/
 /* PARSER                                                                     */
@@ -195,10 +204,11 @@ struct ObjectParser : public Parser
         for (std::string key : type->fields()) {
             const Field& field = type->field(key);
 
+            std::string alias = key;
             if (field.is("json")) {
                 auto traits = field.getValue<Traits>("json");
                 if (traits.skip) continue;
-                if (!traits.alias.empty()) key = traits.alias;
+                if (!traits.alias.empty()) alias = traits.alias;
             }
 
             if (fields.count(key))
@@ -207,22 +217,33 @@ struct ObjectParser : public Parser
             TypeParser inner;
             inner.init(field.type());
             fields.emplace(key, inner);
+            keys[alias] = key;
         }
     }
 
     void parse(Reader& reader, Value& obj) const
     {
-        auto onField = [&] (const std::string& key) {
-            auto it = fields.find(key);
-            if (it == fields.end()) return;
+        auto onField = [&] (const std::string& alias) {
+            auto keyIt = keys.find(alias);
+            if (keyIt == keys.end()) {
+                skip(reader);
+                return;
+            }
 
-            Value field = obj.field(it->first);
-            it->second.parser->parse(reader, field);
+            const std::string& key = keyIt->second;
+
+            auto fieldIt = fields.find(key);
+            if (fieldIt == fields.end())
+                reflectError("missing field <%s> for alias <%s>", key, alias);
+
+            Value field = obj.field(key);
+            fieldIt->second.parser->parse(reader, field);
         };
         parseObject(reader, onField);
     }
 
 private:
+    std::unordered_map<std::string, std::string> keys;
     std::unordered_map<std::string, TypeParser> fields;
 };
 
@@ -235,11 +256,11 @@ struct CustomParser : public Parser
 {
     void init(const Type* type)
     {
-        auto traits = type->getValue<Traits>("json");
-        if (!traits.parser.empty())
+        std::string name = customParser(type);
+        if (name.empty())
             reflectError("no parser function defined for <%s>", type->id());
 
-        parser = &type->function(traits.parser).get<void(Reader&)>();
+        parser = &type->function(name).get<void(Value, Reader&)>();
     }
 
     void parse(Reader& reader, Value& value) const
@@ -321,8 +342,8 @@ const Parser* getParser(const Type* type)
     else if (type->isPointer()) parser = new PointerParser;
     else if (type->is("map")) parser = new MapParser;
     else if (type->is("list")) parser = new ArrayParser;
-    else if (type->is("json")) parser = new CustomParser;
 
+    else if (!customParser(type).empty()) parser = new CustomParser;
     else if (type == reflect::type<void>()) parser = new ValueParser;
 
     else parser = new ObjectParser;

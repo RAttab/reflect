@@ -3,12 +3,15 @@
    FreeBSD-style copyright and disclaimer apply
 */
 
+namespace reflect{
+namespace json {
+
+
 /******************************************************************************/
 /* TRAITS                                                                     */
 /******************************************************************************/
 
-namespace reflect{
-namespace json {
+Traits::Traits() : skip(false) {}
 
 Traits skip()
 {
@@ -23,6 +26,15 @@ Traits alias(std::string alias)
     traits.alias = std::move(alias);
     return traits;
 }
+
+Traits custom(std::string parser, std::string printer)
+{
+    Traits traits;
+    traits.parser = std::move(parser);
+    traits.printer = std::move(printer);
+    return traits;
+}
+
 
 } // namespace json
 } // namespace reflect

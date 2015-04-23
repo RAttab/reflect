@@ -27,6 +27,36 @@ using namespace reflect::json;
 /* STRUCTS                                                                    */
 /******************************************************************************/
 
+struct Custom
+{
+    int a;
+
+    Custom(int v = 0) : a(v) {}
+
+    void parseJson(Reader& reader)
+    {
+        a = std::stoi(parseString(reader));
+    }
+
+    bool operator==(const Custom& other) const
+    {
+        return a == other.a;
+    }
+
+    std::string print() const
+    {
+        return std::to_string(a);
+    }
+};
+
+reflectType(Custom)
+{
+    reflectPlumbing();
+
+    reflectFn(parseJson);
+    reflectTypeValue(json, custom("parseJson", ""));
+}
+
 struct Basics
 {
     bool boolean;
@@ -36,6 +66,10 @@ struct Basics
     std::string string;
     std::string* stringPtr;
     std::shared_ptr<std::string> stringShared;
+
+    int64_t skip;
+    int64_t alias;
+    Custom custom;
 
     std::vector<int64_t> vector;
     std::vector<int64_t*> vectorPtr;
@@ -47,7 +81,8 @@ struct Basics
 
     Basics() :
         boolean(false), integer(0), floating(0),
-        stringPtr(nullptr), next(nullptr)
+        stringPtr(nullptr), skip(0), alias(0),
+        next(nullptr)
     {}
 
     ~Basics()
@@ -70,7 +105,10 @@ struct Basics
         bool ok = boolean == other.boolean
             && integer == other.integer
             && floating == other.floating
-            && string == other.string;
+            && string == other.string
+            && skip == other.skip
+            && alias == other.alias
+            && custom == other.custom;
         if (!ok) return err("basics");
 
         if ((stringPtr == nullptr) != (other.stringPtr == nullptr)) return err("ptr.nil");
@@ -127,7 +165,10 @@ struct Basics
             << i1 << "floating: " << floating << '\n'
             << i1 << "string: " << string << '\n'
             << i1 << "stringPtr: " << printPtr(stringPtr) << '\n'
-            << i1 << "stringShared: " << printPtr(stringShared) << '\n';
+            << i1 << "stringShared: " << printPtr(stringShared) << '\n'
+            << i1 << "skip: " << skip << '\n'
+            << i1 << "alias: " << alias << '\n'
+            << i1 << "custom: " << custom.print() << '\n';
 
         ss << i1 << "vector: " << vector.size() << "[ ";
         for (const auto& item : vector) ss << item << ' ';
@@ -171,6 +212,14 @@ reflectType(Basics)
     reflectField(stringPtr);
     reflectField(stringShared);
 
+    reflectField(skip);
+    reflectFieldValue(skip, json, skip());
+
+    reflectField(alias);
+    reflectFieldValue(alias, json, alias("bob"));
+
+    reflectField(custom);
+
     reflectField(vector);
     reflectField(vectorPtr);
 
@@ -212,6 +261,10 @@ BOOST_AUTO_TEST_CASE(test_basics)
         exp.string = "abc";
         exp.stringPtr = new std::string("def");
         exp.stringShared = std::make_shared<std::string>("ghi");
+
+        exp.skip = 0;
+        exp.alias = 654;
+        exp.custom = { 789 };
 
         auto pInt = [](int64_t i) { return new int64_t(i); };
 

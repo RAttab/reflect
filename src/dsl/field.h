@@ -14,11 +14,11 @@ namespace reflect {
 /* TRAITS                                                                     */
 /******************************************************************************/
 
-#define reflectFieldTrait(fn, trait)            \
-    type_->field(#fn).addTrait(#trait)
+#define reflectFieldTrait(f, trait)             \
+    type_->field(#f).addTrait(#trait)
 
-#define reflectFieldValue(fn, trait, value)     \
-    type_->field(#fn).addTrait(#trait, value)
+#define reflectFieldValue(f, trait, value)      \
+    type_->field(#f).addTrait(#trait, value)
 
 
 /******************************************************************************/
