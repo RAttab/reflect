@@ -14,9 +14,8 @@ namespace { std::string spaces(4096ULL, ' '); }
 
 void
 Writer::
-seperator(char c)
+space()
 {
-    push(c);
     if (pretty()) push(' ');
 }
 

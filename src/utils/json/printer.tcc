@@ -15,26 +15,35 @@ template<typename Keys, typename Fn>
 void printObject(Writer& writer, const Keys& keys, const Fn& fn)
 {
     writer.push('{');
-    writer.indent();
-    writer.newline();
+
+    if (keys.size() > 1) {
+        writer.indent();
+        writer.newline();
+    }
+    else writer.space();
 
     bool first = true;
     for (const auto& key : keys) {
         if (!writer) return;
 
         if (!first) {
-            writer.seperator(',');
+            writer.push(',');
             writer.newline();
         }
         first = false;
 
         printString(writer, key);
-        writer.seperator(':');
+        writer.push(':');
+        writer.space();
         fn(key);
     }
 
-    writer.newline();
-    writer.unindent();
+    if (keys.size() > 1) {
+        writer.unindent();
+        writer.newline();
+    }
+    else writer.space();
+
     writer.push('}');
 }
 
@@ -42,15 +51,19 @@ template<typename Fn>
 void printArray(Writer& writer, size_t n, const Fn& fn)
 {
     writer.push('[');
-    writer.indent();
-    writer.newline();
+
+    if (n > 1) {
+        writer.indent();
+        writer.newline();
+    }
+    else writer.space();
 
     bool first = true;
     for (size_t i = 0; i < n; ++i) {
         if (!writer) return;
 
         if (!first) {
-            writer.seperator(',');
+            writer.push(',');
             writer.newline();
         }
         first = false;
@@ -58,8 +71,12 @@ void printArray(Writer& writer, size_t n, const Fn& fn)
         fn(i);
     }
 
-    writer.newline();
-    writer.unindent();
+    if (n > 1) {
+        writer.unindent();
+        writer.newline();
+    }
+    else writer.space();
+
     writer.push(']');
 }
 

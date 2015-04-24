@@ -254,6 +254,7 @@ reflect_test(demo)
 reflect_utils_test(json reader)
 reflect_utils_test(json format)
 reflect_utils_test(json parser)
+reflect_utils_test(json printer)
 reflect_utils_test(json value_parser)
 
 # reflect_utils_test(config path)

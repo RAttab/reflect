@@ -51,7 +51,7 @@ struct Writer
     void indent() { indent_++; }
     void unindent() { indent_--; }
     void newline();
-    void seperator(char c);
+    void space();
 
 private:
     std::ostream& stream;
