@@ -219,7 +219,7 @@ void validateUnicode(Reader& reader, char c)
     reader.save(c);
 
     size_t bytes = clz(~c);
-    if (bytes > 4) reader.error("invalid UTF-8 header: %x", c);
+    if (bytes > 4 || bytes < 2) reader.error("invalid UTF-8 header: %x", c);
 
     uint32_t mask = (1 << (7 - bytes)) - 1;
     uint32_t code = uint32_t(c) & mask;

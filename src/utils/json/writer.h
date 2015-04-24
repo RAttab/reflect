@@ -18,10 +18,12 @@ struct Writer
 {
     enum Options
     {
-        Pretty        = 1 << 0,
-        EscapeUnicode = 1 << 1,
+        Pretty          = 1 << 0,
+        EscapeUnicode   = 1 << 1,
+        ValidateUnicode = 1 << 2,
 
-        Default = EscapeUnicode,
+        None = 0,
+        Default = EscapeUnicode | ValidateUnicode,
     };
 
     Writer(std::ostream& stream, Options options = Default) :
@@ -44,6 +46,7 @@ struct Writer
 
     bool pretty() const { return options & Pretty; }
     bool escapeUnicode() const { return options & EscapeUnicode; }
+    bool validateUnicode() const { return options & ValidateUnicode; }
 
     void indent() { indent_++; }
     void unindent() { indent_--; }

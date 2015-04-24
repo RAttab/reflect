@@ -56,19 +56,45 @@ void formatFloat(Writer& writer, double value)
 size_t escapeUnicode(Writer& writer, const std::string& value, size_t i)
 {
     size_t bytes = clz(~value[i]);
-    if (bytes > 6) writer.error("invalid UTF-8 header");
-    if (i + bytes >= value.size()) writer.error("invalid UTF-8 encoding");
+    if (bytes > 4 || bytes < 2) writer.error("invalid UTF-8 header");
+    if (i + bytes > value.size()) writer.error("invalid UTF-8 encoding");
 
-    uint8_t leftover = 8 - (bytes + 1);
+    size_t leftover = 8 - (bytes + 1);
     uint32_t code = value[i] & ((1 << leftover) - 1);
 
     i++;
-    for (; writer && i < (bytes - 1); ++i) {
+    for (size_t j = 0; writer && j < (bytes - 1); ++j, ++i) {
         if ((value[i] & 0xC0) != 0x80) writer.error("invalid UTF-8 encoding");
         code = (code << 6) | (value[i] & 0x3F);
     }
 
-    format(writer, "\\u%4x", code);
+    format(writer, "\\u%04x", code);
+
+    return i - 1;
+}
+
+size_t readUnicode(Writer& writer, const std::string& value, size_t i)
+{
+    size_t bytes = clz(~value[i]);
+    if (bytes > 4 || bytes < 2) writer.error("invalid UTF-8 header");
+    if (i + bytes > value.size()) writer.error("invalid UTF-8 encoding");
+
+    size_t leftover = 8 - (bytes + 1);
+    uint32_t code = value[i] & ((1 << leftover) - 1);
+    writer.push(value[i]);
+
+    i++;
+    for (size_t j = 0; writer && j < (bytes - 1); ++j, ++i) {
+        if ((value[i] & 0xC0) != 0x80) writer.error("invalid UTF-8 encoding");
+        code = (code << 6) | (value[i] & 0x3F);
+        writer.push(value[i]);
+    }
+
+    switch (bytes) {
+    case 4: if (code <= 0xFFFF) writer.error("invalid UTF-8 encoding"); break;
+    case 3: if (code <= 0x7FF) writer.error("invalid UTF-8 encoding"); break;
+    case 2: if (code <= 0x7F) writer.error("invalid UTF-8 encoding"); break;
+    }
 
     return i - 1;
 }
@@ -77,24 +103,30 @@ void formatString(Writer& writer, const std::string& value)
 {
     writer.push('"');
 
-    for (size_t i = 1; i < value.size(); ++i) {
+    for (size_t i = 0; i < value.size(); ++i) {
         char c = value[i];
 
-        if ((c & 0x80) && writer.escapeUnicode()) {
-            i = escapeUnicode(writer, value, i);
-            continue;
+        if (c & 0x80) {
+            if (writer.escapeUnicode()) {
+                i = escapeUnicode(writer, value, i);
+                continue;
+            }
+            else if (writer.validateUnicode()) {
+                i = readUnicode(writer, value, i);
+                continue;
+            }
         }
 
         switch (c) {
-        case '"': writer.push("\\\"", 2);
-        case '/': writer.push("\\/", 2);
-        case '\\': writer.push("\\\\", 2);
+        case '"': writer.push("\\\"", 2); break;
+        case '/': writer.push("\\/", 2); break;
+        case '\\': writer.push("\\\\", 2); break;
 
-        case '\b': writer.push("\\b", 2);
-        case '\f': writer.push("\\f", 2);
-        case '\n': writer.push("\\n", 2);
-        case '\r': writer.push("\\r", 2);
-        case '\t': writer.push("\\t", 2);
+        case '\b': writer.push("\\b", 2); break;
+        case '\f': writer.push("\\f", 2); break;
+        case '\n': writer.push("\\n", 2); break;
+        case '\r': writer.push("\\r", 2); break;
+        case '\t': writer.push("\\t", 2); break;
         default: writer.push(c);
         }
     }

@@ -22,6 +22,7 @@ struct Reader
         UnescapeUnicode = 1 << 1,
         ValidateUnicode = 1 << 2,
 
+        None = 0,
         Default = UnescapeUnicode | ValidateUnicode,
     };
 

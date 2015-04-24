@@ -174,10 +174,10 @@ BOOST_AUTO_TEST_CASE(test_string)
     checkToken(s(u({ 0x0F })), Token::String, "\u000F");
     checkToken(s(u({ 0xCF, 0x8F })), Token::String, u({ 0xCF, 0x8F }));
 
-    checkToken(s(u({ 0xF0 })), Token::String, u({ 0xF0 }), {});
-    checkToken(s(u({ 0xC0, 0x8F })), Token::String, u({ 0xC0, 0x8F }), {});
-    checkToken(s(u({ 0xE0, 0x8F })), Token::String, u({ 0xE0, 0x8F }), {});
-    checkToken(s(u({ 0xE0, 0x8F, 0x0F })), Token::String, u({ 0xE0, 0x8F, 0x0F }), {});
+    checkToken(s(u({ 0xF0 })), Token::String, u({ 0xF0 }), Reader::None);
+    checkToken(s(u({ 0xC0, 0x8F })), Token::String, u({ 0xC0, 0x8F }), Reader::None);
+    checkToken(s(u({ 0xE0, 0x8F })), Token::String, u({ 0xE0, 0x8F }), Reader::None);
+    checkToken(s(u({ 0xE0, 0x8F, 0x0F })), Token::String, u({ 0xE0, 0x8F, 0x0F }), Reader::None);
 
     errorToken(s(u({ 0xF0 })));
     errorToken(s(u({ 0xC0, 0x8F })));
