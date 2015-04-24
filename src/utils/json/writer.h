@@ -14,7 +14,6 @@ namespace json {
 /* WRITER                                                                     */
 /******************************************************************************/
 
-
 struct Writer
 {
     enum Options
@@ -28,7 +27,7 @@ struct Writer
     Writer(std::ostream& stream, Options options = Default) :
         stream(stream), indent_(0), options(options)
     {
-        buffer_.reserve(128);
+        buffer_.resize(128);
     }
 
     operator bool() const { return !error_ && stream; }

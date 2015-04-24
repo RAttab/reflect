@@ -50,7 +50,7 @@ void formatInt(Writer& writer, int64_t value)
 
 void formatFloat(Writer& writer, double value)
 {
-    format(writer, "%g", value);
+    format(writer, "%1.12g", value);
 }
 
 size_t escapeUnicode(Writer& writer, const std::string& value, size_t i)
