@@ -15,6 +15,7 @@ namespace json {
 /******************************************************************************/
 
 inline void skip(Reader& reader);
+inline void parseNull(Reader& reader);
 inline bool parseBool(Reader& reader);
 inline int64_t parseInt(Reader& reader);
 inline double parseFloat(Reader& reader);

@@ -284,9 +284,9 @@ struct ValueParser : public Parser
 
     void parse(Reader& reader, Value& value) const
     {
-        Token token = reader.nextToken();
+        Token token = reader.peekToken();
 
-        if (token.type() == Token::Null);
+        if (token.type() == Token::Null) parseNull(reader);
 
         else if (token.type() == Token::Bool) value = Value(parseBool(reader));
         else if (token.type() == Token::Int) value = Value(parseInt(reader));
@@ -298,12 +298,12 @@ struct ValueParser : public Parser
 
             auto onItem = [&] (size_t) {
                 Value item;
-                parse(reader, item);
-                array.push_back(item);
+                this->parse(reader, item);
+                array.emplace_back(std::move(item));
             };
             parseArray(reader, onItem);
 
-            value = Value(array);
+            value = Value(std::move(array));
         }
 
         else if (token.type() == Token::ObjectStart) {
@@ -311,15 +311,18 @@ struct ValueParser : public Parser
 
             auto onField = [&] (std::string key) {
                 Value field;
-                parse(reader, field);
-                obj.emplace(std::move(key), field);
+                this->parse(reader, field);
+                obj.emplace(std::move(key), std::move(field));
             };
             parseObject(reader, onField);
 
-            value = Value(obj);
+            value = Value(std::move(obj));
         }
 
         else reader.error("unknown expected token <%s>", token.print());
+
+        if (!value.isVoid() && !value.isStored())
+            reflectError("value is not stored for type <%s>", value.type()->id());
     }
 };
 

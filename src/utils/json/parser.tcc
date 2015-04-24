@@ -14,6 +14,11 @@ namespace json {
 /* GENERIC PARSER                                                             */
 /******************************************************************************/
 
+void parseNull(Reader& reader)
+{
+    reader.expectToken(Token::Null);
+}
+
 bool parseBool(Reader& reader)
 {
     return reader.expectToken(Token::Bool).asBool();

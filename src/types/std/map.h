@@ -56,8 +56,8 @@ void reflectMap(Type* type_)
     };
 }
 
-
 } // namespace details
+
 
 /******************************************************************************/
 /* REFLECT MAP                                                                */
@@ -88,7 +88,7 @@ struct Reflect< std::map<KeyT, ValueT> >
 template<typename KeyT, typename ValueT>
 struct Reflect< std::unordered_map<KeyT, ValueT> >
 {
-    typedef std::map<KeyT, ValueT> T_;
+    typedef std::unordered_map<KeyT, ValueT> T_;
     static std::string id()
     {
         return "std::unordered_map<" + typeId<KeyT>() + "," + typeId<ValueT>() + ">";

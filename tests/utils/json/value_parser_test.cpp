@@ -295,31 +295,30 @@ void checkEqual(Value& obj, nullptr_t) { BOOST_CHECK(obj.isVoid()); }
 void checkEqual(Value& obj, bool exp) { BOOST_CHECK_EQUAL(obj.cast<bool>(), exp); }
 void checkEqual(Value& obj, int exp) { BOOST_CHECK_EQUAL(obj.cast<int64_t>(), exp); }
 void checkEqual(Value& obj, double exp) { BOOST_CHECK_EQUAL(obj.cast<double>(), exp); }
-void checkEqual(Value& obj, const std::string& exp) {
-    BOOST_CHECK_EQUAL(obj.cast<std::string>(), exp);
+void checkEqual(Value& obj, const char* exp) {
+    BOOST_CHECK_EQUAL(obj.cast<std::string>(), std::string(exp));
 }
 
 template<typename Fn>
-void checkObject(Value& map, const Fn& fn)
+void checkObject(Value& obj, const Fn& fn)
 {
-    BOOST_CHECK(map.is("map"));
-    BOOST_CHECK_EQUAL(map.type()->getValue<const Type*>("keyType"), type<std::string>());
-    BOOST_CHECK_EQUAL(map.type()->getValue<const Type*>("valueType"), type<Value>());
+    BOOST_CHECK(obj.is("map"));
+    BOOST_CHECK_EQUAL(obj.type()->getValue<const Type*>("keyType"), type<std::string>());
+    BOOST_CHECK_EQUAL(obj.type()->getValue<const Type*>("valueType"), type<Value>());
 
     typedef std::vector<std::string> Keys;
-    for (const std::string& key : map.call<Keys>("keys"))
-        fn(key, map.call<Value>("at", key));
+    for (const std::string& key : obj.call<Keys>("keys"))
+        fn(key, obj.call<Value>("at", key));
 }
 
 template<typename Fn>
 void checkArray(Value& array, const Fn& fn)
 {
-    BOOST_CHECK(array.is("array"));
+    BOOST_CHECK(array.is("list"));
     BOOST_CHECK_EQUAL(array.type()->getValue<const Type*>("valueType"), type<Value>());
 
-    for (size_t i = 0; i < array.call<size_t>("size"); ++i) {
-        fn(i, array[i]);
-    }
+    for (size_t i = 0; i < array.call<size_t>("size"); ++i)
+        fn(i, array.call<Value>("at", i));
 }
 
 BOOST_AUTO_TEST_CASE(test_value_parser)
