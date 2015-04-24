@@ -16,6 +16,11 @@
 using namespace reflect;
 using namespace reflect::json;
 
+
+/******************************************************************************/
+/* OBJECT                                                                     */
+/******************************************************************************/
+
 template<typename... T>
 std::vector<std::string> keys(T... keys) { return { keys... }; }
 
@@ -70,6 +75,11 @@ void print(Writer& writer)
     if (writer.error())
         std::cerr << "ERROR: " << writer.error().what() << std::endl;
 }
+
+
+/******************************************************************************/
+/* PRINTERS                                                                   */
+/******************************************************************************/
 
 BOOST_AUTO_TEST_CASE(test_compact)
 {
