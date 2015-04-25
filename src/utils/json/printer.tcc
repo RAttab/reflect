@@ -12,7 +12,14 @@ namespace json {
 /******************************************************************************/
 
 template<typename Keys, typename Fn>
-void printObject(Writer& writer, const Keys& keys, const Fn& fn)
+void printObject(Writer& writer, const Keys& keys, const Fn& printFn)
+{
+    auto skipFn = [] (const std::string&) { return false; };
+    printObject(writer, keys, printFn, skipFn);
+}
+
+template<typename Keys, typename PrintFn, typename SkipFn>
+void printObject(Writer& writer, const Keys& keys, const PrintFn& printFn, const SkipFn& skipFn)
 {
     writer.push('{');
 
@@ -25,6 +32,7 @@ void printObject(Writer& writer, const Keys& keys, const Fn& fn)
     bool first = true;
     for (const auto& key : keys) {
         if (!writer) return;
+        if (skipFn(key)) continue;
 
         if (!first) {
             writer.push(',');
@@ -35,7 +43,8 @@ void printObject(Writer& writer, const Keys& keys, const Fn& fn)
         printString(writer, key);
         writer.push(':');
         writer.space();
-        fn(key);
+
+        printFn(key);
     }
 
     if (keys.size() > 1) {
@@ -48,7 +57,14 @@ void printObject(Writer& writer, const Keys& keys, const Fn& fn)
 }
 
 template<typename Fn>
-void printArray(Writer& writer, size_t n, const Fn& fn)
+void printArray(Writer& writer, size_t n, const Fn& printFn)
+{
+    auto skipFn = [] (size_t) { return false; };
+    printArray(writer, n, printFn, skipFn);
+}
+
+template<typename PrintFn, typename SkipFn>
+void printArray(Writer& writer, size_t n, const PrintFn& printFn, const SkipFn& skipFn)
 {
     writer.push('[');
 
@@ -61,6 +77,7 @@ void printArray(Writer& writer, size_t n, const Fn& fn)
     bool first = true;
     for (size_t i = 0; i < n; ++i) {
         if (!writer) return;
+        if (skipFn(i)) continue;
 
         if (!first) {
             writer.push(',');
@@ -68,7 +85,7 @@ void printArray(Writer& writer, size_t n, const Fn& fn)
         }
         first = false;
 
-        fn(i);
+        printFn(i);
     }
 
     if (n > 1) {

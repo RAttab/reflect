@@ -28,7 +28,7 @@ struct Custom
         a = std::stoi(reflect::json::parseString(reader));
     }
 
-    void printJson(reflect::json::Writer& writer)
+    void printJson(reflect::json::Writer& writer) const
     {
         reflect::json::printString(writer, std::to_string(a));
     }
@@ -78,6 +78,7 @@ struct Basics
 
     Basics();
     ~Basics();
+    static void construct(Basics& value);
 
     bool operator==(const Basics& other) const;
 

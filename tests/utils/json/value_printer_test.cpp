@@ -18,39 +18,19 @@ using namespace reflect::json;
 
 
 /******************************************************************************/
-/* TEST BASICS                                                                */
+/* TESTS                                                                      */
 /******************************************************************************/
 
-BOOST_AUTO_TEST_CASE(test_basics)
+BOOST_AUTO_TEST_CASE(test_full)
 {
     Basics value;
-    {
-        value.boolean = true;
-        value.integer = 123;
-        value.floating = 123.321;
+    Basics::construct(value);
+    checkFile("value_printer_full.json", value);
+}
 
-        value.string = "abc";
-        value.stringPtr = new std::string("def");
-        value.stringShared = std::make_shared<std::string>("ghi");
-
-        value.skip = 0;
-        value.alias = 654;
-        value.custom = { 789 };
-
-        auto pInt = [](int64_t i) { return new int64_t(i); };
-
-        value.vector = { 1, 2, 3 };
-        value.vectorPtr = { pInt(4), pInt(5), pInt(6) };
-
-        value.map = { {"abc", 10}, {"def", 20} };
-        value.mapPtr = { {"hig", pInt(30)} };
-
-        value.next = new Basics;
-        value.next->integer = 10;
-
-        value.next->next = new Basics;
-        value.next->next->integer = 20;
-    }
-
-    checkFile("basics.json", value, true);
+BOOST_AUTO_TEST_CASE(test_compact)
+{
+    Basics value;
+    Basics::construct(value);
+    checkFile("value_printer_compact.json", value, true);
 }

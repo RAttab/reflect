@@ -28,7 +28,10 @@ void checkFile(const std::string& file, const std::string& value, bool noSpace =
         if (stream) ss.put(c);
     }
 
-    BOOST_CHECK_EQUAL(ss.str(), value);
+    std::string exp = ss.str();
+    while (std::isspace(exp.back())) exp.pop_back();
+
+    BOOST_CHECK_EQUAL(value, exp);
 }
 
 
@@ -38,7 +41,8 @@ void checkFile(const std::string& file, const T& value, bool noSpace = false)
     using namespace reflect::json;
 
     Writer::Options options = Writer::Default;
-    if (noSpace) options = Writer::Options(options | Writer::Pretty);
+    if (!noSpace) options = Writer::Options(options | Writer::Pretty);
+    else options = Writer::Options(options | Writer::Compact);
 
     std::stringstream ss;
     Writer writer(ss, options);

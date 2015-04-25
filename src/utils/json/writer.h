@@ -19,8 +19,9 @@ struct Writer
     enum Options
     {
         Pretty          = 1 << 0,
-        EscapeUnicode   = 1 << 1,
-        ValidateUnicode = 1 << 2,
+        Compact         = 1 << 1,
+        EscapeUnicode   = 1 << 2,
+        ValidateUnicode = 1 << 3,
 
         None = 0,
         Default = EscapeUnicode | ValidateUnicode,
@@ -45,6 +46,7 @@ struct Writer
     std::vector<char>& buffer() { return buffer_; }
 
     bool pretty() const { return options & Pretty; }
+    bool compact() const { return options & Compact; }
     bool escapeUnicode() const { return options & EscapeUnicode; }
     bool validateUnicode() const { return options & ValidateUnicode; }
 

@@ -22,6 +22,7 @@ reflectTypeImpl(Custom)
     reflectPlumbing();
 
     reflectFn(parseJson);
+    reflectFn(printJson);
     reflectTypeValue(json, reflect::json::custom("parseJson", "printJson"));
 }
 
@@ -46,6 +47,37 @@ Basics::
     for (const auto& entry : mapPtr) delete entry.second;
 
     if (next) delete next;
+}
+
+void
+Basics::
+construct(Basics& value)
+{
+    value.boolean = true;
+    value.integer = 123;
+    value.floating = 123.321;
+
+    value.string = "abc";
+    value.stringPtr = new std::string("def");
+    value.stringShared = std::make_shared<std::string>("ghi");
+
+    value.skip = 0;
+    value.alias = 654;
+    value.custom = { 789 };
+
+    auto pInt = [](int64_t i) { return new int64_t(i); };
+
+    value.vector = { 1, 2, 3 };
+    value.vectorPtr = { pInt(4), pInt(5), pInt(6) };
+
+    value.map = { {"abc", 10}, {"def", 20} };
+    value.mapPtr = { {"hig", pInt(30)} };
+
+    value.next = new Basics;
+    value.next->integer = 10;
+
+    value.next->next = new Basics;
+    value.next->next->integer = 20;
 }
 
 bool
@@ -159,10 +191,10 @@ reflectTypeImpl(Basics)
     reflectField(nullShared);
 
     reflectField(skip);
-    reflectFieldValue(skip, json, reflect::json::skip());
+    reflectFieldValue(skip, json, json::skip());
 
     reflectField(alias);
-    reflectFieldValue(alias, json, reflect::json::alias("bob"));
+    reflectFieldValue(alias, json, json::alias("bob"));
 
     reflectField(custom);
 
@@ -173,4 +205,5 @@ reflectTypeImpl(Basics)
     reflectField(mapPtr);
 
     reflectField(next);
+    reflectFieldValue(next, json, json::skipEmpty());
 }

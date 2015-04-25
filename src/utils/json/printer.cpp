@@ -26,7 +26,7 @@ void printBool(Writer& writer, const Value& value)
 
 void printInt(Writer& writer, const Value& value)
 {
-    formatInt(writer, cast<bool>(value));
+    formatInt(writer, cast<int64_t>(value));
 }
 
 void printFloat(Writer& writer, const Value& value)
@@ -53,6 +53,19 @@ std::string customPrinter(const Type* type)
     return type->getValue<json::Traits>("json").printer;
 }
 
+bool isSkip(const Type* type)
+{
+    if (!type->is("json")) return false;
+    return type->getValue<json::Traits>("json").skip;
+}
+
+bool isSkipEmpty(const Writer& writer, const Type* type)
+{
+    if (writer.compact()) return true;
+    if (!type->is("json")) return false;
+    return type->getValue<json::Traits>("json").skipEmpty;
+}
+
 
 /******************************************************************************/
 /* PRINTER                                                                    */
@@ -61,7 +74,9 @@ std::string customPrinter(const Type* type)
 struct Printer
 {
     virtual ~Printer() {}
+
     virtual void init(const Type*) {}
+    virtual bool isEmpty(const Value&) const { return false; }
     virtual void print(Writer& writer, const Value& value) const = 0;
 };
 
@@ -98,6 +113,11 @@ struct BoolPrinter : public Printer
 
 struct IntPrinter : public Printer
 {
+    bool isEmpty(const Value& value) const
+    {
+        return value.cast<const int64_t&>() == 0;
+    }
+
     void print(Writer& writer, const Value& value) const
     {
         printInt(writer, value);
@@ -106,6 +126,11 @@ struct IntPrinter : public Printer
 
 struct FloatPrinter : public Printer
 {
+    bool isEmpty(const Value& value) const
+    {
+        return value.cast<const double&>() == 0;
+    }
+
     void print(Writer& writer, const Value& value) const
     {
         printFloat(writer, value);
@@ -114,6 +139,11 @@ struct FloatPrinter : public Printer
 
 struct StringPrinter : public Printer
 {
+    bool isEmpty(const Value& value) const
+    {
+        return value.call<size_t>("size") == 0;
+    }
+
     void print(Writer& writer, const Value& value) const
     {
         printString(writer, value);
@@ -129,13 +159,20 @@ struct PointerPrinter : public Printer
 {
     void init(const Type* type) { inner.init(type->pointee()); }
 
+    bool isEmpty(const Value& ptr) const
+    {
+        return !cast<bool>(ptr) || inner.printer->isEmpty(*ptr);
+    }
+
     void print(Writer& writer, const Value& ptr) const
     {
-        if (cast<bool>(ptr)) printNull(writer);
-        else {
-            Value pointee = *ptr;
-            inner.printer->print(writer, pointee);
+        if (!cast<bool>(ptr)) {
+            printNull(writer);
+            return;
         }
+
+        Value pointee = *ptr;
+        inner.printer->print(writer, pointee);
     }
 
 private:
@@ -154,13 +191,18 @@ struct ArrayPrinter : public Printer
         inner.init(type->getValue<const Type*>("valueType"));
     }
 
+    bool isEmpty(const Value& array) const
+    {
+        return array.call<size_t>("size") == 0;
+    }
+
     void print(Writer& writer, const Value& array) const
     {
-        auto onItem = [&] (size_t i) {
+        auto printFn = [&] (size_t i) {
             Value item = array.call<Value>("at", i);
             inner.printer->print(writer, item);
         };
-        printArray(writer, array.call<size_t>("size"), onItem);
+        printArray(writer, array.call<size_t>("size"), printFn);
     }
 
 private:
@@ -179,15 +221,20 @@ struct MapPrinter : public Printer
         inner.init(type->getValue<const Type*>("valueType"));
     }
 
+    bool isEmpty(const Value& map) const
+    {
+        return map.call<size_t>("size") == 0;
+    }
+
     void print(Writer& writer, const Value& map) const
     {
         auto keys = map.call< std::vector<std::string> >("keys");
 
-        auto onKey = [&] (const std::string& key) {
+        auto printFn = [&] (const std::string& key) {
             Value value = map.call<Value>("at", key);
             inner.printer->print(writer, value);
         };
-        printObject(writer, keys, onKey);
+        printObject(writer, keys, printFn);
     }
 
 private:
@@ -207,10 +254,13 @@ struct ObjectPrinter : public Printer
             const Field& field = type->field(key);
 
             std::string alias = key;
+            bool isSkipEmpty = false;
+
             if (field.is("json")) {
                 auto traits = field.getValue<Traits>("json");
                 if (traits.skip) continue;
                 if (!traits.alias.empty()) alias = traits.alias;
+                isSkipEmpty = traits.skipEmpty;
             }
 
             if (fields.count(key))
@@ -218,6 +268,7 @@ struct ObjectPrinter : public Printer
 
             keys[alias] = key;
             sortedKeys.push_back(alias);
+            if (isSkipEmpty) skipEmpty.insert(alias);
 
             TypePrinter printer;
             printer.init(field.type());
@@ -229,7 +280,7 @@ struct ObjectPrinter : public Printer
 
     void print(Writer& writer, const Value& obj) const
     {
-        auto onField = [&] (const std::string& alias) {
+        auto getField = [&] (const std::string& alias) {
             auto keyIt = keys.find(alias);
             if (keyIt == keys.end())
                 reflectError("unknown key for alias <%s>", alias);
@@ -240,14 +291,32 @@ struct ObjectPrinter : public Printer
             if (fieldIt == fields.end())
                 reflectError("unknown field <%s> for alias <%s>", key, alias);
 
-            Value field = obj.field(key);
-            fieldIt->second.printer->print(writer, field);
+            return fieldIt;
         };
-        printObject(writer, sortedKeys, onField);
+
+        auto skipFn = [&] (const std::string& alias) {
+            if (!writer.compact() && !skipEmpty.count(alias))
+                return false;
+
+            auto it = getField(alias);
+
+            Value field = obj.field(it->first);
+            return it->second.printer->isEmpty(field);
+        };
+
+        auto printFn = [&] (const std::string& alias) {
+            auto it = getField(alias);
+
+            Value field = obj.field(it->first);
+            it->second.printer->print(writer, field);
+        };
+
+        printObject(writer, sortedKeys, printFn, skipFn);
     }
 
 private:
     std::vector<std::string> sortedKeys;
+    std::unordered_set<std::string> skipEmpty;
     std::unordered_map<std::string, std::string> keys;
     std::unordered_map<std::string, TypePrinter> fields;
 };

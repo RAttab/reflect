@@ -43,35 +43,8 @@ T parseFile(const std::string& file)
 BOOST_AUTO_TEST_CASE(test_basics)
 {
     Basics exp;
-    {
-        exp.boolean = true;
-        exp.integer = 123;
-        exp.floating = 123.321;
-
-        exp.string = "abc";
-        exp.stringPtr = new std::string("def");
-        exp.stringShared = std::make_shared<std::string>("ghi");
-
-        exp.skip = 0;
-        exp.alias = 654;
-        exp.custom = { 789 };
-
-        auto pInt = [](int64_t i) { return new int64_t(i); };
-
-        exp.vector = { 1, 2, 3 };
-        exp.vectorPtr = { pInt(4), pInt(5), pInt(6) };
-
-        exp.map = { {"abc", 10}, {"def", 20} };
-        exp.mapPtr = { {"hig", pInt(30)} };
-
-        exp.next = new Basics;
-        exp.next->integer = 10;
-
-        exp.next->next = new Basics;
-        exp.next->next->integer = 20;
-    }
-
-    auto obj = parseFile<Basics>("basics.json");
+    Basics::construct(exp);
+    auto obj = parseFile<Basics>("value_parser.json");
     BOOST_CHECK_EQUAL(obj, exp);
 }
 

@@ -24,10 +24,16 @@ void printFloat(Writer& writer, const Value& value);
 void printString(Writer& writer, const Value& value);
 
 template<typename Keys, typename Fn>
-void printObject(Writer& writer, const Keys& keys, const Fn& fn);
+void printObject(Writer& writer, const Keys& keys, const Fn& printFn);
+
+template<typename Keys, typename PrintFn, typename SkipFn>
+void printObject(Writer& writer, const Keys& keys, const PrintFn& printFn, const SkipFn& skipFn);
 
 template<typename Fn>
-void printArray(Writer& writer, size_t n, const Fn& value);
+void printArray(Writer& writer, size_t n, const Fn& printFn);
+
+template<typename PrintFn, typename SkipFn>
+void printArray(Writer& writer, size_t n, const PrintFn& printFn, const SkipFn& skipFn);
 
 
 /******************************************************************************/

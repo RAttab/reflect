@@ -19,12 +19,16 @@ struct Traits
     Traits();
 
     bool skip;
+    bool skipEmpty;
     std::string alias;
     std::string parser;
     std::string printer;
+
+    Traits operator| (const Traits& other) const;
 };
 
 Traits skip();
+Traits skipEmpty();
 Traits alias(std::string alias);
 Traits custom(std::string parser, std::string printer);
 

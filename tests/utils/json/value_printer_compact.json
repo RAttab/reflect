@@ -1,0 +1,24 @@
+{
+    "bob": 654,
+    "boolean": true,
+    "custom": "789",
+    "floating": 123.321,
+    "integer": 123,
+    "map": { "abc": 10, "def": 20 },
+    "mapPtr": { "hig": 30 },
+    "next": {
+        "boolean": false,
+        "custom": "0",
+        "integer": 10,
+        "next": {
+            "boolean": false,
+            "custom": "0",
+            "integer": 20
+        }
+    },
+    "string": "abc",
+    "stringPtr": "def",
+    "stringShared": "ghi",
+    "vector": [ 1, 2, 3 ],
+    "vectorPtr": [ 4, 5, 6 ]
+}

@@ -20,4 +20,6 @@ reflectTypeImpl(std::string)
     reflectAlloc();
 
     reflectTypeTrait(string);
+
+    reflectFn(size);
 }
