@@ -34,7 +34,7 @@ void printArray(Writer& writer, size_t n, const Fn& value);
 /* VALUE PRINTER                                                              */
 /******************************************************************************/
 
-void print(Writer& writer, Value& value);
+void print(Writer& writer, const Value& value);
 template<typename T> Error print(Writer& writer, const T& value);
 template<typename T> Error print(std::ostream& stream, const T& value);
 template<typename T> std::pair<std::string, Error> print(const T& value);

@@ -97,10 +97,10 @@ void error(const char* file, int line, const char* fmt, Args&&... args)
     verror(UseExceptions, file, line, std::move(msg));
 }
 
-#define reflectError(...)                        \
-    do {                                         \
-        error(__FILE__, __LINE__, __VA_ARGS__);  \
-        reflectUnreachable();                    \
+#define reflectError(...)                                       \
+    do {                                                        \
+        ::reflect::error(__FILE__, __LINE__, __VA_ARGS__);      \
+        reflectUnreachable();                                   \
     } while(false)
 
 

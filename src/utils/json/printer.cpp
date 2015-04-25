@@ -40,11 +40,23 @@ void printString(Writer& writer, const Value& value)
 }
 
 
+namespace {
+
+
+/******************************************************************************/
+/* CUSTOM PRINTER                                                             */
+/******************************************************************************/
+
+std::string customPrinter(const Type* type)
+{
+    if (!type->is("json")) return "";
+    return type->getValue<json::Traits>("json").printer;
+}
+
+
 /******************************************************************************/
 /* PRINTER                                                                    */
 /******************************************************************************/
-
-namespace {
 
 struct Printer
 {
@@ -145,7 +157,7 @@ struct ArrayPrinter : public Printer
     void print(Writer& writer, const Value& array) const
     {
         auto onItem = [&] (size_t i) {
-            Value item = array[i];
+            Value item = array.call<Value>("at", i);
             inner.printer->print(writer, item);
         };
         printArray(writer, array.call<size_t>("size"), onItem);
@@ -194,53 +206,66 @@ struct ObjectPrinter : public Printer
         for (std::string& key : type->fields()) {
             const Field& field = type->field(key);
 
+            std::string alias = key;
             if (field.is("json")) {
                 auto traits = field.getValue<Traits>("json");
                 if (traits.skip) continue;
-                if (!traits.alias.empty()) key = traits.alias;
+                if (!traits.alias.empty()) alias = traits.alias;
             }
 
             if (fields.count(key))
                 reflectError("duplicate json key <%s> in <%s>", key, type->id());
 
-            keys.push_back(key);
+            keys[alias] = key;
+            sortedKeys.push_back(alias);
 
             TypePrinter printer;
             printer.init(field.type());
             fields.emplace(key, printer);
         }
 
-        std::sort(keys.begin(), keys.end());
+        std::sort(sortedKeys.begin(), sortedKeys.end());
     }
 
     void print(Writer& writer, const Value& obj) const
     {
-        auto onField = [&] (const std::string& key) {
+        auto onField = [&] (const std::string& alias) {
+            auto keyIt = keys.find(alias);
+            if (keyIt == keys.end())
+                reflectError("unknown key for alias <%s>", alias);
+
+            const std::string& key = keyIt->second;
+
+            auto fieldIt = fields.find(key);
+            if (fieldIt == fields.end())
+                reflectError("unknown field <%s> for alias <%s>", key, alias);
+
             Value field = obj.field(key);
-            fields.find(key)->second.printer->print(writer, field);
+            fieldIt->second.printer->print(writer, field);
         };
-        printObject(writer, keys, onField);
+        printObject(writer, sortedKeys, onField);
     }
 
 private:
-    std::vector<std::string> keys;
+    std::vector<std::string> sortedKeys;
+    std::unordered_map<std::string, std::string> keys;
     std::unordered_map<std::string, TypePrinter> fields;
 };
 
 
 /******************************************************************************/
-/* CUSTOME PRINTER                                                            */
+/* CUSTOM PRINTER                                                             */
 /******************************************************************************/
 
 struct CustomPrinter : public Printer
 {
     void init(const Type* type)
     {
-        auto traits = type->getValue<Traits>("json");
-        if (!traits.printer.empty())
+        std::string name = customPrinter(type);
+        if (name.empty())
             reflectError("no printer function defined for <%s>", type->id());
 
-        printer = &type->function(traits.printer).get<void(Writer&)>();
+        printer = &type->function(name).get<void(Value, Writer&)>();
     }
 
     void print(Writer& writer, const Value& value) const
@@ -274,8 +299,8 @@ const Printer* getPrinter(const Type* type)
     else if (type->isPointer()) printer = new PointerPrinter;
     else if (type->is("map")) printer = new MapPrinter;
     else if (type->is("list")) printer = new ArrayPrinter;
-    else if (type->is("json")) printer = new CustomPrinter;
 
+    else if (!customPrinter(type).empty()) printer = new CustomPrinter;
     else if (type == reflect::type<void>())
         reflectError("unable to print void value");
 

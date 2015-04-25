@@ -7,6 +7,7 @@
 #define BOOST_TEST_DYN_LINK
 #define REFLECT_USE_EXCEPTIONS 1
 
+#include "printer_utils.h"
 #include "reflect.h"
 #include "utils/json.h"
 
@@ -88,10 +89,7 @@ BOOST_AUTO_TEST_CASE(test_compact)
 
     print(writer);
 
-    const std::string exp =
-        "{\"null\":null,\"bool\":true,\"int\":123,\"float\":123.321,\"string\":\"abc\",\"array\":[1,[2],{\"3\":4}],\"object\":{\"a\":1,\"b\":[2],\"c\":{\"3\":4}}}";
-
-    BOOST_CHECK_EQUAL(ss.str(),exp);
+    checkFile("generic.json", ss.str(), true);
 }
 
 BOOST_AUTO_TEST_CASE(test_pretty)
@@ -100,23 +98,5 @@ BOOST_AUTO_TEST_CASE(test_pretty)
     Writer writer(ss, Writer::Pretty);
     print(writer);
 
-    const std::string exp =
-        "{\n"
-        "    \"null\": null,\n"
-        "    \"bool\": true,\n"
-        "    \"int\": 123,\n"
-        "    \"float\": 123.321,\n"
-        "    \"string\": \"abc\",\n"
-        "    \"array\": [\n"
-        "        1,\n"
-        "        [ 2 ],\n"
-        "        { \"3\": 4 }\n"
-        "    ],\n"
-        "    \"object\": {\n"
-        "        \"a\": 1,\n"
-        "        \"b\": [ 2 ],\n"
-        "        \"c\": { \"3\": 4 }\n"
-        "    }\n"
-        "}";
-    BOOST_CHECK_EQUAL(ss.str(), exp);
+    checkFile("generic.json", ss.str());
 }

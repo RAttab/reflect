@@ -232,14 +232,6 @@ function(reflect_test name)
     endif()
 endfunction()
 
-function(reflect_utils_test utils name)
-    if(CMAKE_SOURCE_DIR STREQUAL ${PROJECT_SOURCE_DIR})
-        file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/utils/${utils})
-        reflect_test(utils/${utils}/${name})
-        target_link_libraries(utils/${utils}/${name}_test reflect_${utils})
-    endif()
-endfunction()
-
 reflect_test(ref)
 reflect_test(scope)
 reflect_test(type)
@@ -251,11 +243,34 @@ reflect_test(pointer)
 reflect_test(reflection)
 reflect_test(demo)
 
-reflect_utils_test(json reader)
-reflect_utils_test(json format)
-reflect_utils_test(json parser)
-reflect_utils_test(json printer)
-reflect_utils_test(json value_parser)
+
+function(reflect_utils_test utils name)
+    if(CMAKE_SOURCE_DIR STREQUAL ${PROJECT_SOURCE_DIR})
+        file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/utils/${utils})
+        reflect_test(utils/${utils}/${name})
+        target_link_libraries(utils/${utils}/${name}_test reflect_${utils})
+    endif()
+endfunction()
+
+
+add_library(reflect_utils_json_test SHARED tests/utils/json/test_types.cpp)
+target_link_libraries(reflect_utils_json_test reflect_json)
+
+function(reflect_json_test name)
+    if(CMAKE_SOURCE_DIR STREQUAL ${PROJECT_SOURCE_DIR})
+        reflect_utils_test(json ${name})
+        force_target_link_libraries(utils/json/${name}_test reflect_utils_json_test)
+    endif()
+endfunction()
+
+reflect_json_test(reader)
+reflect_json_test(format)
+reflect_json_test(parser)
+reflect_json_test(printer)
+reflect_json_test(value_parser)
+reflect_json_test(value_printer)
+
+
 
 # reflect_utils_test(config path)
 # reflect_utils_test(config cubes)
