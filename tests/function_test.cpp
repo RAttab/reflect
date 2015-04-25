@@ -15,7 +15,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-using namespace std;
 using namespace reflect;
 
 
@@ -111,28 +110,28 @@ BOOST_AUTO_TEST_CASE(void_call)
     fn.call<void>();
 
     // copy
-    BOOST_CHECK_THROW(fn.call<void>(10), ReflectError);
-    BOOST_CHECK_THROW(fn.call<int>(), ReflectError);
+    BOOST_CHECK_THROW(fn.call<void>(10), Error);
+    BOOST_CHECK_THROW(fn.call<int>(), Error);
     BOOST_CHECK(fn.call<Value>().isVoid());
 
     // l-ref
     int i = 0; Value lValue(i);
-    BOOST_CHECK_THROW(fn.call<void>(i), ReflectError);
-    BOOST_CHECK_THROW(fn.call<void>(lValue), ReflectError);
-    BOOST_CHECK_THROW(fn.call<int&>(), ReflectError);
-    BOOST_CHECK_THROW(fn.call<Value&>(), ReflectError);
+    BOOST_CHECK_THROW(fn.call<void>(i), Error);
+    BOOST_CHECK_THROW(fn.call<void>(lValue), Error);
+    BOOST_CHECK_THROW(fn.call<int&>(), Error);
+    BOOST_CHECK_THROW(fn.call<Value&>(), Error);
 
     // const l-ref
     const int& c = i; Value constLValue(c);
-    BOOST_CHECK_THROW(fn.call<void>(c), ReflectError);
-    BOOST_CHECK_THROW(fn.call<void>(constLValue), ReflectError);
-    BOOST_CHECK_THROW(fn.call<const int&>(), ReflectError);
-    BOOST_CHECK_THROW(fn.call<const Value&>(), ReflectError);
+    BOOST_CHECK_THROW(fn.call<void>(c), Error);
+    BOOST_CHECK_THROW(fn.call<void>(constLValue), Error);
+    BOOST_CHECK_THROW(fn.call<const int&>(), Error);
+    BOOST_CHECK_THROW(fn.call<const Value&>(), Error);
 
     // r-ref
     int r = i;
-    BOOST_CHECK_THROW(fn.call<void>(std::move(r)), ReflectError);
-    BOOST_CHECK_THROW(fn.call<void>(Value(r).rvalue()), ReflectError);
+    BOOST_CHECK_THROW(fn.call<void>(std::move(r)), Error);
+    BOOST_CHECK_THROW(fn.call<void>(Value(r).rvalue()), Error);
 }
 
 
@@ -176,8 +175,8 @@ BOOST_AUTO_TEST_CASE(copy_call)
 
     // void
     fn.call<void>(10);
-    BOOST_CHECK_THROW(fn.call<int>(), ReflectError);
-    BOOST_CHECK_THROW(fn.call<int>(Value()), ReflectError);
+    BOOST_CHECK_THROW(fn.call<int>(), Error);
+    BOOST_CHECK_THROW(fn.call<int>(Value()), Error);
 
     // copy
     BOOST_CHECK_EQUAL(fn.call<int>(10), foo(10));
@@ -186,13 +185,13 @@ BOOST_AUTO_TEST_CASE(copy_call)
     int i = 10; Value lValue(i);
     BOOST_CHECK_EQUAL(fn.call<int>(i), foo(i));
     BOOST_CHECK_EQUAL(fn.call<int>(lValue), foo(i));
-    BOOST_CHECK_THROW(fn.call<int&>(10), ReflectError);
+    BOOST_CHECK_THROW(fn.call<int&>(10), Error);
 
     // const l-ref
     const auto& c = i; Value constLValue(c);
     BOOST_CHECK_EQUAL(fn.call<int>(c), foo(c));
     BOOST_CHECK_EQUAL(fn.call<int>(constLValue), foo(c));
-    BOOST_CHECK_THROW(fn.call<const int&>(10), ReflectError);
+    BOOST_CHECK_THROW(fn.call<const int&>(10), Error);
 
     // r-ref
     int r = i;
@@ -245,11 +244,11 @@ BOOST_AUTO_TEST_CASE(lValue_call)
 
     // void
     fn.call<void>(lValue);
-    BOOST_CHECK_THROW(fn.call<int>(), ReflectError);
-    BOOST_CHECK_THROW(fn.call<int>(Value()), ReflectError);
+    BOOST_CHECK_THROW(fn.call<int>(), Error);
+    BOOST_CHECK_THROW(fn.call<int>(Value()), Error);
 
     // copy
-    BOOST_CHECK_THROW(fn.call<int&>(10), ReflectError);
+    BOOST_CHECK_THROW(fn.call<int&>(10), Error);
     BOOST_CHECK_EQUAL(fn.call<int>(i), foo(i));
     BOOST_CHECK_EQUAL(fn.call<int>(lValue), foo(i));
 
@@ -259,19 +258,19 @@ BOOST_AUTO_TEST_CASE(lValue_call)
 
     // const l-ref
     const auto& c = i; Value constLValue(c);
-    BOOST_CHECK_THROW(fn.call<int&>(c), ReflectError);
-    BOOST_CHECK_THROW(fn.call<int&>(constLValue), ReflectError);
+    BOOST_CHECK_THROW(fn.call<int&>(c), Error);
+    BOOST_CHECK_THROW(fn.call<int&>(constLValue), Error);
     BOOST_CHECK_EQUAL(&fn.call<const int&>(i), &c);
     BOOST_CHECK_EQUAL(&fn.call<const int&>(lValue), &c);
 
     // r-ref
     {
         int r = i;
-        BOOST_CHECK_THROW(fn.call<int&>(std::move(r)), ReflectError);
+        BOOST_CHECK_THROW(fn.call<int&>(std::move(r)), Error);
     }
     {
         int r = i;
-        BOOST_CHECK_THROW(fn.call<int&>(Value(r).rvalue()), ReflectError);
+        BOOST_CHECK_THROW(fn.call<int&>(Value(r).rvalue()), Error);
     }
 }
 
@@ -319,8 +318,8 @@ BOOST_AUTO_TEST_CASE(constLValue_call)
 
     // void
     fn.call<void>(constLValue);
-    BOOST_CHECK_THROW(fn.call<const int&>(), ReflectError);
-    BOOST_CHECK_THROW(fn.call<const int&>(Value()), ReflectError);
+    BOOST_CHECK_THROW(fn.call<const int&>(), Error);
+    BOOST_CHECK_THROW(fn.call<const int&>(Value()), Error);
 
     // copy
     BOOST_CHECK_NO_THROW(fn.call<const int&>(i));
@@ -332,8 +331,8 @@ BOOST_AUTO_TEST_CASE(constLValue_call)
     Value lValue(i);
     BOOST_CHECK_EQUAL(&fn.call<const int&>(i), &i);
     BOOST_CHECK_EQUAL(&fn.call<const int&>(lValue), &i);
-    BOOST_CHECK_THROW(fn.call<int&>(c), ReflectError);
-    BOOST_CHECK_THROW(fn.call<int&>(constLValue), ReflectError);
+    BOOST_CHECK_THROW(fn.call<int&>(c), Error);
+    BOOST_CHECK_THROW(fn.call<int&>(constLValue), Error);
 
     // const l-ref
     BOOST_CHECK_EQUAL(&fn.call<const int&>(c), &c);
@@ -386,38 +385,38 @@ BOOST_AUTO_TEST_CASE(rValue_call)
         int r = 10;
         fn.call<void>(std::move(r));
     }
-    BOOST_CHECK_THROW(fn.call<const int&>(), ReflectError);
-    BOOST_CHECK_THROW(fn.call<const int&>(Value()), ReflectError);
+    BOOST_CHECK_THROW(fn.call<const int&>(), Error);
+    BOOST_CHECK_THROW(fn.call<const int&>(Value()), Error);
 
     // copy
     int v = 10;
-    BOOST_CHECK_THROW(fn.call<int>(v), ReflectError);
+    BOOST_CHECK_THROW(fn.call<int>(v), Error);
     BOOST_CHECK_EQUAL(fn.call<int>(10), foo(10));
 
     // l-ref
     int i = 10; Value lValue(i);
-    BOOST_CHECK_THROW(fn.call<int>(i), ReflectError);
-    BOOST_CHECK_THROW(fn.call<int>(lValue), ReflectError);
+    BOOST_CHECK_THROW(fn.call<int>(i), Error);
+    BOOST_CHECK_THROW(fn.call<int>(lValue), Error);
     {
         int r = i;
-        BOOST_CHECK_THROW(fn.call<int&>(std::move(r)), ReflectError);
+        BOOST_CHECK_THROW(fn.call<int&>(std::move(r)), Error);
     }
     {
         int r = i;
-        BOOST_CHECK_THROW(fn.call<int&>(Value(r).rvalue()), ReflectError);
+        BOOST_CHECK_THROW(fn.call<int&>(Value(r).rvalue()), Error);
     }
 
     // const l-ref
     const auto& c = i; Value constLValue(c);
-    BOOST_CHECK_THROW(fn.call<int>(c), ReflectError);
-    BOOST_CHECK_THROW(fn.call<int>(constLValue), ReflectError);
+    BOOST_CHECK_THROW(fn.call<int>(c), Error);
+    BOOST_CHECK_THROW(fn.call<int>(constLValue), Error);
     {
         int r = i;
-        BOOST_CHECK_THROW(fn.call<const int&>(std::move(r)), ReflectError);
+        BOOST_CHECK_THROW(fn.call<const int&>(std::move(r)), Error);
     }
     {
         int r = i;
-        BOOST_CHECK_THROW(fn.call<const int&>(Value(r).rvalue()), ReflectError);
+        BOOST_CHECK_THROW(fn.call<const int&>(Value(r).rvalue()), Error);
     }
 
     // r-ref
@@ -521,12 +520,12 @@ BOOST_AUTO_TEST_CASE(childParent_call)
     BOOST_CHECK_EQUAL(copyFn.call<Child>(childConstLRef), doCopy(childConstLRef));
     BOOST_CHECK_EQUAL(copyFn.call<Child>(Child(10, 0)), doCopy(Child(10, 0)));
     BOOST_CHECK_EQUAL(copyFn.call<Parent>(copy), (Parent) doCopy(copy));
-    BOOST_CHECK_THROW(copyFn.call<Parent&>(copy), ReflectError);
-    BOOST_CHECK_THROW(copyFn.call<const Parent&>(copy), ReflectError);
+    BOOST_CHECK_THROW(copyFn.call<Parent&>(copy), Error);
+    BOOST_CHECK_THROW(copyFn.call<const Parent&>(copy), Error);
 
     BOOST_CHECK_EQUAL(lrefFn.call<Child&>(childLRef), doLRef(lref));
-    BOOST_CHECK_THROW(lrefFn.call<Child&>(childConstLRef), ReflectError);
-    BOOST_CHECK_THROW(lrefFn.call<Child&>(Child(10, 0)), ReflectError);
+    BOOST_CHECK_THROW(lrefFn.call<Child&>(childConstLRef), Error);
+    BOOST_CHECK_THROW(lrefFn.call<Child&>(Child(10, 0)), Error);
     BOOST_CHECK_EQUAL(lrefFn.call<Parent>(lref), (Parent) doLRef(lref));
     BOOST_CHECK_EQUAL(lrefFn.call<Parent&>(lref), (Parent&) doLRef(lref));
     BOOST_CHECK_EQUAL(lrefFn.call<const Parent&>(lref), (const Parent&) doLRef(lref));
@@ -535,11 +534,11 @@ BOOST_AUTO_TEST_CASE(childParent_call)
     BOOST_CHECK_EQUAL(clrefFn.call<const Child&>(childConstLRef), doConstLRef(childConstLRef));
     BOOST_CHECK_EQUAL(clrefFn.call<const Child&>(Child(10, 0)), doConstLRef(Child(10, 0)));
     BOOST_CHECK_EQUAL(clrefFn.call<Parent>(clref), (Parent) doConstLRef(clref));
-    BOOST_CHECK_THROW(clrefFn.call<Parent&>(clref), ReflectError);
+    BOOST_CHECK_THROW(clrefFn.call<Parent&>(clref), Error);
     BOOST_CHECK_EQUAL(clrefFn.call<const Parent&>(clref), (const Parent&) doConstLRef(clref));
 
-    BOOST_CHECK_THROW(rrefFn.call<Object>(childLRef), ReflectError);
-    BOOST_CHECK_THROW(rrefFn.call<Object>(childConstLRef), ReflectError);
+    BOOST_CHECK_THROW(rrefFn.call<Object>(childLRef), Error);
+    BOOST_CHECK_THROW(rrefFn.call<Object>(childConstLRef), Error);
     BOOST_CHECK_EQUAL(rrefFn.call<Object>(Child(10, 0)), doRRef(Child(10, 0)));
 }
 
@@ -629,21 +628,21 @@ BOOST_AUTO_TEST_CASE(converters_call)
     BOOST_CHECK_EQUAL(copyFn.call<Conv>(convConstLRef), doCopy(convConstLRef));
     BOOST_CHECK_EQUAL(copyFn.call<Conv>(Conv(10)), doCopy(Conv(10)));
     BOOST_CHECK_EQUAL(copyFn.call<int>(copy), (int) doCopy(copy));
-    BOOST_CHECK_THROW(copyFn.call<int&>(copy), ReflectError);
-    BOOST_CHECK_THROW(copyFn.call<const int&>(copy), ReflectError);
+    BOOST_CHECK_THROW(copyFn.call<int&>(copy), Error);
+    BOOST_CHECK_THROW(copyFn.call<const int&>(copy), Error);
 
-    BOOST_CHECK_THROW(lrefFn.call<Conv&>(convLRef), ReflectError);
-    BOOST_CHECK_THROW(lrefFn.call<Conv&>(convConstLRef), ReflectError);
-    BOOST_CHECK_THROW(lrefFn.call<Conv&>(Conv(10)), ReflectError);
+    BOOST_CHECK_THROW(lrefFn.call<Conv&>(convLRef), Error);
+    BOOST_CHECK_THROW(lrefFn.call<Conv&>(convConstLRef), Error);
+    BOOST_CHECK_THROW(lrefFn.call<Conv&>(Conv(10)), Error);
     BOOST_CHECK_EQUAL(lrefFn.call<int>(lref), (int) doLRef(lref));
-    BOOST_CHECK_THROW(lrefFn.call<int&>(lref), ReflectError);
+    BOOST_CHECK_THROW(lrefFn.call<int&>(lref), Error);
     BOOST_CHECK_EQUAL(lrefFn.call<const int&>(lref), (const int&) doLRef(lref));
 
     BOOST_CHECK_EQUAL(clrefFn.call<const Conv&>(convLRef), doConstLRef(convLRef));
     BOOST_CHECK_EQUAL(clrefFn.call<const Conv&>(convConstLRef), doConstLRef(convConstLRef));
     BOOST_CHECK_EQUAL(clrefFn.call<const Conv&>(Conv(10)), doConstLRef(Conv(10)));
     BOOST_CHECK_EQUAL(clrefFn.call<int>(clref), (int) doConstLRef(clref));
-    BOOST_CHECK_THROW(clrefFn.call<int&>(clref), ReflectError);
+    BOOST_CHECK_THROW(clrefFn.call<int&>(clref), Error);
     BOOST_CHECK_EQUAL(clrefFn.call<const int&>(clref), (const int&) doConstLRef(clref));
 
     BOOST_CHECK_EQUAL(rrefFn.call<int>(convLRef), doRRef(convLRef));

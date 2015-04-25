@@ -31,6 +31,7 @@ template<typename T_>
 void reflectNumberImpl(Type* type_)
 {
     reflectPlumbing();
+    reflectAlloc();
 
     reflectLimit(min);
     reflectLimit(max);

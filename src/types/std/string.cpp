@@ -17,6 +17,9 @@
 reflectTypeImpl(std::string)
 {
     reflectPlumbing();
+    reflectAlloc();
 
     reflectTypeTrait(string);
+
+    reflectFn(size);
 }

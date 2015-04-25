@@ -80,6 +80,7 @@ struct Value
     template<typename T>
     explicit Value(T&& value);
 
+    Value(Value& other);
     Value(const Value& other);
     Value& operator=(const Value& other);
 

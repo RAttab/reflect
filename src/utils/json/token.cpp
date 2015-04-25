@@ -1,16 +1,7 @@
 /* token.cpp                                 -*- C++ -*-
    Rémi Attab (remi.attab@gmail.com), 19 Apr 2014
    FreeBSD-style copyright and disclaimer apply
-
-   Json tokenizer
 */
-
-#include "token.h"
-#include "reflect.h"
-
-#include <array>
-#include <sstream>
-#include <ctype.h>
 
 namespace reflect {
 namespace json {
@@ -20,50 +11,66 @@ namespace json {
 /******************************************************************************/
 
 Token::
-Token(Type type, std::string value) :
-    type_(type), value_(std::move(value))
+Token(Type type, const std::string& value) :
+    type_(type), value_(&value)
 {}
 
+namespace  {
+std::string trueValue = "true";
+std::string falseValue = "false";
+}
 
 Token::
 Token(Type type, bool value) :
-    type_(type), value_(value ? "t" : "")
+    type_(type), value_(value ? &trueValue : &falseValue)
 {}
 
-
-std::string
+bool
 Token::
-stringValue() const
+asBool() const
 {
-    return value_;
+    if (type_ != Bool)
+        reflectError("invalid conversion of token %s to <bool>", print());
+
+    return value_ == &trueValue;
+}
+
+int64_t
+Token::
+asInt() const
+{
+    if (type_ != Int)
+        reflectError("invalid conversion of token %s to <int>", print());
+
+    return std::stol(*value_);
 }
 
 double
 Token::
-floatValue() const
+asFloat() const
 {
-    return std::stod(value_);
+    if (type_ != Float)
+        reflectError("invalid conversion of token %s to <float>", print());
+
+    return std::stod(*value_);
 }
 
-long
+const std::string&
 Token::
-intValue() const
+asString() const
 {
-    return std::stol(value_);
-}
+    if (type_ != String)
+        reflectError("invalid conversion of token %s to <string>", print());
 
-bool
-Token::
-boolValue() const
-{
-    return !value_.empty();
+    return *value_;
 }
-
 
 std::string print(Token::Type type)
 {
     switch (type)
     {
+    case Token::NoToken: return "notok";
+
     case Token::ObjectStart: return "{";
     case Token::ObjectEnd:   return "}";
 
@@ -74,7 +81,8 @@ std::string print(Token::Type type)
     case Token::KeySeparator: return ":";
 
     case Token::String: return "string";
-    case Token::Number: return "number";
+    case Token::Int:    return "int";
+    case Token::Float:  return "float";
     case Token::Bool:   return "bool";
     case Token::Null:   return "null";
 
@@ -91,7 +99,7 @@ print() const
     std::stringstream ss;
 
     ss << "<Token " << reflect::json::print(type_);
-    if (!value_.empty()) ss << ": " << value_;
+    if (value_) ss << ": " << *value_;
     ss << ">";
 
     return ss.str();
@@ -104,16 +112,19 @@ print() const
 
 namespace {
 
-char nextChar(std::istream& json)
+char nextChar(Reader& reader)
 {
-    while (json) {
-        char c = json.get();
+    while (reader) {
+        char c = reader.pop();
 
+        if (c == '\n') reader.newline();
         if (std::isspace(c)) continue;
 
-        // Skip comments.
-        if (c == '/' && json.peek() == '/') {
-            while (json && (c = json.get()) != '\n') continue;
+        if (c == '/' && reader.peek() == '/') {
+            if (!reader.allowComments())
+                reader.error("comments are not allowed");
+
+            while (reader && (c = reader.pop()) != '\n') continue;
             continue;
         }
 
@@ -124,89 +135,130 @@ char nextChar(std::istream& json)
 }
 
 
-void readLiteral(const char* literal, std::istream& json)
+void readLiteral(Reader& reader, const char* literal)
 {
     char c;
     const char* l = literal;
-    while (json && *l && (c = json.get()) == *l) l++;
+    while (reader && *l && (c = reader.pop()) == *l) l++;
 
-    if (*l) reflectError("expected literal <%s>", literal);
+    if (*l) reader.error("expected literal <%s>", literal);
 }
 
-std::string readUnicode(std::istream& json)
+void unescapeUnicode(Reader& reader)
 {
-    char c;
     uint32_t code = 0;
 
-    for (size_t i = 0; json && i < 4; ++i) {
+    size_t i = 0;
+    for (i = 0; reader && i < 4; ++i) {
 
-        c = json.get();
-        code <<= 8;
+        char c = reader.pop();
+        code <<= 4;
 
              if (c >= '0' && c <= '9') code |= c - '0';
         else if (c >= 'a' && c <= 'f') code |= c - 'a' + 10;
         else if (c >= 'A' && c <= 'F') code |= c - 'A' + 10;
-
-        else reflectError("non-hex digit in unicode code point <%c>", c);
+        else reader.error("non-hex digit in unicode code point <%c>", c);
     }
 
-    auto encode = [&] (unsigned pos, uint32_t mask, uint32_t head) -> char {
-        return ((code >> (6 * pos)) & mask) | head;
+    if (reader && i != 4) reader.error("\\u requires 4 hex digits", i);
+    if (!reader) return;
+
+    auto encode = [&] (unsigned pos, uint32_t mask, uint32_t head) {
+        reader.save(((code >> (6 * pos)) & mask) | head);
     };
 
-    if (code <= 0x7F) {
-        return {(char) code };
+    if (code <= 0x7F)
+        reader.save(code);
+
+    else if (code <= 0x7FF) {
+        encode(1, 0x1F, 0xC0);
+        encode(0, 0x3F, 0x80);
     }
 
-    if (code <= 0x7FF) {
-        code -= 0x80;
-        return {encode(1, 0x1F, 0xC0),
-                encode(0, 0x3F, 0x80)};
+    else if (code <= 0xFFFF) {
+        encode(2, 0x0F, 0xE0);
+        encode(1, 0x3F, 0x80);
+        encode(0, 0x3F, 0x80);
     }
 
-    if (code <= 0xFFFF) {
-        code -= 0x800;
-        return {encode(2, 0x0F, 0xE0),
-                encode(1, 0x3F, 0x80),
-                encode(0, 0x3F, 0x80)};
+    else if (code <= 0x1FFFFF) {
+        encode(3, 0x07, 0xF0);
+        encode(2, 0x3F, 0x80);
+        encode(1, 0x3F, 0x80);
+        encode(0, 0x3F, 0x80);
     }
 
-    if (code <= 0x1FFFFF) {
-        code -= 0x10000;
-        return {encode(3, 0x07, 0xF0),
-                encode(2, 0x3F, 0x80),
-                encode(1, 0x3F, 0x80),
-                encode(0, 0x3F, 0x80)};
-    }
-
-    if (code <= 0x3FFFFFFF) {
-        code -= 0x2000000;
-        return {encode(4, 0x03, 0xF8),
-                encode(3, 0x3F, 0x80),
-                encode(2, 0x3F, 0x80),
-                encode(1, 0x3F, 0x80),
-                encode(0, 0x3F, 0x80)};
-    }
-
-    code -= 0x400000000;
-    return {encode(5, 0x01, 0xFC),
-            encode(4, 0x3F, 0x80),
-            encode(3, 0x3F, 0x80),
-            encode(2, 0x3F, 0x80),
-            encode(1, 0x3F, 0x80),
-            encode(0, 0x3F, 0x80)};
+    else reflectError("code point <%u> is too big", code);
 }
 
-std::string readString(std::istream& json)
+void readUnicode(Reader& reader)
 {
-    std::string str;
+    if (reader.unescapeUnicode()) {
+        unescapeUnicode(reader);
+        return;
+    }
 
-    while (json) {
-        char c = json.get();
+    reader.save('\\');
+    reader.save('u');
 
-        if (c == '"') return str;
+    size_t i = 0;
+    for (i = 0; reader && i < 4; ++i) {
+        char c = reader.pop();
+
+             if (c >= '0' && c <= '9') reader.save(c);
+        else if (c >= 'a' && c <= 'f') reader.save(c);
+        else if (c >= 'A' && c <= 'F') reader.save(c);
+        else reader.error("non-hex digit in unicode code point <%c>", c);
+    }
+
+    if (reader && i != 4) reader.error("\\u requires 4 hex digits", i);
+}
+
+void validateUnicode(Reader& reader, char c)
+{
+    reader.save(c);
+
+    size_t bytes = clz(~c);
+    if (bytes > 4 || bytes < 2) reader.error("invalid UTF-8 header: %x", c);
+
+    uint32_t mask = (1 << (7 - bytes)) - 1;
+    uint32_t code = uint32_t(c) & mask;
+
+    for (size_t i = 1; reader && i < bytes; i++) {
+        reader.save(c = reader.pop());
+        if ((c & 0xC0) != 0x80) reader.error("invalid UTF-8 encoding");
+        code = (code << 6) | (c & 0x3F);
+    }
+
+    switch (bytes) {
+    case 4: if (code > 0xFFFF) return; break;
+    case 3: if (code > 0x7FF) return; break;
+    case 2: if (code > 0x7F) return; break;
+    }
+
+    reader.error("invalid UTF-8 encoding");
+}
+
+void readString(Reader& reader)
+{
+    reader.resetBuffer();
+
+    while (reader) {
+        char c = reader.pop();
+
+        if (c == '\n') {
+            reader.error("invalid \\n character in a string");
+            continue;
+        }
+
+        if ((c & 0x80) && reader.validateUnicode()) {
+            validateUnicode(reader, c);
+            continue;
+        }
+
+        if (c == '"') return;
         if (c == '\\') {
-            switch(c = json.get()) {
+            switch(c = reader.pop()) {
             case '"':
             case '/':
             case '\\': break;
@@ -216,63 +268,70 @@ std::string readString(std::istream& json)
             case 'n': c = '\n'; break;
             case 'r': c = '\r'; break;
             case 't': c = '\t'; break;
-            case 'u': str += readUnicode(json); continue;
-            default: reflectError("unknown escaped character <%c>", c);
+            case 'u': readUnicode(reader); continue;
+            default:
+                reader.error("unknown escaped character <%c>", c);
+                return;
             }
         }
 
-        str += c;
+        reader.save(c);
     };
 
-    reflectError("unexpected end of string");
+    reader.error("unexpected end of string");
 }
 
-// \todo shouldn't allow leading 0s unless followed by a .
-// \todo enforce a number before a .
-std::string readNumber(char c, std::istream& json)
+Token::Type readNumber(Reader& reader, char c)
 {
-    std::string str;
-    str += c;
+    Token::Type type = Token::Int;
+    reader.resetBuffer();
+    reader.save(c); // can be either - or [0-9].
 
     auto readDigits = [&] {
-        while (json && std::isdigit(c = json.peek())) str += json.get();
+        while (reader && std::isdigit(c = reader.peek()))
+            reader.save(reader.pop());
     };
 
     auto readChar = [&] (char c) {
-        if (!json || json.peek() != c) return false;
+        if (!reader || reader.peek() != c) return false;
 
-        str += json.get();
+        reader.save(reader.pop());
         return true;
     };
 
     auto readChars = [&] (char a, char b) {
-        if (!json || (json.peek() != a && json.peek() != b))
+        if (!reader || (reader.peek() != a && reader.peek() != b))
             return false;
 
-        str += json.get();
+        reader.save(reader.pop());
         return true;
     };
 
-    readChar('-');
     readDigits();
-
-    if (readChar('.')) readDigits();
+    if (readChar('.')) {
+        type = Token::Float;
+        readDigits();
+    }
 
     if (readChars('e', 'E')) {
+        type = Token::Float;
         readChars('+', '-');
         readDigits();
     }
 
-    return str;
+    return type;
 }
 
 } // namespace anonymous
 
+namespace details {
 
-Token nextToken(std::istream& json)
+Token nextToken(Reader& reader)
 {
-    char c = nextChar(json);
-    if (!json) return Token(Token::EOS);
+    if (!reader) return Token(Token::EOS);
+
+    char c = nextChar(reader);
+    if (!reader) return Token(Token::EOS);
 
     switch(c)
     {
@@ -285,54 +344,35 @@ Token nextToken(std::istream& json)
     case ',': return Token(Token::Separator);
     case ':': return Token(Token::KeySeparator);
 
-    case 'n': readLiteral("ull", json);  return Token(Token::Null);
-    case 't': readLiteral("rue", json);  return Token(Token::Bool, true);
-    case 'f': readLiteral("alse", json); return Token(Token::Bool, false);
+    case 'n': readLiteral(reader, "ull");  return Token(Token::Null);
+    case 't': readLiteral(reader, "rue");  return Token(Token::Bool, true);
+    case 'f': readLiteral(reader, "alse"); return Token(Token::Bool, false);
 
-    case '"': return Token(Token::String, readString(json));
-    default:  return Token(Token::Number, readNumber(c, json));
+    case '"':
+        readString(reader);
+        return Token(Token::String, reader.buffer());
+
+    case '-':
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+    {
+        Token::Type type = readNumber(reader, c);
+        return Token(type, reader.buffer());
+    }
+    default:
+        reader.error("unexpected character <%c>", c);
+        return Token(Token::EOS);
     }
 }
 
-void expectToken(Token token, Token::Type expected)
-{
-    if (token.type() == expected) return;
-
-    reflectError("unexpected <%s> expecting <%s>",
-            print(token.type()), print(expected));
-}
-
-
-/******************************************************************************/
-/* PRINTERS                                                                   */
-/******************************************************************************/
-
-void printNull(std::ostream& json)
-{
-    json << "null";
-}
-
-void printBool(bool value, std::ostream& json)
-{
-    json << (value ? "true" : "false");
-}
-
-void printString(const std::string& value, std::ostream& json)
-{
-    json << '"' << value << '"';
-}
-
-void printInteger(long value, std::ostream& json)
-{
-    json << value;
-}
-
-void printFloat(double value, std::ostream& json)
-{
-    std::array<char, 256> buffer;
-    (void) snprintf(buffer.data(), buffer.size(), "%e", value);
-    json << std::string(buffer.data());
-}
-
+} // namespace details
 } // namespace json
 } // reflect

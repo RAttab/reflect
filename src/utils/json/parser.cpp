@@ -1,207 +1,394 @@
 /* parser.cpp                                 -*- C++ -*-
-   Rémi Attab (remi.attab@gmail.com), 19 Apr 2014
+   Rémi Attab (remi.attab@gmail.com), 12 Apr 2015
    FreeBSD-style copyright and disclaimer apply
-
-   Json parser implementation.
 */
-
-#include "parser.h"
-#include "token.h"
-#include "types/primitives.h"
-#include "types/std/string.h"
-#include "types/reflect/type.h"
-
-#include <sstream>
 
 namespace reflect {
 namespace json {
-
-
-/******************************************************************************/
-/* UTILS                                                                      */
-/******************************************************************************/
-
 namespace {
 
-const Type* getValueType(Value& value)
+/******************************************************************************/
+/* CUSTOM PARSER                                                              */
+/******************************************************************************/
+
+std::string customParser(const Type* type)
 {
-    return value.type()->call<const Type*>("valueType");
+    if (!type->is("json")) return "";
+    return type->getValue<json::Traits>("json").parser;
 }
 
-const Type* getFieldType(Value& value, const std::string& field)
+/******************************************************************************/
+/* PARSER                                                                     */
+/******************************************************************************/
+
+struct Parser
 {
-    return value.type()->fieldType(field);
+    virtual ~Parser() {};
+    virtual void init(const Type*) {}
+    virtual void parse(Reader& reader, Value& value) const = 0;
+};
+
+const Parser* getParser(const Type* type);
+
+
+/******************************************************************************/
+/* TypeDetails                                                                */
+/******************************************************************************/
+
+struct TypeParser
+{
+    void init(const Type* type)
+    {
+        movable = type->isMovable();
+        parser = getParser(this->type = type);
+    }
+
+    bool movable;
+    const Type* type;
+    const Parser* parser;
+};
+
+
+/******************************************************************************/
+/* BASIC PARSERS                                                              */
+/******************************************************************************/
+
+struct BoolParser : public Parser
+{
+    void parse(Reader& reader, Value& value) const
+    {
+        value.assign(parseBool(reader));
+    }
+};
+
+struct IntParser : public Parser
+{
+    void parse(Reader& reader, Value& value) const
+    {
+        value.assign(parseInt(reader));
+    }
+};
+
+struct FloatParser : public Parser
+{
+    void parse(Reader& reader, Value& value) const
+    {
+        value.assign(parseFloat(reader));
+    }
+};
+
+struct StringParser : public Parser
+{
+    void parse(Reader& reader, Value& value) const
+    {
+        value.assign(parseString(reader));
+    }
+};
+
+
+/******************************************************************************/
+/* POINTER PARSER                                                             */
+/******************************************************************************/
+
+struct PointerParser : public Parser
+{
+    void init(const Type* type)
+    {
+        inner.init(type->pointee());
+        isSmartPtr = type->is("smartPtr");
+    }
+
+    void parse(Reader& reader, Value& ptr) const
+    {
+        if (reader.peekToken().type() == Token::Null) {
+            reader.nextToken();
+
+            if (isSmartPtr) ptr.call<void>("reset");
+            else ptr = inner.type->construct();
+
+            return;
+        }
+
+        if (cast<bool>(ptr)) {
+            Value pointee = *ptr;
+            inner.parser->parse(reader, pointee);
+        }
+
+        else {
+            Value value = inner.type->alloc();
+            Value pointee = *value;
+            inner.parser->parse(reader, pointee);
+
+            if (isSmartPtr) ptr.call<void>("reset", value);
+            else ptr.assign(value);
+        }
+    }
+
+private:
+    TypeParser inner;
+    bool isSmartPtr;
+};
+
+
+/******************************************************************************/
+/* ARRAY PARSER                                                               */
+/******************************************************************************/
+
+struct ArrayParser : public Parser
+{
+    void init(const Type* type)
+    {
+        inner.init(type->getValue<const Type*>("valueType"));
+    }
+
+    void parse(Reader& reader, Value& array) const
+    {
+        auto onItem = [&] (size_t) {
+            Value item = inner.type->construct();
+
+            inner.parser->parse(reader, item);
+            if (!reader) return;
+
+            if (inner.movable) item = item.rvalue();
+            array.call<void>("push_back", item);
+        };
+        parseArray(reader, onItem);
+    }
+
+private:
+    TypeParser inner;
+};
+
+
+/******************************************************************************/
+/* MAP PARSER                                                                 */
+/******************************************************************************/
+
+struct MapParser : public Parser
+{
+    void init(const Type* type)
+    {
+        inner.init(type->getValue<const Type*>("valueType"));
+    }
+
+    void parse(Reader& reader, Value& map) const
+    {
+        // need to copy the key because we use the key only after we've parsed
+        // the value.
+        auto onField = [&] (std::string key) {
+            Value value = inner.type->construct();
+
+            inner.parser->parse(reader, value);
+            if (!reader) return;
+
+            if (inner.movable) value = value.rvalue();
+            map[key].assign(value);
+        };
+        parseObject(reader, onField);
+    }
+
+
+private:
+    TypeParser inner;
+};
+
+
+/******************************************************************************/
+/* OBJECT PARSER                                                              */
+/******************************************************************************/
+
+struct ObjectParser : public Parser
+{
+    void init(const Type* type)
+    {
+        for (std::string key : type->fields()) {
+            const Field& field = type->field(key);
+
+            std::string alias = key;
+            if (field.is("json")) {
+                auto traits = field.getValue<Traits>("json");
+                if (traits.skip) continue;
+                if (!traits.alias.empty()) alias = traits.alias;
+            }
+
+            if (keys.count(alias))
+                reflectError("duplicate json key <%s> in <%s>", alias, type->id());
+            keys[alias] = key;
+
+            TypeParser inner;
+            inner.init(field.type());
+            fields.emplace(key, inner);
+        }
+    }
+
+    void parse(Reader& reader, Value& obj) const
+    {
+        auto onField = [&] (const std::string& alias) {
+            auto keyIt = keys.find(alias);
+            if (keyIt == keys.end()) {
+                skip(reader);
+                return;
+            }
+
+            const std::string& key = keyIt->second;
+
+            auto fieldIt = fields.find(key);
+            if (fieldIt == fields.end())
+                reflectError("missing field <%s> for alias <%s>", key, alias);
+
+            Value field = obj.field(key);
+            fieldIt->second.parser->parse(reader, field);
+        };
+        parseObject(reader, onField);
+    }
+
+private:
+    std::unordered_map<std::string, std::string> keys;
+    std::unordered_map<std::string, TypeParser> fields;
+};
+
+
+/******************************************************************************/
+/* CUSTOM PARSER                                                              */
+/******************************************************************************/
+
+struct CustomParser : public Parser
+{
+    void init(const Type* type)
+    {
+        std::string name = customParser(type);
+        if (name.empty())
+            reflectError("no parser function defined for <%s>", type->id());
+
+        parser = &type->function(name).get<void(Value, Reader&)>();
+    }
+
+    void parse(Reader& reader, Value& value) const
+    {
+        parser->call<void>(value, reader);
+    }
+
+private:
+    const Function* parser;
+};
+
+
+/******************************************************************************/
+/* VALUE PARSER                                                               */
+/******************************************************************************/
+
+struct ValueParser : public Parser
+{
+    typedef std::vector<Value> ArrayT;
+    typedef std::unordered_map<std::string, Value> ObjectT;
+
+    void parse(Reader& reader, Value& value) const
+    {
+        Token token = reader.peekToken();
+
+        if (token.type() == Token::Null) parseNull(reader);
+
+        else if (token.type() == Token::Bool) value = Value(parseBool(reader));
+        else if (token.type() == Token::Int) value = Value(parseInt(reader));
+        else if (token.type() == Token::Float) value = Value(parseFloat(reader));
+        else if (token.type() == Token::String) value = Value(parseString(reader));
+
+        else if (token.type() == Token::ArrayStart) {
+            ArrayT array;
+
+            auto onItem = [&] (size_t) {
+                Value item;
+                this->parse(reader, item);
+                array.emplace_back(std::move(item));
+            };
+            parseArray(reader, onItem);
+
+            value = Value(std::move(array));
+        }
+
+        else if (token.type() == Token::ObjectStart) {
+            ObjectT obj;
+
+            auto onField = [&] (std::string key) {
+                Value field;
+                this->parse(reader, field);
+                obj.emplace(std::move(key), std::move(field));
+            };
+            parseObject(reader, onField);
+
+            value = Value(std::move(obj));
+        }
+
+        else reader.error("unknown expected token <%s>", token.print());
+
+        if (!value.isVoid() && !value.isStored())
+            reflectError("value is not stored for type <%s>", value.type()->id());
+    }
+};
+
+
+/******************************************************************************/
+/* GET PARSER                                                                 */
+/******************************************************************************/
+
+const Parser* getParser(const Type* type)
+{
+    static std::unordered_map<const Type*, const Parser*> parsers;
+
+    auto it = parsers.find(type);
+    if (it != parsers.end()) return it->second;
+
+    Parser* parser = nullptr;
+
+    if (type->is("bool")) parser = new BoolParser;
+    else if (type->is("float")) parser = new FloatParser;
+    else if (type->is("integer")) parser = new IntParser;
+    else if (type->is("string")) parser = new StringParser;
+
+    else if (type->isPointer()) parser = new PointerParser;
+    else if (type->is("map")) parser = new MapParser;
+    else if (type->is("list")) parser = new ArrayParser;
+
+    else if (!customParser(type).empty()) parser = new CustomParser;
+    else if (type == reflect::type<void>()) parser = new ValueParser;
+
+    else parser = new ObjectParser;
+
+    parsers[type] = parser;
+    parser->init(type);
+
+    return parser;
+}
+
+const Parser* getParserLocked(const Type* type)
+{
+    static std::mutex mutex;
+    std::lock_guard<std::mutex> guard(mutex);
+
+    return getParser(type);
 }
 
 } // namespace anonymous
 
 
 /******************************************************************************/
-/* PARSER                                                                     */
+/* PARSE                                                                      */
 /******************************************************************************/
 
-void parseInto(Value& value, Token token, std::istream& json);
-
-
-void parseNull(Value& value)
+void parse(Reader& reader, Value& value)
 {
-    if (value.is("pointer"))
-        value.assign(value.type()->construct());
-
-    else {
-        reflectError("can't assign null to non-pointer type <%s>",
-                value.typeId());
-    }
-}
-
-void parseBool(Value& value, const Token& token)
-{
-    if (value.is("bool"))
-        value.assign(token.boolValue());
-
-    else {
-        reflectError("can't assign <%d> to non-bool type <%s>",
-                token.boolValue(), value.typeId());
-    }
-}
-
-void parseNumber(Value& value, const Token& token)
-{
-    if (value.is("integer"))
-        value.assign(token.intValue());
-
-    else if (value.is("float"))
-        value.assign(token.floatValue());
-
-    else {
-        reflectError("can't assign <%s> to non-number type <%s>",
-                token.stringValue(), value.typeId());
-    }
-}
-
-void parseString(Value& value, const Token& token)
-{
-    if (value.is("string"))
-        value.assign(token.stringValue());
-
-    else {
-        reflectError("can't assign <%s> to non-string type <%s>",
-                token.stringValue(), value.typeId());
-    }
-}
-
-void parseArray(Value& value, std::istream& json)
-{
-    if (!value.is("list")) {
-        reflectError("can't assign array to non-array type <%s>",
-                value.typeId());
-    }
-
-    auto type = getValueType(value);
-
-    Token token = nextToken(json);
-    if (token.type() == Token::ArrayEnd) return;
-
-    while (json) {
-
-        Value item = type->construct();
-        parseInto(item, token, json);
-        value.call<void>("push_back", item.rvalue());
-
-        token = nextToken(json);
-        if (token.type() == Token::Separator) {
-            token = nextToken(json);
-            continue;
-        }
-
-        expectToken(token, Token::ArrayEnd);
-        return;
-    }
-
-    reflectError("unexpected end of array");
-}
-
-void parseObject(Value& value, std::istream& json)
-{
-    if (value.is("primitive") || value.is("list") || value.is("string")) {
-        reflectError("can't assign object to non-object type <%s>",
-                value.typeId());
-    }
-
-    Token token = nextToken(json);
-    if (token.type() == Token::ObjectEnd) return;
-
-    bool isMap = value.is("map");
-    const Type* tValue = nullptr;
-    if (isMap) tValue = getValueType(value);
-
-    while (json) {
-
-        expectToken(token, Token::String);
-        const std::string key = token.stringValue();
-
-        expectToken(nextToken(json), Token::KeySeparator);
-
-        const Type* type = isMap ? tValue : getFieldType(value, key);
-        Value item = type->construct();
-        parseInto(item, json);
-
-        if (isMap) value[key].assign(item.rvalue());
-        else value.set(key, item.rvalue());
-
-        token = nextToken(json);
-        if (token.type() == Token::Separator) {
-            token = nextToken(json);
-            continue;
-        }
-
-        expectToken(token, Token::ObjectEnd);
-        return;
-    }
-
-    reflectError("unexpected end of object");
-}
-
-
-void parseInto(Value& value, Token token, std::istream& json)
-{
-    switch (token.type())
-    {
-    case Token::Null: parseNull(value); break;
-    case Token::Bool: parseBool(value, token); break;
-    case Token::Number: parseNumber(value, token); break;
-    case Token::String: parseString(value, token); break;
-    case Token::ArrayStart: parseArray(value, json); break;
-    case Token::ObjectStart: parseObject(value, json); break;
-
-    default: reflectError("unexpected token <%s>", print(token.type()));
-    }
-}
-
-
-void parseInto(Value& value, std::istream& json)
-{
-    parseInto(value, nextToken(json), json);
-}
-
-void parseInto(Value& value, const std::string& json)
-{
-    std::stringstream ss(json);
-    parseInto(value, ss);
-}
-
-Value parse(const Type* type, std::istream& json)
-{
-    Value value = type->construct();
-    parseInto(value, json);
-    return value;
-}
-
-Value parse(const Type* type, const std::string& json)
-{
-    std::stringstream ss(json);
-    return parse(type, ss);
+    getParserLocked(value.type())->parse(reader, value);
 }
 
 } // namespace json
-} // reflect
+} // namespace reflect
+
+
+/******************************************************************************/
+/* LOADER                                                                     */
+/******************************************************************************/
+// Since the ValueParser templated types are unlikely to show up in a reflection
+// somewhere, we therefore need to manually ensure that they're registered.
+
+reflectTypeLoader(reflect::json::ValueParser::ArrayT)
+reflectTypeLoader(reflect::json::ValueParser::ObjectT)

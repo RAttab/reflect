@@ -17,6 +17,17 @@ namespace reflect {
 Value::
 Value() : value_(nullptr) {}
 
+// This is required to avoid trigerring the templated constructor for Value when
+// trying to copy non-const Values. This is common in data-structures like
+// vectors where entries would get infinitely wrapped in layers of Values
+// everytime a resize takes place.
+Value::
+Value(Value& other) :
+    arg(other.arg),
+    value_(other.value_),
+    storage(other.storage)
+{}
+
 Value::
 Value(const Value& other) :
     arg(other.arg),

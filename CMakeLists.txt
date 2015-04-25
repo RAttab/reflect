@@ -102,13 +102,14 @@ add_library(reflect_primitives SHARED
     src/types/primitive_short.cpp
     src/types/primitive_int.cpp
     src/types/primitive_long.cpp
-    src/types/primitive_long_long.cpp)
+    src/types/primitive_long_long.cpp
+    src/types/primitive_float.cpp)
 
 add_library(reflect_std SHARED
     src/types/std/string.cpp)
 
-# add_library(reflect_json SHARED src/utils/json/json.cpp)
-# target_link_libraries(reflect_json reflect)
+add_library(reflect_json SHARED src/utils/json/json.cpp)
+target_link_libraries(reflect_json reflect)
 
 # add_library(reflect_config SHARED src/utils/config/compile.cpp)
 # target_link_libraries(reflect_config reflect_json)
@@ -120,7 +121,14 @@ add_library(reflect_std SHARED
 # INSTALL
 #------------------------------------------------------------------------------#
 
-install(TARGETS reflect DESTINATION lib)
+install(
+    TARGETS
+    reflect
+    reflect_primitives
+    reflect_std
+    reflect_json
+    DESTINATION
+    lib)
 
 install(
     FILES
@@ -179,8 +187,29 @@ install(
     src/types/std/smart_ptr.h
     src/types/std/string.h
     src/types/std/vector.h
+    src/types/std/map.h
     DESTINATION
     include/reflect/types/std)
+
+install(
+    FILES
+    src/utils/json/error.h
+    src/utils/json/format.h
+    src/utils/json/json.h
+    src/utils/json/parser.h
+    src/utils/json/parser.tcc
+    src/utils/json/printer.h
+    src/utils/json/printer.tcc
+    src/utils/json/reader.h
+    src/utils/json/reader.tcc
+    src/utils/json/token.h
+    src/utils/json/traits.h
+    src/utils/json/utils.h
+    src/utils/json/writer.h
+    src/utils/json/writer.tcc
+
+    DESTINATION
+    include/reflect/utils/json)
 
 
 #------------------------------------------------------------------------------#
@@ -192,20 +221,14 @@ force_target_link_libraries(reflect_test reflect_primitives)
 
 function(reflect_test name)
     if(CMAKE_SOURCE_DIR STREQUAL ${PROJECT_SOURCE_DIR})
+        file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin)
         add_executable(${name}_test tests/${name}_test.cpp)
-        target_link_libraries(${name}_test reflect)
+        force_target_link_libraries(${name}_test reflect)
         force_target_link_libraries(${name}_test reflect_primitives)
         force_target_link_libraries(${name}_test reflect_test)
         force_target_link_libraries(${name}_test reflect_std)
         target_link_libraries(${name}_test boost_unit_test_framework)
         add_test(${name} bin/${name}_test)
-    endif()
-endfunction()
-
-function(reflect_utils_test utils name)
-    if(CMAKE_SOURCE_DIR STREQUAL ${PROJECT_SOURCE_DIR})
-        reflect_test(${name})
-        target_link_libraries(${name}_test reflect_${utils})
     endif()
 endfunction()
 
@@ -219,10 +242,40 @@ reflect_test(function)
 reflect_test(pointer)
 reflect_test(reflection)
 reflect_test(demo)
-# reflect_utils_test(json json)
+
+
+function(reflect_utils_test utils name)
+    if(CMAKE_SOURCE_DIR STREQUAL ${PROJECT_SOURCE_DIR})
+        file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/utils/${utils})
+        reflect_test(utils/${utils}/${name})
+        target_link_libraries(utils/${utils}/${name}_test reflect_${utils})
+    endif()
+endfunction()
+
+
+add_library(reflect_utils_json_test SHARED tests/utils/json/test_types.cpp)
+target_link_libraries(reflect_utils_json_test reflect_json)
+
+function(reflect_json_test name)
+    if(CMAKE_SOURCE_DIR STREQUAL ${PROJECT_SOURCE_DIR})
+        reflect_utils_test(json ${name})
+        force_target_link_libraries(utils/json/${name}_test reflect_utils_json_test)
+    endif()
+endfunction()
+
+reflect_json_test(reader)
+reflect_json_test(format)
+reflect_json_test(parser)
+reflect_json_test(printer)
+reflect_json_test(value_parser)
+reflect_json_test(value_printer)
+
+
+
 # reflect_utils_test(config path)
 # reflect_utils_test(config cubes)
 
+# exists mostly as a scratch pad.
 add_executable(blah_test tests/blah_test.cpp)
 target_link_libraries(blah_test reflect)
 force_target_link_libraries(blah_test reflect_primitives)
@@ -235,12 +288,12 @@ force_target_link_libraries(blah_test reflect_std)
 
 function(reflect_cperf name)
     if(CMAKE_SOURCE_DIR STREQUAL ${PROJECT_SOURCE_DIR})
-        add_executable(${name}_test tests/cperf/${name}_test.cpp)
-        target_link_libraries(${name}_test reflect)
-        add_test(cperf_${name} bin/${name}_test)
+        file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cperf)
+        add_executable(cperf/${name}_test tests/cperf/${name}_test.cpp)
+        target_link_libraries(cperf/${name}_test reflect)
+        add_test(cperf/${name} bin/cperf/${name}_test)
     endif()
 endfunction()
-
 
 reflect_cperf(type_lookup)
 reflect_cperf(reflect_args)

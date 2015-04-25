@@ -24,17 +24,20 @@ reflectTemplate(std::vector, ValueT)
     reflectPlumbing();
 
     reflectTypeTrait(list);
-    reflectCustom(valueType) { return type<ValueT>(); };
+    reflectTypeValue(valueType, type<ValueT>());
 
     reflectFn(size);
+    reflectFn(clear);
     reflectFnTyped(resize, void (T_::*) (size_t));
     reflectFnTyped(push_back, void (T_::*) (const ValueT&));
     reflectFnTyped(push_back, void (T_::*) (ValueT&&));
 
-    reflectCustom(operator[]) (const T_& value, size_t i) -> const ValueT& {
+    reflectCustom(operator[]) (T_& value, size_t i) -> ValueT& {
         return value[i];
     };
-    reflectCustom(operator[]) (T_& value, size_t i) -> ValueT& {
+    reflectCustom(at) (const T_& value, size_t i) -> const ValueT& {
+        if (i >= value.size())
+            reflectError("index <%lu> out-of-bound <%lu>", i, value.size());
         return value[i];
     };
 }

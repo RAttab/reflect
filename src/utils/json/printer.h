@@ -1,37 +1,49 @@
 /* printer.h                                 -*- C++ -*-
-   Rémi Attab (remi.attab@gmail.com), 20 Apr 2014
+   Rémi Attab (remi.attab@gmail.com), 14 Apr 2015
    FreeBSD-style copyright and disclaimer apply
-
-   Json printer.
 */
 
 #pragma once
 
-#include "reflect.h"
-
 namespace reflect {
 namespace json {
 
+/******************************************************************************/
+/* GENERIC PRINTER                                                            */
+/******************************************************************************/
+
+void printNull(Writer& writer);
+void printBool(Writer& writer, bool value);
+void printInt(Writer& writer, int64_t value);
+void printFloat(Writer& writer, double value);
+void printString(Writer& writer, const std::string& value);
+
+void printBool(Writer& writer, const Value& value);
+void printInt(Writer& writer, const Value& value);
+void printFloat(Writer& writer, const Value& value);
+void printString(Writer& writer, const Value& value);
+
+template<typename Keys, typename Fn>
+void printObject(Writer& writer, const Keys& keys, const Fn& printFn);
+
+template<typename Keys, typename PrintFn, typename SkipFn>
+void printObject(Writer& writer, const Keys& keys, const PrintFn& printFn, const SkipFn& skipFn);
+
+template<typename Fn>
+void printArray(Writer& writer, size_t n, const Fn& printFn);
+
+template<typename PrintFn, typename SkipFn>
+void printArray(Writer& writer, size_t n, const PrintFn& printFn, const SkipFn& skipFn);
+
 
 /******************************************************************************/
-/* PRINT                                                                      */
+/* VALUE PRINTER                                                              */
 /******************************************************************************/
 
-std::string print(Value& value, bool pretty = false);
-void print(const Value& value, std::ostream& json, bool pretty = false);
-
-template<typename T>
-void print(const T& value, std::ostream& json, bool pretty = false)
-{
-    print(Value(value), json, pretty);
-}
-
-template<typename T>
-std::string print(const T& value, bool pretty = false)
-{
-    return print(Value(value), pretty);
-}
-
+void print(Writer& writer, const Value& value);
+template<typename T> Error print(Writer& writer, const T& value);
+template<typename T> Error print(std::ostream& stream, const T& value);
+template<typename T> std::pair<std::string, Error> print(const T& value);
 
 } // namespace json
-} // reflect
+} // namespace reflect

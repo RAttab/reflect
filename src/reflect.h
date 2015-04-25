@@ -27,6 +27,7 @@
 #include <iostream> // used only in print functions.
 
 #include "utils.h"
+#include "error.h"
 #include "clean_type.h"
 #include "ref_type.h"
 #include "type_vector.h"

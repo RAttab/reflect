@@ -30,7 +30,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-using namespace std;
 using namespace reflect;
 
 
@@ -132,43 +131,43 @@ BOOST_AUTO_TEST_CASE(pointer_call)
     Obj** ppo = &po;
     Obj const* cpo = &o;
 
-    BOOST_CHECK_THROW(ptrFn.call<Obj*>(o  ), ReflectError);
+    BOOST_CHECK_THROW(ptrFn.call<Obj*>(o  ), Error);
     BOOST_CHECK_EQUAL(ptrFn.call<Obj*>(po ), doPtr(po));
-    BOOST_CHECK_THROW(ptrFn.call<Obj*>(ppo), ReflectError);
+    BOOST_CHECK_THROW(ptrFn.call<Obj*>(ppo), Error);
     BOOST_CHECK_EQUAL(ptrFn.call<Obj*>(cpo), doPtr(po)); // Not an error.
-    BOOST_CHECK_THROW(ptrFn.call<Obj*>(Value(o  )), ReflectError);
+    BOOST_CHECK_THROW(ptrFn.call<Obj*>(Value(o  )), Error);
     BOOST_CHECK_EQUAL(ptrFn.call<Obj*>(Value(po )), doPtr(po));
-    BOOST_CHECK_THROW(ptrFn.call<Obj*>(Value(ppo)), ReflectError);
+    BOOST_CHECK_THROW(ptrFn.call<Obj*>(Value(ppo)), Error);
     BOOST_CHECK_EQUAL(ptrFn.call<Obj*>(Value(cpo)), doPtr(po)); // not an error.
-    BOOST_CHECK_THROW(ptrFn.call<Obj       >(po), ReflectError);
+    BOOST_CHECK_THROW(ptrFn.call<Obj       >(po), Error);
     BOOST_CHECK_EQUAL(ptrFn.call<Obj *     >(po), doPtr(po));
-    BOOST_CHECK_THROW(ptrFn.call<Obj **    >(po), ReflectError);
+    BOOST_CHECK_THROW(ptrFn.call<Obj **    >(po), Error);
     BOOST_CHECK_EQUAL(ptrFn.call<Obj const*>(po), doPtr(po));
 
-    BOOST_CHECK_THROW(ptrPtrFn.call<Obj**>(o  ), ReflectError);
-    BOOST_CHECK_THROW(ptrPtrFn.call<Obj**>(po ), ReflectError);
+    BOOST_CHECK_THROW(ptrPtrFn.call<Obj**>(o  ), Error);
+    BOOST_CHECK_THROW(ptrPtrFn.call<Obj**>(po ), Error);
     BOOST_CHECK_EQUAL(ptrPtrFn.call<Obj**>(ppo), doPtrPtr(ppo));
-    BOOST_CHECK_THROW(ptrPtrFn.call<Obj**>(cpo), ReflectError);
-    BOOST_CHECK_THROW(ptrPtrFn.call<Obj**>(Value(o  )), ReflectError);
-    BOOST_CHECK_THROW(ptrPtrFn.call<Obj**>(Value(po )), ReflectError);
+    BOOST_CHECK_THROW(ptrPtrFn.call<Obj**>(cpo), Error);
+    BOOST_CHECK_THROW(ptrPtrFn.call<Obj**>(Value(o  )), Error);
+    BOOST_CHECK_THROW(ptrPtrFn.call<Obj**>(Value(po )), Error);
     BOOST_CHECK_EQUAL(ptrPtrFn.call<Obj**>(Value(ppo)), doPtrPtr(ppo));
-    BOOST_CHECK_THROW(ptrPtrFn.call<Obj**>(Value(cpo)), ReflectError);
-    BOOST_CHECK_THROW(ptrPtrFn.call<Obj       >(ppo), ReflectError);
-    BOOST_CHECK_THROW(ptrPtrFn.call<Obj *     >(ppo), ReflectError);
+    BOOST_CHECK_THROW(ptrPtrFn.call<Obj**>(Value(cpo)), Error);
+    BOOST_CHECK_THROW(ptrPtrFn.call<Obj       >(ppo), Error);
+    BOOST_CHECK_THROW(ptrPtrFn.call<Obj *     >(ppo), Error);
     BOOST_CHECK_EQUAL(ptrPtrFn.call<Obj **    >(ppo), doPtrPtr(ppo));
-    BOOST_CHECK_THROW(ptrPtrFn.call<Obj const*>(ppo), ReflectError);
+    BOOST_CHECK_THROW(ptrPtrFn.call<Obj const*>(ppo), Error);
 
-    BOOST_CHECK_THROW(constPtrFn.call<Obj const*>(o  ), ReflectError);
+    BOOST_CHECK_THROW(constPtrFn.call<Obj const*>(o  ), Error);
     BOOST_CHECK_EQUAL(constPtrFn.call<Obj const*>(po ), doConstPtr(po));
-    BOOST_CHECK_THROW(constPtrFn.call<Obj const*>(ppo), ReflectError);
+    BOOST_CHECK_THROW(constPtrFn.call<Obj const*>(ppo), Error);
     BOOST_CHECK_EQUAL(constPtrFn.call<Obj const*>(cpo), doConstPtr(cpo));
-    BOOST_CHECK_THROW(constPtrFn.call<Obj const*>(Value(o  )), ReflectError);
+    BOOST_CHECK_THROW(constPtrFn.call<Obj const*>(Value(o  )), Error);
     BOOST_CHECK_EQUAL(constPtrFn.call<Obj const*>(Value(po )), doConstPtr(po));
-    BOOST_CHECK_THROW(constPtrFn.call<Obj const*>(Value(ppo)), ReflectError);
+    BOOST_CHECK_THROW(constPtrFn.call<Obj const*>(Value(ppo)), Error);
     BOOST_CHECK_EQUAL(constPtrFn.call<Obj const*>(Value(cpo)), doConstPtr(cpo));
-    BOOST_CHECK_THROW(constPtrFn.call<Obj       >(cpo), ReflectError);
+    BOOST_CHECK_THROW(constPtrFn.call<Obj       >(cpo), Error);
                       constPtrFn.call<Obj *     >(cpo);
-    BOOST_CHECK_THROW(constPtrFn.call<Obj **    >(cpo), ReflectError);
+    BOOST_CHECK_THROW(constPtrFn.call<Obj **    >(cpo), Error);
     BOOST_CHECK_EQUAL(constPtrFn.call<Obj const*>(cpo), doConstPtr(cpo));
 
 }
@@ -249,28 +248,28 @@ BOOST_AUTO_TEST_CASE(childParent_call)
     SmartParent sp(new Parent);
 
     BOOST_CHECK_EQUAL(childFn.call<Child*>(pc), doChild(pc));
-    BOOST_CHECK_THROW(childFn.call<Child*>(pp), ReflectError);
-    BOOST_CHECK_THROW(childFn.call<Child*>(sc), ReflectError);
+    BOOST_CHECK_THROW(childFn.call<Child*>(pp), Error);
+    BOOST_CHECK_THROW(childFn.call<Child*>(sc), Error);
     BOOST_CHECK_EQUAL(childFn.call<Parent*>(pc), doChild(pc));
-    BOOST_CHECK_THROW(childFn.call<SmartChild>(pc), ReflectError);
+    BOOST_CHECK_THROW(childFn.call<SmartChild>(pc), Error);
 
     BOOST_CHECK_EQUAL(parentFn.call<Parent*>(pc), doParent(pc));
     BOOST_CHECK_EQUAL(parentFn.call<Parent*>(pp), doParent(pp));
-    BOOST_CHECK_THROW(parentFn.call<Parent*>(sp), ReflectError);
-    BOOST_CHECK_THROW(parentFn.call<Child*>(pp), ReflectError);
-    BOOST_CHECK_THROW(parentFn.call<SmartParent>(pp), ReflectError);
+    BOOST_CHECK_THROW(parentFn.call<Parent*>(sp), Error);
+    BOOST_CHECK_THROW(parentFn.call<Child*>(pp), Error);
+    BOOST_CHECK_THROW(parentFn.call<SmartParent>(pp), Error);
 
-    BOOST_CHECK_THROW(smartChildFn.call<SmartChild>(pc), ReflectError);
+    BOOST_CHECK_THROW(smartChildFn.call<SmartChild>(pc), Error);
     BOOST_CHECK_EQUAL(smartChildFn.call<SmartChild>(sc), doSmartChild(sc));
-    BOOST_CHECK_THROW(smartChildFn.call<SmartChild>(sp), ReflectError);
-    BOOST_CHECK_THROW(smartChildFn.call<Child*>(sc), ReflectError);
+    BOOST_CHECK_THROW(smartChildFn.call<SmartChild>(sp), Error);
+    BOOST_CHECK_THROW(smartChildFn.call<Child*>(sc), Error);
     BOOST_CHECK_EQUAL(smartChildFn.call<SmartParent>(sc), doSmartChild(sc));
 
-    BOOST_CHECK_THROW(smartParentFn.call<SmartParent>(pp), ReflectError);
+    BOOST_CHECK_THROW(smartParentFn.call<SmartParent>(pp), Error);
     BOOST_CHECK_EQUAL(smartParentFn.call<SmartParent>(sc), doSmartParent(sc));
     BOOST_CHECK_EQUAL(smartParentFn.call<SmartParent>(sp), doSmartParent(sp));
-    BOOST_CHECK_THROW(smartParentFn.call<Parent*>(sp), ReflectError);
-    BOOST_CHECK_THROW(smartParentFn.call<SmartChild>(sp), ReflectError);
+    BOOST_CHECK_THROW(smartParentFn.call<Parent*>(sp), Error);
+    BOOST_CHECK_THROW(smartParentFn.call<SmartChild>(sp), Error);
 }
 
 

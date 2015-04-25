@@ -25,7 +25,7 @@ struct Traits
     bool is(const std::string& trait) const;
 
     template<typename Ret>
-    Ret getTrait(const std::string& trait) const;
+    Ret getValue(const std::string& trait) const;
 
 protected:
 

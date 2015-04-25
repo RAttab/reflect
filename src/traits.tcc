@@ -25,7 +25,7 @@ addTrait(const std::string& trait, T&& value)
 template<typename Ret>
 Ret
 Traits::
-getTrait(const std::string& trait) const
+getValue(const std::string& trait) const
 {
     auto it = traits_.find(trait);
     if (it != traits_.end())

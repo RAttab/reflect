@@ -1,61 +1,37 @@
 /* parser.h                                 -*- C++ -*-
-   Rémi Attab (remi.attab@gmail.com), 19 Apr 2014
+   Rémi Attab (remi.attab@gmail.com), 12 Apr 2015
    FreeBSD-style copyright and disclaimer apply
-
-   Json parser
 */
 
+#include "json.h"
 #pragma once
-
-#include "reflect.h"
 
 namespace reflect {
 namespace json {
 
 
 /******************************************************************************/
-/* PARSE INTO                                                                 */
+/* GENERIC PARSER                                                             */
 /******************************************************************************/
 
-void parseInto(Value& value, std::istream& json);
-void parseInto(Value& value, const std::string& json);
-
-template<typename T>
-void parseInto(T& value, std::istream& json)
-{
-    Value v(value);
-    parseInto(v, json);
-}
-
-template<typename T>
-void parseInto(T& value, const std::string& json)
-{
-    Value v(value);
-    parseInto(v, json);
-}
+inline void skip(Reader& reader);
+inline void parseNull(Reader& reader);
+inline bool parseBool(Reader& reader);
+inline int64_t parseInt(Reader& reader);
+inline double parseFloat(Reader& reader);
+inline std::string parseString(Reader& reader);
+template<typename Fn> void parseObject(Reader& reader, const Fn& fn);
+template<typename Fn> void parseArray(Reader& reader, const Fn& fn);
 
 
 /******************************************************************************/
-/* PARSE                                                                      */
+/* VALUE PARSER                                                               */
 /******************************************************************************/
 
-Value parse(const Type* type, std::istream& json);
-Value parse(const Type* type, const std::string& json);
-
-template<typename T>
-T parse(std::istream& json)
-{
-    Value v = parse(type<T>(), json);
-    return v.get<T>();
-}
-
-template<typename T>
-T parse(const std::string& json)
-{
-    Value v = parse(type<T>(), json);
-    return v.get<T>();
-}
-
+void parse(Reader& reader, Value& value);
+template<typename T> void parse(Reader& reader, T& value);
+template<typename T> Error parse(std::istream& stream, T& value);
+template<typename T> Error parse(const std::string& str, T& value);
 
 } // namespace json
-} // reflect
+} // namespace reflect
