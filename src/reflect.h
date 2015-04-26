@@ -40,18 +40,21 @@ struct Scope;
 struct Value;
 struct Field;
 struct Function;
+struct Callable;
 struct Overloads;
 
 } // namespace reflect
 
 #include "registry.h"
 #include "argument.h"
+#include "signature.h"
 #include "value.h"
 #include "traits.h"
 #include "cast.h"
 #include "value_function.h"
 #include "field.h"
 #include "function.h"
+#include "callable.h"
 #include "overloads.h"
 #include "type.h"
 #include "scope.h"

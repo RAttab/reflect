@@ -30,6 +30,7 @@ struct Type : public Traits
     template<typename Fn>
     void addFunction(const std::string& name, Fn&& rawFn);
     void addFunction(const std::string& name, Function&& fn);
+    void addCallable(const std::string& name, Callable* fn);
 
     std::vector<std::string> functions() const;
     bool hasFunction(const std::string& fn) const;

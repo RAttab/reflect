@@ -102,6 +102,13 @@ addFunction(const std::string& name, Function&& fn)
 
 void
 Type::
+addCallable(const std::string&, Callable*)
+{
+
+}
+
+void
+Type::
 functions(std::vector<std::string>& result) const
 {
     result.reserve(result.size() + fns_.size());
