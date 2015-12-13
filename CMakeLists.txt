@@ -14,14 +14,14 @@ project(reflect)
 
 enable_testing()
 
-add_definitions("-Wall -Wextra -Werror -pedantic -g -O4")
+add_definitions("-Wall -Wextra -Werror -pedantic -g -O3")
 
 # We use the offsetof macro on non-pod types to get the offset of fields. May
 # not be portable beyond gcc.
 add_definitions("-Wno-invalid-offsetof")
 
 # For cperf optimization only.
-# add_definitions("-Wno-unused-variable -Wno-unused-parameter")
+# add_definitions("-Wno-unused-variable -Wno-unused-parameter -Wno-unused-but-set-variable")
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -220,16 +220,25 @@ add_library(reflect_test SHARED tests/test_types.cpp)
 force_target_link_libraries(reflect_test reflect_primitives)
 
 function(reflect_test name)
-    if(CMAKE_SOURCE_DIR STREQUAL ${PROJECT_SOURCE_DIR})
-        file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin)
-        add_executable(${name}_test tests/${name}_test.cpp)
-        force_target_link_libraries(${name}_test reflect)
-        force_target_link_libraries(${name}_test reflect_primitives)
-        force_target_link_libraries(${name}_test reflect_test)
-        force_target_link_libraries(${name}_test reflect_std)
-        target_link_libraries(${name}_test boost_unit_test_framework)
-        add_test(${name} bin/${name}_test)
+    if(${ARGC} GREATER 1)
+        set(src_path ${ARGN})
+    else()
+        set(src_path ${name})
     endif()
+
+    file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    add_executable(${name}_test tests/${src_path}_test.cpp)
+    force_target_link_libraries(${name}_test reflect)
+    force_target_link_libraries(${name}_test reflect_primitives)
+    force_target_link_libraries(${name}_test reflect_test)
+    force_target_link_libraries(${name}_test reflect_std)
+    target_link_libraries(${name}_test boost_unit_test_framework)
+    add_test(${name} bin/${name}_test)
+endfunction()
+
+function(reflect_utils_test utils name)
+    reflect_test(${utils}_${name} utils/${utils}/${name})
+    target_link_libraries(${utils}_${name}_test reflect_${utils})
 endfunction()
 
 reflect_test(ref)
@@ -244,23 +253,12 @@ reflect_test(reflection)
 reflect_test(demo)
 
 
-function(reflect_utils_test utils name)
-    if(CMAKE_SOURCE_DIR STREQUAL ${PROJECT_SOURCE_DIR})
-        file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/utils/${utils})
-        reflect_test(utils/${utils}/${name})
-        target_link_libraries(utils/${utils}/${name}_test reflect_${utils})
-    endif()
-endfunction()
-
-
 add_library(reflect_utils_json_test SHARED tests/utils/json/test_types.cpp)
 target_link_libraries(reflect_utils_json_test reflect_json)
 
 function(reflect_json_test name)
-    if(CMAKE_SOURCE_DIR STREQUAL ${PROJECT_SOURCE_DIR})
-        reflect_utils_test(json ${name})
-        force_target_link_libraries(utils/json/${name}_test reflect_utils_json_test)
-    endif()
+    reflect_utils_test(json ${name})
+    force_target_link_libraries(json_${name}_test reflect_utils_json_test)
 endfunction()
 
 reflect_json_test(reader)
@@ -287,12 +285,9 @@ force_target_link_libraries(blah_test reflect_std)
 #------------------------------------------------------------------------------#
 
 function(reflect_cperf name)
-    if(CMAKE_SOURCE_DIR STREQUAL ${PROJECT_SOURCE_DIR})
-        file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cperf)
-        add_executable(cperf/${name}_test tests/cperf/${name}_test.cpp)
-        target_link_libraries(cperf/${name}_test reflect)
-        add_test(cperf/${name} bin/cperf/${name}_test)
-    endif()
+    add_executable(cperf_${name}_test tests/cperf/${name}_test.cpp)
+    target_link_libraries(cperf_${name}_test reflect)
+    add_test(cperf_${name} bin/cperf_${name}_test)
 endfunction()
 
 reflect_cperf(type_lookup)
