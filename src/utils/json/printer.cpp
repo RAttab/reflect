@@ -53,19 +53,6 @@ std::string customPrinter(const Type* type)
     return type->getValue<json::Traits>("json").printer;
 }
 
-bool isSkip(const Type* type)
-{
-    if (!type->is("json")) return false;
-    return type->getValue<json::Traits>("json").skip;
-}
-
-bool isSkipEmpty(const Writer& writer, const Type* type)
-{
-    if (writer.compact()) return true;
-    if (!type->is("json")) return false;
-    return type->getValue<json::Traits>("json").skipEmpty;
-}
-
 
 /******************************************************************************/
 /* PRINTER                                                                    */
