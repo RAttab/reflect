@@ -12,6 +12,7 @@
 
 #include "registry.cpp"
 #include "argument.cpp"
+#include "cast.cpp"
 #include "traits.cpp"
 #include "value.cpp"
 #include "value_function.cpp"

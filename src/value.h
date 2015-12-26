@@ -100,16 +100,8 @@ struct Value
     bool is(const std::string& trait) const;
 
     // Get a reference to the value without any type checks.
+    template<typename T> T& as();
     template<typename T> const T& get() const;
-
-    template<typename T> auto cast() const -> typename CleanRef<T>::type;
-    template<typename T> bool isCastable() const;
-
-    template<typename T> auto copy() const -> typename CleanValue<T>::type;
-    template<typename T> bool isCopiable() const;
-
-    template<typename T> auto move() -> typename CleanValue<T>::type;
-    template<typename T> bool isMovable() const;
 
     Value rvalue() const;
     Value copy() const;

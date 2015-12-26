@@ -80,6 +80,18 @@ Value(T&& value) :
     arg = Argument(arg.type(), RefType::LValue, false);
 }
 
+template<typename T>
+T&
+Value::
+as()
+{
+    if (!type()->isChildOf<T>()) {
+        reflectError("<%s> is not a base of <%s>",
+                type()->id(), reflect::type<T>()->id());
+    }
+
+    return *static_cast<T*>(value_);
+}
 
 template<typename T>
 const T&
@@ -91,109 +103,7 @@ get() const
                 type()->id(), reflect::type<T>()->id());
     }
 
-    return *static_cast<T*>(value_);
-}
-
-
-template<typename T>
-bool
-Value::
-isCastable() const
-{
-    typedef typename CleanRef<T>::type RefT;
-    return arg.isConvertibleTo<RefT>() != Match::None;
-}
-
-template<typename T>
-auto
-Value::
-cast() const -> typename CleanRef<T>::type
-{
-    if (!isCastable<T>()) {
-        reflectError("<%s> is not castable to <%s>",
-                arg.print(), printArgument<T>());
-    }
-
-    // no conversion can take place if we're returning a ref.
-
-    typedef typename std::decay<T>::type CleanT;
-    return *static_cast<CleanT*>(value_);
-}
-
-
-template<typename T>
-T
-Value::
-convert() const
-{
-    reflectStaticAssert((std::is_same< T, typename std::decay<T>::type>::value));
-
-    auto& converter = type()->converter<T>();
-    return converter.call<T>(*this);
-}
-
-
-template<typename T>
-bool
-Value::
-isCopiable() const
-{
-    const Type* target = reflect::type<T>();
-    return target->isCopiable()
-        && (type()->isChildOf(target) || type()->hasConverter(target));
-}
-
-template<typename T>
-auto
-Value::
-copy() const -> typename CleanValue<T>::type
-{
-    if (!isCopiable<T>()) {
-        reflectError("<%s> is not copiable to <%s>",
-                arg.print(), printArgument<T>());
-    }
-
-    typedef typename std::decay<T>::type CleanT;
-
-    if (type()->isChildOf<T>())
-        return *static_cast<const T*>(value_);
-
-    return convert<CleanT>();
-}
-
-
-template<typename T>
-bool
-Value::
-isMovable() const
-{
-    reflectStaticAssert(!std::is_lvalue_reference<T>::value);
-
-    const Type* target = reflect::type<T>();
-
-    if (!target->isMovable()) return false;
-    if (type()->isChildOf(target)) return !isConst();
-    return type()->hasConverter(target);
-}
-
-template<typename T>
-auto
-Value::
-move() -> typename CleanValue<T>::type
-{
-    if (!isMovable<T>()) {
-        reflectError("<%s> is not movable to <%s>",
-                arg.print(), printArgument<T>());
-    }
-
-    typedef typename std::decay<T>::type CleanT;
-
-    CleanT value = type()->isChildOf<T>() ?
-        std::move(*static_cast<CleanT*>(value_)) :
-        convert<CleanT>();
-
-    *this = Value();
-    return std::move(value);
+    return *static_cast<const T*>(value_);
 }
 
 
