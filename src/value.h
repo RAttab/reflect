@@ -117,6 +117,9 @@ struct Value
     template<typename Arg>
     void assign(Arg&& arg) const;
 
+    template<typename Ret>
+    Ret convert(const Type* target) const;
+
     reflectValueOpBinary(operator+=)
     reflectValueOpBinary(operator-=)
     reflectValueOpBinary(operator*=)
@@ -163,9 +166,6 @@ struct Value
     explicit operator bool() const;
 
 private:
-
-    template<typename T>
-    T convert() const;
 
     Argument arg;
     void* value_;

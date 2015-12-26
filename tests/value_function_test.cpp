@@ -86,13 +86,13 @@ BOOST_AUTO_TEST_CASE(functor)
     {
         Value ret = (*valueFn)(Value(10u));
         BOOST_CHECK_EQUAL(ret.refType(), RefType::LValue);
-        BOOST_CHECK(ret.isCastable<unsigned>());
-        BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 10u);
+        BOOST_CHECK(isCastable<unsigned>(ret));
+        BOOST_CHECK_EQUAL(cast<unsigned>(ret), 10u);
     }
 
     {
         Value ret = (*valueFn)(Value(10u));
-        BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 20u);
+        BOOST_CHECK_EQUAL(cast<unsigned>(ret), 20u);
     }
 }
 
@@ -124,14 +124,14 @@ BOOST_AUTO_TEST_CASE(memberFn)
     {
         Value ret = (*valueFn)(Value(foo), Value(10u));
         BOOST_CHECK_EQUAL(ret.refType(), RefType::LValue);
-        BOOST_CHECK(ret.isCastable<unsigned>());
-        BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 10u);
+        BOOST_CHECK(isCastable<unsigned>(ret));
+        BOOST_CHECK_EQUAL(cast<unsigned>(ret), 10u);
         BOOST_CHECK_EQUAL(foo.value, 10u);
     }
 
     {
         Value ret = (*valueFn)(Value(foo), Value(10u));
-        BOOST_CHECK_EQUAL(ret.cast<unsigned>(), 20u);
+        BOOST_CHECK_EQUAL(cast<unsigned>(ret), 20u);
         BOOST_CHECK_EQUAL(foo.value, 20u);
     }
 }
@@ -156,6 +156,6 @@ BOOST_AUTO_TEST_CASE(constness)
         BOOST_CHECK_EQUAL(ret.refType(), RefType::LValue);
 
         BOOST_CHECK_EQUAL(i, 10u);
-        BOOST_CHECK_EQUAL(&ret.cast<const unsigned>(), &i);
+        BOOST_CHECK_EQUAL(&cast<const unsigned&>(ret), &i);
     }
 }

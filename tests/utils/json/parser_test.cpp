@@ -97,8 +97,8 @@ private:
             return false;
         }
 
-        if (lhs.cast<T>() != rhs.cast<T>()) {
-            std::cerr << "ERROR: value " << lhs.cast<T>() << " != " <<  rhs.cast<T>() << std::endl;
+        if (cast<T>(lhs) != cast<T>(rhs)) {
+            std::cerr << "ERROR: value " << cast<T>(lhs) << " != " <<  cast<T>(rhs) << std::endl;
             return false;
         }
 

@@ -54,11 +54,11 @@ BOOST_AUTO_TEST_CASE(test_basics)
 /******************************************************************************/
 
 void checkEqual(Value& obj, nullptr_t) { BOOST_CHECK(obj.isVoid()); }
-void checkEqual(Value& obj, bool exp) { BOOST_CHECK_EQUAL(obj.cast<bool>(), exp); }
-void checkEqual(Value& obj, int exp) { BOOST_CHECK_EQUAL(obj.cast<int64_t>(), exp); }
-void checkEqual(Value& obj, double exp) { BOOST_CHECK_EQUAL(obj.cast<double>(), exp); }
+void checkEqual(Value& obj, bool exp) { BOOST_CHECK_EQUAL(cast<bool>(obj), exp); }
+void checkEqual(Value& obj, int exp) { BOOST_CHECK_EQUAL(cast<int64_t>(obj), exp); }
+void checkEqual(Value& obj, double exp) { BOOST_CHECK_EQUAL(cast<double>(obj), exp); }
 void checkEqual(Value& obj, const char* exp) {
-    BOOST_CHECK_EQUAL(obj.cast<std::string>(), std::string(exp));
+    BOOST_CHECK_EQUAL(cast<std::string>(obj), std::string(exp));
 }
 
 template<typename Fn>

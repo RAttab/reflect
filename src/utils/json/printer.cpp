@@ -102,7 +102,7 @@ struct IntPrinter : public Printer
 {
     bool isEmpty(const Value& value) const
     {
-        return value.cast<const int64_t&>() == 0;
+        return cast<const int64_t&>(value) == 0;
     }
 
     void print(Writer& writer, const Value& value) const
@@ -115,7 +115,7 @@ struct FloatPrinter : public Printer
 {
     bool isEmpty(const Value& value) const
     {
-        return value.cast<const double&>() == 0;
+        return cast<const double&>(value) == 0;
     }
 
     void print(Writer& writer, const Value& value) const

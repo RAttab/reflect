@@ -21,7 +21,7 @@ Value move(Value& value, const Argument& target)
                 return std::move(value);
 
         if (value.type()->hasConverter(target.type()))
-            return type()->converter(target.type()).call<Value>(value);
+            return value.convert<Value>(target.type());
     }
 
     reflectError("<%s> is not movable to <%s>",
@@ -33,10 +33,10 @@ Value copy(Value& value, const Argument& target)
     if (target.type()->isCopiable()) {
 
         if (value.type()->isChildOf(target.type()))
-            return target.type()->construct<Value>(value);
+            return target.type()->construct(value);
 
         if (value.type()->hasConverter(target.type()))
-            return type()->converter(target.type()).call<Value>(value);
+            return value.convert<Value>(target.type());
     }
 
     reflectError("<%s> is not copiable to <%s>",
@@ -45,9 +45,10 @@ Value copy(Value& value, const Argument& target)
 
 } // namespace anonymous
 
+
 bool isCastable(const Value& value, const Argument& target)
 {
-    return value.argument().isConvertibleTo(target);
+    return value.argument().isConvertibleTo(target) != Match::None;
 }
 
 Value cast(Value& value, const Argument& target)

@@ -143,35 +143,6 @@ BOOST_AUTO_TEST_CASE(lValue)
     BOOST_CHECK(!lValue.isConst());
     BOOST_CHECK_EQUAL(lValue.refType(), RefType::LValue);
     BOOST_CHECK_EQUAL(lValue.get<unsigned>(), u);
-
-    // copy
-    BOOST_CHECK(lValue.isCopiable<unsigned>());
-    BOOST_CHECK_EQUAL(lValue.copy<unsigned>(), u);
-
-    // l-ref
-    BOOST_CHECK(lValue.isCastable<unsigned>());
-    {
-        auto& value = lValue.cast<unsigned>();
-        BOOST_CHECK_EQUAL(&value, &u);
-    }
-
-    // const l-ref
-    BOOST_CHECK(lValue.isCastable<const unsigned>());
-    {
-        const auto& value = lValue.cast<const unsigned>();
-        BOOST_CHECK_EQUAL(&value, &u);
-    }
-
-    // r-ref
-    BOOST_CHECK(lValue.isMovable<unsigned>());
-    {
-        auto value = lValue.move<unsigned>();
-        BOOST_CHECK_EQUAL(value, 10u);
-        BOOST_CHECK(lValue.isVoid());
-
-        // primitives don't get wiped. Should use another type;
-        // BOOST_CHECK_NE(u, 10);
-    }
 }
 
 
@@ -187,25 +158,6 @@ BOOST_AUTO_TEST_CASE(constLValue)
     BOOST_CHECK(lValue.isConst());
     BOOST_CHECK_EQUAL(lValue.refType(), RefType::LValue);
     BOOST_CHECK_EQUAL(lValue.get<unsigned>(), u);
-
-    // copy
-    BOOST_CHECK(lValue.isCopiable<unsigned>());
-    BOOST_CHECK_EQUAL(lValue.copy<unsigned>(), u);
-
-    // l-ref
-    BOOST_CHECK(!lValue.isCastable<unsigned>());
-    BOOST_CHECK_THROW(lValue.cast<unsigned>(), Error);
-
-    // const l-ref
-    BOOST_CHECK(lValue.isCastable<const unsigned>());
-    {
-        const auto& value = lValue.cast<const unsigned>();
-        BOOST_CHECK_EQUAL(&value, &u);
-    }
-
-    // r-ref
-    BOOST_CHECK(!lValue.isMovable<unsigned>());
-    BOOST_CHECK_THROW(lValue.move<unsigned>(), Error);
 }
 
 
@@ -222,27 +174,6 @@ BOOST_AUTO_TEST_CASE(rValue)
     BOOST_CHECK(!rValue.isConst());
     BOOST_CHECK_EQUAL(rValue.refType(), RefType::LValue);
     BOOST_CHECK_EQUAL(rValue.get<unsigned>(), 10u);
-
-    // copy
-    BOOST_CHECK(rValue.isCopiable<unsigned>());
-    BOOST_CHECK_EQUAL(rValue.copy<unsigned>(), 10u);
-
-    // l-ref
-    BOOST_CHECK(rValue.isCastable<unsigned>());
-    BOOST_CHECK_EQUAL(rValue.cast<unsigned>(), 10u);
-
-    // const l-ref
-    BOOST_CHECK( rValue.isCastable<const unsigned>());
-    {
-        const auto& value = rValue.cast<const unsigned>();
-        BOOST_CHECK_NE(&value, &u);
-        BOOST_CHECK_EQUAL(value, 10u);
-    }
-
-    // r-ref
-    BOOST_CHECK(rValue.isMovable<unsigned>());
-    BOOST_CHECK_EQUAL(rValue.move<unsigned>(), 10u);
-    BOOST_CHECK(rValue.isVoid());
 }
 
 
@@ -272,32 +203,6 @@ BOOST_AUTO_TEST_CASE(parent)
     BOOST_CHECK_EQUAL(&value.get<test::Interface>(), &p);
     BOOST_CHECK_EQUAL(&value.get<test::Parent>(), &p);
     BOOST_CHECK_THROW(value.get<test::Child>(), Error);
-
-    BOOST_CHECK( value.isCastable<test::Interface>());
-    BOOST_CHECK( value.isCastable<test::Parent>());
-    BOOST_CHECK(!value.isCastable<test::Child>());
-    BOOST_CHECK_EQUAL(&value.cast<test::Interface>(), &p);
-    BOOST_CHECK_EQUAL(&value.cast<test::Parent>(), &p);
-    BOOST_CHECK_THROW(value.cast<test::Child>(), Error);
-
-    BOOST_CHECK(!value.isCopiable<test::Interface>());
-    BOOST_CHECK( value.isCopiable<test::Parent>());
-    BOOST_CHECK(!value.isCopiable<test::Child>());
-    BOOST_CHECK_EQUAL(value.copy<test::Parent>(), p);
-    BOOST_CHECK_THROW(value.copy<test::Child>(), Error);
-
-    // This will correctly fail during compilation.
-    // BOOST_CHECK_THROW(&value.copy<test::Interface>(), Error);
-
-
-    BOOST_CHECK(!value.isMovable<test::Interface>());
-    BOOST_CHECK( value.isMovable<test::Parent>());
-    BOOST_CHECK(!value.isMovable<test::Child>());
-    BOOST_CHECK_NO_THROW(value.move<test::Parent>());
-    BOOST_CHECK_THROW(value.move<test::Child>(), Error);
-
-    // This will correctly fail during compilation.
-    // BOOST_CHECK_THROW(&value.move<test::Interface>(), Error);
 }
 
 BOOST_AUTO_TEST_CASE(child)
@@ -308,32 +213,6 @@ BOOST_AUTO_TEST_CASE(child)
     BOOST_CHECK_EQUAL(&value.get<test::Interface>(), &c);
     BOOST_CHECK_EQUAL(&value.get<test::Parent>(), &c);
     BOOST_CHECK_EQUAL(&value.get<test::Child>(), &c);
-
-    BOOST_CHECK(value.isCastable<test::Interface>());
-    BOOST_CHECK(value.isCastable<test::Parent>());
-    BOOST_CHECK(value.isCastable<test::Child>());
-    BOOST_CHECK_EQUAL(&value.cast<test::Interface>(), &c);
-    BOOST_CHECK_EQUAL(&value.cast<test::Parent>(), &c);
-    BOOST_CHECK_EQUAL(&value.cast<test::Child>(), &c);
-
-    BOOST_CHECK(!value.isCopiable<test::Interface>());
-    BOOST_CHECK( value.isCopiable<test::Parent>());
-    BOOST_CHECK( value.isCopiable<test::Child>());
-    BOOST_CHECK_EQUAL(value.copy<test::Parent>(), c);
-    BOOST_CHECK_EQUAL(value.copy<test::Child>(), c);
-
-    // This will correctly fail during compilation.
-    // BOOST_CHECK_THROW(&value.copy<test::Interface>(), Error);
-
-    BOOST_CHECK(!value.isMovable<test::Interface>());
-    BOOST_CHECK( value.isMovable<test::Parent>());
-    BOOST_CHECK( value.isMovable<test::Child>());
-    BOOST_CHECK_NO_THROW(value.move<test::Parent>());
-    value = Value(c); // previous test cleared it. Reload the value.
-    BOOST_CHECK_NO_THROW(value.move<test::Child>());
-
-    // This will correctly fail during compilation.
-    // BOOST_CHECK_THROW(&value.move<test::Interface>(), Error);
 }
 
 
@@ -349,22 +228,6 @@ BOOST_AUTO_TEST_CASE(convertible)
 
     BOOST_CHECK_EQUAL(&value.get<test::Convertible>(), &c);
     BOOST_CHECK_THROW(value.get<test::Parent>(), Error);
-
-    BOOST_CHECK( value.isCastable<test::Convertible>());
-    BOOST_CHECK(!value.isCastable<test::Parent>());
-    BOOST_CHECK_EQUAL(&value.cast<test::Convertible>(), &c);
-    BOOST_CHECK_THROW(value.cast<test::Parent>(), Error);
-
-    BOOST_CHECK( value.isCopiable<test::Convertible>());
-    BOOST_CHECK( value.isCopiable<test::Parent>());
-    BOOST_CHECK_EQUAL(value.copy<test::Convertible>().value, o);
-    BOOST_CHECK_EQUAL(value.copy<test::Parent>().value, o);
-
-    BOOST_CHECK( value.isMovable<test::Convertible>());
-    BOOST_CHECK( value.isMovable<test::Parent>());
-    BOOST_CHECK_EQUAL(value.move<test::Convertible>().value, o);
-    value = Value(test::Convertible(o)); // previous test cleared it.
-    BOOST_CHECK_EQUAL(value.move<test::Parent>().value, o);
 }
 
 

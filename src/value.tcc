@@ -140,4 +140,12 @@ assign(Arg&& arg) const
 }
 
 
+template<typename Ret>
+Ret
+Value::
+convert(const Type* target) const
+{
+    return type()->converter(target).call<Ret>(*this);
+}
+
 } // reflect

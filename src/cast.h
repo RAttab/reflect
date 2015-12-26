@@ -34,8 +34,20 @@ struct TargetRef
 /* CAST                                                                       */
 /******************************************************************************/
 
-bool isCastable(Value& value, const Argument& target);
+bool isCastable(const Value& value, const Argument& target);
 Value cast(Value& value, const Argument& target);
+
+template<typename T, typename Target>
+struct Cast
+{
+    template<typename U> static bool isCastable(U&&) { return true; }
+
+    template<typename U>
+    static auto cast(U&& value) -> typename details::TargetRef<Target>::type
+    {
+        return std::forward<U>(value);
+    }
+};
 
 template<typename Target>
 struct Cast<Value, Target>
@@ -44,12 +56,30 @@ struct Cast<Value, Target>
     typedef typename std::decay<Target>::type CleanTarget;
 
     static bool isCastable(const Value& value) {
-        return isCastable(value, Argument::make<Target>());
+        return reflect::isCastable(value, Argument::make<Target>());
     }
 
-    static TargetRef cast(Value& value)
+    static TargetRef cast(Value value)
     {
-        return cast(Argument::make<Target>()).as<CleanTarget>();
+        Value result = reflect::cast(value, Argument::make<Target>());
+        return ret(result,
+                std::is_reference<TargetRef>(),
+                std::is_copy_constructible<TargetRef>());
+    }
+
+    template<typename Meh>
+    static TargetRef ret(Value& value, std::true_type, Meh) {
+        return value.as<CleanTarget>();
+    }
+
+    static TargetRef ret(Value& value, std::false_type, std::true_type) {
+        return value.as<CleanTarget>();
+    }
+
+    // Necessary because we can't compile a copy even though we'll throw an
+    // exception before we hit this point.
+    static TargetRef ret(Value&, std::false_type, std::false_type) {
+        reflectUnreachable();
     }
 };
 
@@ -62,18 +92,6 @@ struct Cast<T, Value>
     static Value cast(U&& value)
     {
         return Value(std::forward<U>(value));
-    }
-};
-
-template<typename T, typename Target>
-struct Cast
-{
-    template<typename U> static bool isCastable(U&&) { return true; }
-
-    template<typename U>
-    static auto cast(U&& value) -> typename details::TargetRef<Target>::type
-    {
-        return std::forward<U>(value);
     }
 };
 
@@ -101,7 +119,7 @@ template<typename Target, typename T>
 bool isCastable(T&& value)
 {
     typedef typename std::decay<T>::type CleanT;
-    Cast<CleanT, Target>::isCastable(std::forward<T>(value));
+    return Cast<CleanT, Target>::isCastable(std::forward<T>(value));
 }
 
 template<typename Target, typename T>
