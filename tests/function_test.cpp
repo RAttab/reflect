@@ -322,8 +322,8 @@ BOOST_AUTO_TEST_CASE(constLValue_call)
     check_signal(fn.call<const int&>(Value()));
 
     // copy
-    BOOST_CHECK_NO_THROW(fn.call<const int&>(i));
-    BOOST_CHECK_NO_THROW(fn.call<const int&>(i));
+    fn.call<const int&>(i);
+    fn.call<const int&>(i);
     BOOST_CHECK_EQUAL(fn.call<int>(c), foo(c));
     BOOST_CHECK_EQUAL(fn.call<int>(constLValue), foo(c));
 
@@ -341,8 +341,8 @@ BOOST_AUTO_TEST_CASE(constLValue_call)
     // r-ref
     int r = i;
     // We return a value to a temporary here so it's not safe to check it.
-    BOOST_CHECK_NO_THROW(fn.call<const int&>(std::move(r)));
-    BOOST_CHECK_NO_THROW(fn.call<const int&>(Value(r).rvalue()));
+    fn.call<const int&>(std::move(r));
+    fn.call<const int&>(Value(r).rvalue());
 }
 
 
@@ -426,7 +426,7 @@ BOOST_AUTO_TEST_CASE(rValue_call)
     }
     {
         int r = i;
-        BOOST_CHECK_NO_THROW(fn.call<int>(Value(r).rvalue()));
+        fn.call<int>(Value(r).rvalue());
     }
 }
 
