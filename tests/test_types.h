@@ -139,6 +139,7 @@ struct Parent : public Interface
 {
     Parent() : value(0), shadowed(0) {}
     Parent(Object c, int s) : value(c), shadowed(s) {}
+    explicit Parent(int v) : value(v), shadowed(0) {}
 
     Object value;
     int shadowed;
@@ -168,6 +169,7 @@ struct Child : public Parent
 {
     Child() : childValue(0), shadowed(0) {}
     Child(Object c, int s) : childValue(c), shadowed(s) {}
+    explicit Child(int v) : Parent(v) {}
 
     Object childValue;
     bool shadowed;
@@ -198,6 +200,7 @@ std::ostream& operator<<(std::ostream& stream, const Child& obj)
 
 struct Convertible
 {
+    Convertible(int v) : value(v) {}
     Convertible(Object v) : value(v) {}
 
     Object value;

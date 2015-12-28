@@ -246,6 +246,7 @@ function(reflect_utils_test utils name)
 endfunction()
 
 reflect_test(ref)
+reflect_test(cast)
 reflect_test(scope)
 reflect_test(type)
 reflect_test(value)
