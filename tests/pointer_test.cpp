@@ -21,10 +21,10 @@
 
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
-#define REFLECT_USE_EXCEPTIONS 1
 
 #include "reflect.h"
 #include "test_types.h"
+#include "signals.h"
 #include "types/primitives.h"
 #include "types/std/smart_ptr.h"
 
@@ -131,43 +131,43 @@ BOOST_AUTO_TEST_CASE(pointer_call)
     Obj** ppo = &po;
     Obj const* cpo = &o;
 
-    BOOST_CHECK_THROW(ptrFn.call<Obj*>(o  ), Error);
+    check_signal(ptrFn.call<Obj*>(o  ));
     BOOST_CHECK_EQUAL(ptrFn.call<Obj*>(po ), doPtr(po));
-    BOOST_CHECK_THROW(ptrFn.call<Obj*>(ppo), Error);
+    check_signal(ptrFn.call<Obj*>(ppo));
     BOOST_CHECK_EQUAL(ptrFn.call<Obj*>(cpo), doPtr(po)); // Not an error.
-    BOOST_CHECK_THROW(ptrFn.call<Obj*>(Value(o  )), Error);
+    check_signal(ptrFn.call<Obj*>(Value(o  )));
     BOOST_CHECK_EQUAL(ptrFn.call<Obj*>(Value(po )), doPtr(po));
-    BOOST_CHECK_THROW(ptrFn.call<Obj*>(Value(ppo)), Error);
+    check_signal(ptrFn.call<Obj*>(Value(ppo)));
     BOOST_CHECK_EQUAL(ptrFn.call<Obj*>(Value(cpo)), doPtr(po)); // not an error.
-    BOOST_CHECK_THROW(ptrFn.call<Obj       >(po), Error);
+    check_signal(ptrFn.call<Obj       >(po));
     BOOST_CHECK_EQUAL(ptrFn.call<Obj *     >(po), doPtr(po));
-    BOOST_CHECK_THROW(ptrFn.call<Obj **    >(po), Error);
+    check_signal(ptrFn.call<Obj **    >(po));
     BOOST_CHECK_EQUAL(ptrFn.call<Obj const*>(po), doPtr(po));
 
-    BOOST_CHECK_THROW(ptrPtrFn.call<Obj**>(o  ), Error);
-    BOOST_CHECK_THROW(ptrPtrFn.call<Obj**>(po ), Error);
+    check_signal(ptrPtrFn.call<Obj**>(o  ));
+    check_signal(ptrPtrFn.call<Obj**>(po ));
     BOOST_CHECK_EQUAL(ptrPtrFn.call<Obj**>(ppo), doPtrPtr(ppo));
-    BOOST_CHECK_THROW(ptrPtrFn.call<Obj**>(cpo), Error);
-    BOOST_CHECK_THROW(ptrPtrFn.call<Obj**>(Value(o  )), Error);
-    BOOST_CHECK_THROW(ptrPtrFn.call<Obj**>(Value(po )), Error);
+    check_signal(ptrPtrFn.call<Obj**>(cpo));
+    check_signal(ptrPtrFn.call<Obj**>(Value(o  )));
+    check_signal(ptrPtrFn.call<Obj**>(Value(po )));
     BOOST_CHECK_EQUAL(ptrPtrFn.call<Obj**>(Value(ppo)), doPtrPtr(ppo));
-    BOOST_CHECK_THROW(ptrPtrFn.call<Obj**>(Value(cpo)), Error);
-    BOOST_CHECK_THROW(ptrPtrFn.call<Obj       >(ppo), Error);
-    BOOST_CHECK_THROW(ptrPtrFn.call<Obj *     >(ppo), Error);
+    check_signal(ptrPtrFn.call<Obj**>(Value(cpo)));
+    check_signal(ptrPtrFn.call<Obj       >(ppo));
+    check_signal(ptrPtrFn.call<Obj *     >(ppo));
     BOOST_CHECK_EQUAL(ptrPtrFn.call<Obj **    >(ppo), doPtrPtr(ppo));
-    BOOST_CHECK_THROW(ptrPtrFn.call<Obj const*>(ppo), Error);
+    check_signal(ptrPtrFn.call<Obj const*>(ppo));
 
-    BOOST_CHECK_THROW(constPtrFn.call<Obj const*>(o  ), Error);
+    check_signal(constPtrFn.call<Obj const*>(o  ));
     BOOST_CHECK_EQUAL(constPtrFn.call<Obj const*>(po ), doConstPtr(po));
-    BOOST_CHECK_THROW(constPtrFn.call<Obj const*>(ppo), Error);
+    check_signal(constPtrFn.call<Obj const*>(ppo));
     BOOST_CHECK_EQUAL(constPtrFn.call<Obj const*>(cpo), doConstPtr(cpo));
-    BOOST_CHECK_THROW(constPtrFn.call<Obj const*>(Value(o  )), Error);
+    check_signal(constPtrFn.call<Obj const*>(Value(o  )));
     BOOST_CHECK_EQUAL(constPtrFn.call<Obj const*>(Value(po )), doConstPtr(po));
-    BOOST_CHECK_THROW(constPtrFn.call<Obj const*>(Value(ppo)), Error);
+    check_signal(constPtrFn.call<Obj const*>(Value(ppo)));
     BOOST_CHECK_EQUAL(constPtrFn.call<Obj const*>(Value(cpo)), doConstPtr(cpo));
-    BOOST_CHECK_THROW(constPtrFn.call<Obj       >(cpo), Error);
+    check_signal(constPtrFn.call<Obj       >(cpo));
                       constPtrFn.call<Obj *     >(cpo);
-    BOOST_CHECK_THROW(constPtrFn.call<Obj **    >(cpo), Error);
+    check_signal(constPtrFn.call<Obj **    >(cpo));
     BOOST_CHECK_EQUAL(constPtrFn.call<Obj const*>(cpo), doConstPtr(cpo));
 
 }
@@ -248,28 +248,28 @@ BOOST_AUTO_TEST_CASE(childParent_call)
     SmartParent sp(new Parent);
 
     BOOST_CHECK_EQUAL(childFn.call<Child*>(pc), doChild(pc));
-    BOOST_CHECK_THROW(childFn.call<Child*>(pp), Error);
-    BOOST_CHECK_THROW(childFn.call<Child*>(sc), Error);
+    check_signal(childFn.call<Child*>(pp));
+    check_signal(childFn.call<Child*>(sc));
     BOOST_CHECK_EQUAL(childFn.call<Parent*>(pc), doChild(pc));
-    BOOST_CHECK_THROW(childFn.call<SmartChild>(pc), Error);
+    check_signal(childFn.call<SmartChild>(pc));
 
     BOOST_CHECK_EQUAL(parentFn.call<Parent*>(pc), doParent(pc));
     BOOST_CHECK_EQUAL(parentFn.call<Parent*>(pp), doParent(pp));
-    BOOST_CHECK_THROW(parentFn.call<Parent*>(sp), Error);
-    BOOST_CHECK_THROW(parentFn.call<Child*>(pp), Error);
-    BOOST_CHECK_THROW(parentFn.call<SmartParent>(pp), Error);
+    check_signal(parentFn.call<Parent*>(sp));
+    check_signal(parentFn.call<Child*>(pp));
+    check_signal(parentFn.call<SmartParent>(pp));
 
-    BOOST_CHECK_THROW(smartChildFn.call<SmartChild>(pc), Error);
+    check_signal(smartChildFn.call<SmartChild>(pc));
     BOOST_CHECK_EQUAL(smartChildFn.call<SmartChild>(sc), doSmartChild(sc));
-    BOOST_CHECK_THROW(smartChildFn.call<SmartChild>(sp), Error);
-    BOOST_CHECK_THROW(smartChildFn.call<Child*>(sc), Error);
+    check_signal(smartChildFn.call<SmartChild>(sp));
+    check_signal(smartChildFn.call<Child*>(sc));
     BOOST_CHECK_EQUAL(smartChildFn.call<SmartParent>(sc), doSmartChild(sc));
 
-    BOOST_CHECK_THROW(smartParentFn.call<SmartParent>(pp), Error);
+    check_signal(smartParentFn.call<SmartParent>(pp));
     BOOST_CHECK_EQUAL(smartParentFn.call<SmartParent>(sc), doSmartParent(sc));
     BOOST_CHECK_EQUAL(smartParentFn.call<SmartParent>(sp), doSmartParent(sp));
-    BOOST_CHECK_THROW(smartParentFn.call<Parent*>(sp), Error);
-    BOOST_CHECK_THROW(smartParentFn.call<SmartChild>(sp), Error);
+    check_signal(smartParentFn.call<Parent*>(sp));
+    check_signal(smartParentFn.call<SmartChild>(sp));
 }
 
 

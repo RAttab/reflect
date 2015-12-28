@@ -7,10 +7,10 @@
 
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
-#define REFLECT_USE_EXCEPTIONS 1
 
 #include "reflect.h"
 #include "test_types.h"
+#include "signals.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(construct)
 
     BOOST_TEST_CHECKPOINT("construct-ncs");
     std::unique_ptr<test::NotConstructible> ncs(test::NotConstructible::make());
-    BOOST_CHECK_THROW(Value(std::move(*ncs)), Error);
+    check_signal(Value(std::move(*ncs)));
 
     BOOST_TEST_CHECKPOINT("construct-done");
 }
@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE(parent)
 
     BOOST_CHECK_EQUAL(&value.get<test::Interface>(), &p);
     BOOST_CHECK_EQUAL(&value.get<test::Parent>(), &p);
-    BOOST_CHECK_THROW(value.get<test::Child>(), Error);
+    check_signal(value.get<test::Child>());
 }
 
 BOOST_AUTO_TEST_CASE(child)
@@ -227,7 +227,7 @@ BOOST_AUTO_TEST_CASE(convertible)
     Value value(c);
 
     BOOST_CHECK_EQUAL(&value.get<test::Convertible>(), &c);
-    BOOST_CHECK_THROW(value.get<test::Parent>(), Error);
+    check_signal(value.get<test::Parent>());
 }
 
 

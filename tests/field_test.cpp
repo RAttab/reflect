@@ -7,9 +7,9 @@
 
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
-#define REFLECT_USE_EXCEPTIONS 1
 
 #include "reflect.h"
+#include "signals.h"
 #include "types/primitives.h"
 #include "dsl/all.h"
 
@@ -70,9 +70,9 @@ BOOST_AUTO_TEST_CASE(foo)
     BOOST_CHECK_EQUAL(&vFoo.field<int&>("field"), &foo.field);
     BOOST_CHECK_EQUAL(&vFoo.field<const int&>("field"), &foo.field);
 
-    BOOST_CHECK_THROW(vFoo.field("constField").assign(987), Error);
+    check_signal(vFoo.field("constField").assign(987));
     BOOST_CHECK_EQUAL(vFoo.field<int>("constField"), foo.constField);
-    BOOST_CHECK_THROW(vFoo.field<int&>("constField"), Error);
+    check_signal(vFoo.field<int&>("constField"));
     BOOST_CHECK_EQUAL(&vFoo.field<const int&>("constField"), &foo.constField);
 
     vFoo.field("privateField").assign(654);
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE(bar)
     BOOST_CHECK_EQUAL(vBar.field<Foo&>("object").field, bar.object.field);
     BOOST_CHECK_EQUAL(vBar.field("object").field<int>("field"), bar.object.field);
 
-    BOOST_CHECK_THROW(vBar.field("constObject").field("field").assign(258), Error);
+    check_signal(vBar.field("constObject").field("field").assign(258));
     BOOST_CHECK_EQUAL(vBar.field<const Foo&>("constObject").field, bar.constObject.field);
     BOOST_CHECK_EQUAL(vBar.field("constObject").field<int>("field"), bar.constObject.field);
 }
