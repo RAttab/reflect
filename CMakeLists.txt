@@ -287,6 +287,7 @@ force_target_link_libraries(blah_test reflect_std)
 function(reflect_cperf name)
     add_executable(cperf_${name}_test tests/cperf/${name}_test.cpp)
     target_link_libraries(cperf_${name}_test reflect)
+    force_target_link_libraries(cperf_${name}_test reflect_primitives)
     add_test(cperf_${name} bin/cperf_${name}_test)
 endfunction()
 
