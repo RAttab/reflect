@@ -8,6 +8,9 @@
 
 TEST_NAME=$1_test
 
-nice make -kj8 reflect \
+cmake -DIS_CPERF=ON . \
+    && nice make -kj8 reflect reflect_primitives \
     && touch tests/cperf/$TEST_NAME.cpp \
     && time make cperf_$TEST_NAME
+
+cmake -DIS_CPERF=OFF

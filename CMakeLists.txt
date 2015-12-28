@@ -20,9 +20,6 @@ add_definitions("-Wall -Wextra -Werror -pedantic -g -O3")
 # not be portable beyond gcc.
 add_definitions("-Wno-invalid-offsetof")
 
-# For cperf optimization only.
-# add_definitions("-Wno-unused-variable -Wno-unused-parameter -Wno-unused-but-set-variable")
-
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -283,6 +280,15 @@ force_target_link_libraries(blah_test reflect_std)
 #------------------------------------------------------------------------------#
 # CPERF
 #------------------------------------------------------------------------------#
+
+option(IS_CPERF "Disable several warnings for cperf tests")
+if (IS_CPERF)
+    message(">> Compiling as CPERF")
+    add_definitions("-Wno-unused-variable")
+    add_definitions("-Wno-unused-parameter")
+    add_definitions("-Wno-unused-but-set-variable")
+    add_definitions("-Wno-return-local-addr")
+endif()
 
 function(reflect_cperf name)
     add_executable(cperf_${name}_test tests/cperf/${name}_test.cpp)
