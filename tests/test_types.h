@@ -128,6 +128,7 @@ private:
 struct Interface
 {
     virtual void pureVirtual() = 0;
+    virtual ~Interface () {}
 };
 
 

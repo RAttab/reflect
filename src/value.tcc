@@ -29,7 +29,7 @@ struct ValueDestructor
 {
     void operator() (void* ptr) const
     {
-        static_cast<T*>(ptr)->~T();
+        delete static_cast<T*>(ptr);
     }
 };
 
