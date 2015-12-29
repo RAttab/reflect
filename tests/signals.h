@@ -18,7 +18,7 @@ namespace test {
 /* CHECK_SIGNAL                                                               */
 /******************************************************************************/
 
-static int signalNet()
+int signalNet()
 {
     signal(SIGCHLD, SIG_DFL);
 

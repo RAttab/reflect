@@ -107,6 +107,15 @@ move()
 
 Value
 Value::
+toConst() const
+{
+    Value result(*this);
+    result.arg = Argument(type(), RefType::RValue, true);
+    return result;
+}
+
+Value
+Value::
 rvalue() const
 {
     Value result(*this);

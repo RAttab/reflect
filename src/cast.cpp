@@ -13,12 +13,24 @@ namespace reflect {
 
 namespace {
 
-Value move(Value& value, const Argument& target)
+Value lref(Value &value, const Argument& target)
+{
+    if (!target.isConst()) return value;
+    if (target.type()->isParentOf(value.type())) return value;
+
+    if (value.type()->hasConverter(target.type()))
+        return value.convert<Value>(target.type());
+
+    reflectError("<%s> is not castable to <%s>",
+            value.argument().print(), target.print());
+}
+
+Value rref(Value& value, const Argument& target)
 {
     if (target.type()->isMovable()) {
 
         if (value.type()->isChildOf(target.type()))
-                return std::move(value);
+            return value;
 
         if (value.type()->hasConverter(target.type()))
             return value.convert<Value>(target.type());
@@ -59,8 +71,8 @@ Value cast(Value& value, const Argument& target)
     }
 
     switch (target.refType()) {
-    case RefType::LValue: return value;
-    case RefType::RValue: return move(value, target);
+    case RefType::LValue: return lref(value, target);
+    case RefType::RValue: return rref(value, target);
     case RefType::Copy:   return copy(value, target);
     default: reflectUnreachable();
     }

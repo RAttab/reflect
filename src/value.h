@@ -103,6 +103,7 @@ struct Value
     template<typename T> T& as();
     template<typename T> const T& get() const;
 
+    Value toConst() const;
     Value rvalue() const;
     Value copy() const;
     Value move();

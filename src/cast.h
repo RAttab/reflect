@@ -24,7 +24,7 @@ struct TargetRef
 
     typedef typename std::conditional<
         std::is_lvalue_reference<T>::value, RefT, CleanT>::type
-        type;
+    type;
 };
 
 } // namespace details
@@ -62,25 +62,49 @@ struct Cast<Value, Target>
     static TargetRef cast(Value value)
     {
         Value result = reflect::cast(value, Argument::make<Target>());
-        return ret(result,
-                std::is_reference<TargetRef>(),
-                std::is_copy_constructible<TargetRef>());
+        return ret(result, retLValue(), retRValue(), retCopy());
     }
 
-    template<typename Meh>
-    static TargetRef ret(Value& value, std::true_type, Meh) {
+
+private:
+
+    // This giant mess is required to avoid emitting a copy-constructor or a
+    // move-constructor in situations where we don't need em.
+
+    typedef typename std::is_lvalue_reference<TargetRef>::type retLValue;
+
+    template<typename T0, typename T1>
+    static TargetRef ret(Value& value, std::true_type, T0, T1)
+    {
         return value.as<CleanTarget>();
     }
 
-    static TargetRef ret(Value& value, std::false_type, std::true_type) {
-        return value.as<CleanTarget>();
+    typedef typename std::conditional<
+        std::is_rvalue_reference<Target>::value,
+        typename std::is_move_constructible<CleanTarget>::type, std::false_type>::type
+    retRValue;
+
+    template<typename T0>
+    static TargetRef ret(Value& value, std::false_type, std::true_type, T0)
+    {
+        return std::move(value.as<CleanTarget>());
     }
 
-    // Necessary because we can't compile a copy even though we'll throw an
-    // exception before we hit this point.
-    static TargetRef ret(Value&, std::false_type, std::false_type) {
-        reflectUnreachable();
+    typedef typename std::is_copy_constructible<CleanTarget>::type retCopy;
+
+    static TargetRef ret(
+            Value& value, std::false_type, std::false_type, std::true_type)
+    {
+        return value.get<CleanTarget>();
     }
+
+    static TargetRef ret(
+            Value& value, std::false_type, std::false_type, std::false_type)
+    {
+        reflectError("<%s> can't be moved or constructed",
+                value.argument().print());
+    }
+
 };
 
 template<typename T>
