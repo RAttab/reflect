@@ -8,9 +8,9 @@
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
 
+#include "tests.h"
 #include "reflect.h"
 #include "test_types.h"
-#include "signals.h"
 #include "types/primitives.h"
 
 #include <boost/test/unit_test.hpp>
@@ -110,28 +110,28 @@ BOOST_AUTO_TEST_CASE(void_call)
     fn.call<void>();
 
     // copy
-    check_signal(fn.call<void>(10));
-    check_signal(fn.call<int>());
+    CHECK_ERROR(fn.call<void>(10));
+    CHECK_ERROR(fn.call<int>());
     BOOST_CHECK(fn.call<Value>().isVoid());
 
     // l-ref
     int i = 0; Value lValue(i);
-    check_signal(fn.call<void>(i));
-    check_signal(fn.call<void>(lValue));
-    check_signal(fn.call<int&>());
-    check_signal(fn.call<Value&>());
+    CHECK_ERROR(fn.call<void>(i));
+    CHECK_ERROR(fn.call<void>(lValue));
+    CHECK_ERROR(fn.call<int&>());
+    CHECK_ERROR(fn.call<Value&>());
 
     // const l-ref
     const int& c = i; Value constLValue(c);
-    check_signal(fn.call<void>(c));
-    check_signal(fn.call<void>(constLValue));
-    check_signal(fn.call<const int&>());
-    check_signal(fn.call<const Value&>());
+    CHECK_ERROR(fn.call<void>(c));
+    CHECK_ERROR(fn.call<void>(constLValue));
+    CHECK_ERROR(fn.call<const int&>());
+    CHECK_ERROR(fn.call<const Value&>());
 
     // r-ref
     int r = i;
-    check_signal(fn.call<void>(std::move(r)));
-    check_signal(fn.call<void>(Value(r).rvalue()));
+    CHECK_ERROR(fn.call<void>(std::move(r)));
+    CHECK_ERROR(fn.call<void>(Value(r).rvalue()));
 }
 
 
@@ -175,8 +175,8 @@ BOOST_AUTO_TEST_CASE(copy_call)
 
     // void
     fn.call<void>(10);
-    check_signal(fn.call<int>());
-    check_signal(fn.call<int>(Value()));
+    CHECK_ERROR(fn.call<int>());
+    CHECK_ERROR(fn.call<int>(Value()));
 
     // copy
     BOOST_CHECK_EQUAL(fn.call<int>(10), foo(10));
@@ -185,13 +185,13 @@ BOOST_AUTO_TEST_CASE(copy_call)
     int i = 10; Value lValue(i);
     BOOST_CHECK_EQUAL(fn.call<int>(i), foo(i));
     BOOST_CHECK_EQUAL(fn.call<int>(lValue), foo(i));
-    check_signal(fn.call<int&>(10));
+    CHECK_ERROR(fn.call<int&>(10));
 
     // const l-ref
     const auto& c = i; Value constLValue(c);
     BOOST_CHECK_EQUAL(fn.call<int>(c), foo(c));
     BOOST_CHECK_EQUAL(fn.call<int>(constLValue), foo(c));
-    check_signal(fn.call<const int&>(10));
+    CHECK_ERROR(fn.call<const int&>(10));
 
     // r-ref
     int r = i;
@@ -244,11 +244,11 @@ BOOST_AUTO_TEST_CASE(lValue_call)
 
     // void
     fn.call<void>(lValue);
-    check_signal(fn.call<int>());
-    check_signal(fn.call<int>(Value()));
+    CHECK_ERROR(fn.call<int>());
+    CHECK_ERROR(fn.call<int>(Value()));
 
     // copy
-    check_signal(fn.call<int&>(10));
+    CHECK_ERROR(fn.call<int&>(10));
     BOOST_CHECK_EQUAL(fn.call<int>(i), foo(i));
     BOOST_CHECK_EQUAL(fn.call<int>(lValue), foo(i));
 
@@ -258,19 +258,19 @@ BOOST_AUTO_TEST_CASE(lValue_call)
 
     // const l-ref
     const auto& c = i; Value constLValue(c);
-    check_signal(fn.call<int&>(c));
-    check_signal(fn.call<int&>(constLValue));
+    CHECK_ERROR(fn.call<int&>(c));
+    CHECK_ERROR(fn.call<int&>(constLValue));
     BOOST_CHECK_EQUAL(&fn.call<const int&>(i), &c);
     BOOST_CHECK_EQUAL(&fn.call<const int&>(lValue), &c);
 
     // r-ref
     {
         int r = i;
-        check_signal(fn.call<int&>(std::move(r)));
+        CHECK_ERROR(fn.call<int&>(std::move(r)));
     }
     {
         int r = i;
-        check_signal(fn.call<int&>(Value(r).rvalue()));
+        CHECK_ERROR(fn.call<int&>(Value(r).rvalue()));
     }
 }
 
@@ -318,8 +318,8 @@ BOOST_AUTO_TEST_CASE(constLValue_call)
 
     // void
     fn.call<void>(constLValue);
-    check_signal(fn.call<const int&>());
-    check_signal(fn.call<const int&>(Value()));
+    CHECK_ERROR(fn.call<const int&>());
+    CHECK_ERROR(fn.call<const int&>(Value()));
 
     // copy
     fn.call<const int&>(i);
@@ -331,8 +331,8 @@ BOOST_AUTO_TEST_CASE(constLValue_call)
     Value lValue(i);
     BOOST_CHECK_EQUAL(&fn.call<const int&>(i), &i);
     BOOST_CHECK_EQUAL(&fn.call<const int&>(lValue), &i);
-    check_signal(fn.call<int&>(c));
-    check_signal(fn.call<int&>(constLValue));
+    CHECK_ERROR(fn.call<int&>(c));
+    CHECK_ERROR(fn.call<int&>(constLValue));
 
     // const l-ref
     BOOST_CHECK_EQUAL(&fn.call<const int&>(c), &c);
@@ -385,38 +385,38 @@ BOOST_AUTO_TEST_CASE(rValue_call)
         int r = 10;
         fn.call<void>(std::move(r));
     }
-    check_signal(fn.call<const int&>());
-    check_signal(fn.call<const int&>(Value()));
+    CHECK_ERROR(fn.call<const int&>());
+    CHECK_ERROR(fn.call<const int&>(Value()));
 
     // copy
     int v = 10;
-    check_signal(fn.call<int>(v));
+    CHECK_ERROR(fn.call<int>(v));
     BOOST_CHECK_EQUAL(fn.call<int>(10), foo(10));
 
     // l-ref
     int i = 10; Value lValue(i);
-    check_signal(fn.call<int>(i));
-    check_signal(fn.call<int>(lValue));
+    CHECK_ERROR(fn.call<int>(i));
+    CHECK_ERROR(fn.call<int>(lValue));
     {
         int r = i;
-        check_signal(fn.call<int&>(std::move(r)));
+        CHECK_ERROR(fn.call<int&>(std::move(r)));
     }
     {
         int r = i;
-        check_signal(fn.call<int&>(Value(r).rvalue()));
+        CHECK_ERROR(fn.call<int&>(Value(r).rvalue()));
     }
 
     // const l-ref
     const auto& c = i; Value constLValue(c);
-    check_signal(fn.call<int>(c));
-    check_signal(fn.call<int>(constLValue));
+    CHECK_ERROR(fn.call<int>(c));
+    CHECK_ERROR(fn.call<int>(constLValue));
     {
         int r = i;
-        check_signal(fn.call<const int&>(std::move(r)));
+        CHECK_ERROR(fn.call<const int&>(std::move(r)));
     }
     {
         int r = i;
-        check_signal(fn.call<const int&>(Value(r).rvalue()));
+        CHECK_ERROR(fn.call<const int&>(Value(r).rvalue()));
     }
 
     // r-ref
@@ -520,12 +520,12 @@ BOOST_AUTO_TEST_CASE(childParent_call)
     BOOST_CHECK_EQUAL(copyFn.call<Child>(childConstLRef), doCopy(childConstLRef));
     BOOST_CHECK_EQUAL(copyFn.call<Child>(Child(10, 0)), doCopy(Child(10, 0)));
     BOOST_CHECK_EQUAL(copyFn.call<Parent>(copy), (Parent) doCopy(copy));
-    check_signal(copyFn.call<Parent&>(copy));
-    check_signal(copyFn.call<const Parent&>(copy));
+    CHECK_ERROR(copyFn.call<Parent&>(copy));
+    CHECK_ERROR(copyFn.call<const Parent&>(copy));
 
     BOOST_CHECK_EQUAL(lrefFn.call<Child&>(childLRef), doLRef(lref));
-    check_signal(lrefFn.call<Child&>(childConstLRef));
-    check_signal(lrefFn.call<Child&>(Child(10, 0)));
+    CHECK_ERROR(lrefFn.call<Child&>(childConstLRef));
+    CHECK_ERROR(lrefFn.call<Child&>(Child(10, 0)));
     BOOST_CHECK_EQUAL(lrefFn.call<Parent>(lref), (Parent) doLRef(lref));
     BOOST_CHECK_EQUAL(lrefFn.call<Parent&>(lref), (Parent&) doLRef(lref));
     BOOST_CHECK_EQUAL(lrefFn.call<const Parent&>(lref), (const Parent&) doLRef(lref));
@@ -534,11 +534,11 @@ BOOST_AUTO_TEST_CASE(childParent_call)
     BOOST_CHECK_EQUAL(clrefFn.call<const Child&>(childConstLRef), doConstLRef(childConstLRef));
     BOOST_CHECK_EQUAL(clrefFn.call<const Child&>(Child(10, 0)), doConstLRef(Child(10, 0)));
     BOOST_CHECK_EQUAL(clrefFn.call<Parent>(clref), (Parent) doConstLRef(clref));
-    check_signal(clrefFn.call<Parent&>(clref));
+    CHECK_ERROR(clrefFn.call<Parent&>(clref));
     BOOST_CHECK_EQUAL(clrefFn.call<const Parent&>(clref), (const Parent&) doConstLRef(clref));
 
-    check_signal(rrefFn.call<Object>(childLRef));
-    check_signal(rrefFn.call<Object>(childConstLRef));
+    CHECK_ERROR(rrefFn.call<Object>(childLRef));
+    CHECK_ERROR(rrefFn.call<Object>(childConstLRef));
     BOOST_CHECK_EQUAL(rrefFn.call<Object>(Child(10, 0)), doRRef(Child(10, 0)));
 }
 
@@ -628,21 +628,21 @@ BOOST_AUTO_TEST_CASE(converters_call)
     BOOST_CHECK_EQUAL(copyFn.call<Conv>(convConstLRef), doCopy(convConstLRef));
     BOOST_CHECK_EQUAL(copyFn.call<Conv>(Conv(10)), doCopy(Conv(10)));
     BOOST_CHECK_EQUAL(copyFn.call<int>(copy), (int) doCopy(copy));
-    check_signal(copyFn.call<int&>(copy));
-    check_signal(copyFn.call<const int&>(copy));
+    CHECK_ERROR(copyFn.call<int&>(copy));
+    CHECK_ERROR(copyFn.call<const int&>(copy));
 
-    check_signal(lrefFn.call<Conv&>(convLRef));
-    check_signal(lrefFn.call<Conv&>(convConstLRef));
-    check_signal(lrefFn.call<Conv&>(Conv(10)));
+    CHECK_ERROR(lrefFn.call<Conv&>(convLRef));
+    CHECK_ERROR(lrefFn.call<Conv&>(convConstLRef));
+    CHECK_ERROR(lrefFn.call<Conv&>(Conv(10)));
     BOOST_CHECK_EQUAL(lrefFn.call<int>(lref), (int) doLRef(lref));
-    check_signal(lrefFn.call<int&>(lref));
+    CHECK_ERROR(lrefFn.call<int&>(lref));
     BOOST_CHECK_EQUAL(lrefFn.call<const int&>(lref), (const int&) doLRef(lref));
 
     BOOST_CHECK_EQUAL(clrefFn.call<const Conv&>(convLRef), doConstLRef(convLRef));
     BOOST_CHECK_EQUAL(clrefFn.call<const Conv&>(convConstLRef), doConstLRef(convConstLRef));
     BOOST_CHECK_EQUAL(clrefFn.call<const Conv&>(Conv(10)), doConstLRef(Conv(10)));
     BOOST_CHECK_EQUAL(clrefFn.call<int>(clref), (int) doConstLRef(clref));
-    check_signal(clrefFn.call<int&>(clref));
+    CHECK_ERROR(clrefFn.call<int&>(clref));
     BOOST_CHECK_EQUAL(clrefFn.call<const int&>(clref), (const int&) doConstLRef(clref));
 
     BOOST_CHECK_EQUAL(rrefFn.call<int>(convLRef), doRRef(convLRef));

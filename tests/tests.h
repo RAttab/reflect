@@ -1,9 +1,11 @@
-/* signals.h                                 -*- C++ -*-
+/* tests.h                                 -*- C++ -*-
    Rémi Attab (remi.attab@gmail.com), 28 Dec 2015
    FreeBSD-style copyright and disclaimer apply
 */
 
 #pragma once
+
+#include "reflect.h"
 
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -36,12 +38,16 @@ int signalNet()
     return WIFSIGNALED(status) ? 1 : 0;
 }
 
-#define check_signal(p)                         \
+#if REFLECT_USE_EXCEPTIONS
+# define CHECK_ERROR(p) BOOST_CHECK_THROW((p), reflect::Error)
+#else
+# define CHECK_ERROR(p)                         \
     do {                                        \
         int ret = test::signalNet();            \
         if (ret == -1) { (p); exit(0); }        \
         BOOST_CHECK_EQUAL(ret, 1);              \
     } while (false)
+#endif
 
 
 } // namespace test
