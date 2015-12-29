@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(destruct)
         Value objMove = obj.move();
         (void) objMove;
     }
-    check("obj-move", 2 + 3);
+    check("obj-move", 3 + 1);
 }
 
 
