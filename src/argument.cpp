@@ -102,9 +102,8 @@ isConvertibleTo(const Argument& target) const
     bool isExact = false;
 
     if (type()->hasConverter(target.type())) {
-        if (target.refType() == RefType::LValue && !target.isConst())
-            return Match::None;
-        return Match::Partial;
+        if (target.refType() != RefType::LValue) return Match::Partial;
+        return Match::None;
     }
 
     if (target.refType() != RefType::Copy) {

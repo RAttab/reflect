@@ -155,9 +155,9 @@ BOOST_AUTO_TEST_CASE(test_clref)
     BOOST_CHECK_EQUAL(&cast<const Parent&>(clref(childVal)), &childVal);
 
     Convertible convVal(90);
-    BOOST_CHECK_EQUAL(cast<const int&>(rref(Convertible(90))), 90);
-    BOOST_CHECK_EQUAL(cast<const int&>(lref(Convertible(100))), 100);
-    BOOST_CHECK_EQUAL(cast<const int&>(clref(Convertible(110))), 110);
+    check_signal(cast<const int&>(rref(Convertible(90))));
+    check_signal(cast<const int&>(lref(Convertible(100))));
+    check_signal(cast<const int&>(clref(Convertible(110))));
 }
 
 
