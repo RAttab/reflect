@@ -15,11 +15,15 @@ namespace {
 
 Value lref(Value &value, const Argument& target)
 {
-    if (!target.isConst()) return value;
-    if (target.type()->isParentOf(value.type())) return value;
+    if (target.isConst() || !value.isConst()) {
+        if (target.type()->isParentOf(value.type()))
+            return value;
+    }
 
-    if (value.type()->hasConverter(target.type()))
-        return value.convert<Value>(target.type());
+    if (target.isConst()) {
+        if (value.type()->hasConverter(target.type()))
+            return value.convert<Value>(target.type());
+    }
 
     reflectError("<%s> is not castable to <%s>",
             value.argument().print(), target.print());
@@ -58,6 +62,17 @@ Value copy(Value& value, const Argument& target)
 } // namespace anonymous
 
 
+// isCastable is currently more strict then cast is.
+//
+// This is due to Argument::isConvertibleTo being designed to test function
+// signature and cast working on Value object which don't support the full-range
+// of ref types. Because of this we need to support LRef to RRef casts because
+// Value(123) will result in an LRef which we can't properly convert to an RRef
+// in the casting code.
+//
+// Short version, a bit of a clusterfuck. Will need to think up a better
+// solution.
+
 bool isCastable(const Value& value, const Argument& target)
 {
     return value.argument().isConvertibleTo(target) != Match::None;
@@ -65,11 +80,6 @@ bool isCastable(const Value& value, const Argument& target)
 
 Value cast(Value& value, const Argument& target)
 {
-    if (!isCastable(value, target)) {
-        reflectError("<%s> is not castable to <%s>",
-                value.argument().print(), target.print());
-    }
-
     switch (target.refType()) {
     case RefType::LValue: return lref(value, target);
     case RefType::RValue: return rref(value, target);
