@@ -548,6 +548,9 @@ BOOST_AUTO_TEST_CASE(childParent_call)
 /******************************************************************************/
 
 // The test cases for this are less complicated so stuff everything in one test.
+//
+// Currently converters into references aren't supported because it would result
+// on a dangling reference.
 BOOST_AUTO_TEST_CASE(converters_test)
 {
     typedef test::Convertible Conv;
@@ -580,15 +583,15 @@ BOOST_AUTO_TEST_CASE(converters_test)
     BOOST_CHECK_EQUAL(lrefFn.test<void(Conv&&)>(),      Match::None);
     BOOST_CHECK_EQUAL(lrefFn.test<int(int&)>(),         Match::Exact);
     BOOST_CHECK_EQUAL(lrefFn.test<int&(int&)>(),        Match::None);
-    BOOST_CHECK_EQUAL(lrefFn.test<const int&(int&)>(),  Match::Exact);
+    BOOST_CHECK_EQUAL(lrefFn.test<const int&(int&)>(),  Match::None);
 
-    BOOST_CHECK_EQUAL(clrefFn.test<void(Conv)>(),             Match::Partial);
-    BOOST_CHECK_EQUAL(clrefFn.test<void(Conv&)>(),            Match::Partial);
-    BOOST_CHECK_EQUAL(clrefFn.test<void(const Conv&)>(),      Match::Partial);
-    BOOST_CHECK_EQUAL(clrefFn.test<void(Conv&&)>(),           Match::Partial);
+    BOOST_CHECK_EQUAL(clrefFn.test<void(Conv)>(),             Match::None);
+    BOOST_CHECK_EQUAL(clrefFn.test<void(Conv&)>(),            Match::None);
+    BOOST_CHECK_EQUAL(clrefFn.test<void(const Conv&)>(),      Match::None);
+    BOOST_CHECK_EQUAL(clrefFn.test<void(Conv&&)>(),           Match::None);
     BOOST_CHECK_EQUAL(clrefFn.test<int(const int&)>(),        Match::Exact);
     BOOST_CHECK_EQUAL(clrefFn.test<int&(const int&)>(),       Match::None);
-    BOOST_CHECK_EQUAL(clrefFn.test<const int&(const int&)>(), Match::Exact);
+    BOOST_CHECK_EQUAL(clrefFn.test<const int&(const int&)>(), Match::None);
 
     BOOST_CHECK_EQUAL(rrefFn.test<void(Conv)>(),        Match::Partial);
     BOOST_CHECK_EQUAL(rrefFn.test<void(Conv&)>(),       Match::Partial);
@@ -636,14 +639,14 @@ BOOST_AUTO_TEST_CASE(converters_call)
     CHECK_ERROR(lrefFn.call<Conv&>(Conv(10)));
     BOOST_CHECK_EQUAL(lrefFn.call<int>(lref), (int) doLRef(lref));
     CHECK_ERROR(lrefFn.call<int&>(lref));
-    BOOST_CHECK_EQUAL(lrefFn.call<const int&>(lref), (const int&) doLRef(lref));
+    CHECK_ERROR(lrefFn.call<const int&>(lref));
 
-    BOOST_CHECK_EQUAL(clrefFn.call<const Conv&>(convLRef), doConstLRef(convLRef));
-    BOOST_CHECK_EQUAL(clrefFn.call<const Conv&>(convConstLRef), doConstLRef(convConstLRef));
-    BOOST_CHECK_EQUAL(clrefFn.call<const Conv&>(Conv(10)), doConstLRef(Conv(10)));
+    CHECK_ERROR(clrefFn.call<const Conv&>(convLRef));
+    CHECK_ERROR(clrefFn.call<const Conv&>(convConstLRef));
+    CHECK_ERROR(clrefFn.call<const Conv&>(Conv(10)));
     BOOST_CHECK_EQUAL(clrefFn.call<int>(clref), (int) doConstLRef(clref));
     CHECK_ERROR(clrefFn.call<int&>(clref));
-    BOOST_CHECK_EQUAL(clrefFn.call<const int&>(clref), (const int&) doConstLRef(clref));
+    CHECK_ERROR(clrefFn.call<const int&>(clref));
 
     BOOST_CHECK_EQUAL(rrefFn.call<int>(convLRef), doRRef(convLRef));
     BOOST_CHECK_EQUAL(rrefFn.call<int>(convConstLRef), doRRef(convConstLRef));
