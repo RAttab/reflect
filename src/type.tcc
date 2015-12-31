@@ -30,6 +30,22 @@ addField(const std::string& name, size_t offset)
     addField(name, Field::make<T>(name, offset));
 }
 
+template<typename T>
+void
+Type::
+addConcept()
+{
+    addConcept(T::id(), new T);
+}
+
+template<typename T>
+const T&
+Type::
+concept() const
+{
+    return static_cast<const T&>(concept(T::id()));
+}
+
 template<typename... Args>
 Value
 Type::

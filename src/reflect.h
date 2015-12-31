@@ -39,6 +39,7 @@ struct Type;
 struct Scope;
 struct Value;
 struct Field;
+struct Concept;
 struct Function;
 struct Overloads;
 
@@ -51,6 +52,7 @@ struct Overloads;
 #include "cast.h"
 #include "value_function.h"
 #include "field.h"
+#include "concept.h"
 #include "function.h"
 #include "overloads.h"
 #include "type.h"

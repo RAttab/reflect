@@ -10,6 +10,8 @@
 #include "reflect.h"
 #pragma once
 
+#include "concepts/plumbing.h"
+
 namespace reflect {
 
 /******************************************************************************/
@@ -36,7 +38,7 @@ template<typename T,
         std::is_move_constructible<T>::value>::type>
 void reflectDefaultConstructor(Type* type)
 {
-    type->addFunction(type->id(), [] { return T(); });
+    type->addConcept< DefaultConstructibleT<T> >();
 }
 
 template<typename>
@@ -55,7 +57,7 @@ template<typename T,
         std::is_default_constructible<T>::value>::type>
 void reflectAllocDefaultConstructor(Type* type)
 {
-    type->addFunction("new", [] () -> T* { return new T(); });
+    type->addConcept< DefaultAllocableT<T> >();
 }
 
 template<typename>
@@ -75,9 +77,7 @@ template<typename T,
         std::is_move_constructible<T>::value>::type>
 void reflectCopyConstructor(Type* type)
 {
-    type->addFunction(type->id(), [] (const T& other) {
-                return T(other);
-            });
+    type->addConcept< CopyConstructibleT<T> >();
 }
 
 template<typename>
@@ -95,9 +95,7 @@ template<typename T,
     class = typename std::enable_if<std::is_copy_constructible<T>::value>::type>
 void reflectAllocCopyConstructor(Type* type)
 {
-    type->addFunction("new", [] (const T& other) -> T* {
-                return new T(other);
-            });
+    type->addConcept< CopyAllocableT<T> >();
 }
 
 template<typename>
@@ -109,6 +107,24 @@ void reflectAllocCopyConstructor(...) {}
 
 
 /******************************************************************************/
+/* OP ASSIGN COPY                                                             */
+/******************************************************************************/
+
+template<typename T,
+    class = typename std::enable_if<std::is_copy_assignable<T>::value>::type>
+void reflectCopyAssignOperator(Type* type)
+{
+    type->addConcept< CopyAssignableT<T> >();
+}
+
+template<typename>
+void reflectCopyAssignOperator(...) {}
+
+#define reflectOpCopyAssign() \
+    reflect::reflectCopyAssignOperator<T_>(type_)
+
+
+/******************************************************************************/
 /* CONS MOVE                                                                  */
 /******************************************************************************/
 
@@ -116,9 +132,7 @@ template<typename T,
     class = typename std::enable_if<std::is_move_constructible<T>::value>::type>
 void reflectMoveConstructor(Type* type)
 {
-    type->addFunction(type->id(), [] (T&& other) {
-                return T(std::move(other));
-            });
+    type->addConcept< MoveConstructibleT<T> >();
 }
 
 template<typename>
@@ -137,9 +151,7 @@ template<typename T,
     class = typename std::enable_if<std::is_move_constructible<T>::value>::type>
 void reflectAllocMoveConstructor(Type* type)
 {
-    type->addFunction("new", [] (T&& other) -> T* {
-                return new T(std::move(other));
-            });
+    type->addConcept< MoveAllocableT<T> >();
 }
 
 template<typename>
@@ -151,26 +163,6 @@ void reflectAllocMoveConstructor(...) {}
 
 
 /******************************************************************************/
-/* OP ASSIGN COPY                                                             */
-/******************************************************************************/
-
-template<typename T,
-    class = typename std::enable_if<std::is_copy_assignable<T>::value>::type>
-void reflectCopyAssignOperator(Type* type)
-{
-    type->addFunction("operator=", [] (T& obj, const T& other) -> T& {
-                return obj = other;
-            });
-}
-
-template<typename>
-void reflectCopyAssignOperator(...) {}
-
-#define reflectOpCopyAssign() \
-    reflect::reflectCopyAssignOperator<T_>(type_)
-
-
-/******************************************************************************/
 /* OP ASSIGN MOVE                                                             */
 /******************************************************************************/
 
@@ -178,9 +170,7 @@ template<typename T,
     class = typename std::enable_if<std::is_move_assignable<T>::value>::type>
 void reflectMoveAssignOperator(Type* type)
 {
-    type->addFunction("operator=", [] (T& obj, T&& other) -> T& {
-                return obj = std::move(other);
-            });
+    type->addConcept< MoveAssignableT<T> >();
 }
 
 template<typename>

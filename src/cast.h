@@ -37,6 +37,12 @@ struct TargetRef
 bool isCastable(const Value& value, const Argument& target);
 Value cast(Value& value, const Argument& target);
 
+template<typename T>
+Value cast(T&& value, const Argument& target)
+{
+    return cast(Value(std::forward<T>(value)), target);
+}
+
 template<typename T, typename Target>
 struct Cast
 {

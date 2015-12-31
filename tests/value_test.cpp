@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE(void_)
 // Make sure that Value compiles regardless of whether the copy/move
 // constructors are there or not. We should instead break at runtime IF they are
 // used.
-BOOST_AUTO_TEST_CASE(construct)
+BOOST_AUTO_TEST_CASE(construct_)
 {
     BOOST_TEST_CHECKPOINT("construct-int");
     Value(0);

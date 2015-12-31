@@ -45,6 +45,15 @@ struct Type : public Traits
     Field& field(const std::string& field);
     const Field& field(const std::string& field) const;
 
+    template<typename T>
+    void addConcept();
+    void addConcept(const std::string& name, const Concept* concept);
+    bool hasConcept(const std::string& name) const;
+
+    template<typename T>
+    const T& concept() const;
+    const Concept& concept(const std::string& name) const;
+
     bool isPointer() const;
     std::string pointer() const;
     const Type* pointee() const;
@@ -91,6 +100,7 @@ private:
 
     std::unordered_map<std::string, Field> fields_;
     std::unordered_map<std::string, Overloads> fns_;
+    std::unordered_map<std::string, const Concept*> concepts_;
 };
 
 

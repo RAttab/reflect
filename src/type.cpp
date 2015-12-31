@@ -233,6 +233,38 @@ field(const std::string& field) const
 
 bool
 Type::
+hasConcept(const std::string& concept) const
+{
+    if (concepts_.count(concept)) return true;
+    return parent_ ? parent_->hasConcept(concept) : false;
+}
+
+void
+Type::
+addConcept(const std::string& name, const Concept *concept)
+{
+    auto ret = concepts_.emplace(name, concept);
+    if (!ret.second)
+        reflectError("concept <%s> already exists in <%s>", name, id());
+}
+
+
+const Concept&
+Type::
+concept(const std::string& concept) const
+{
+    auto it = concepts_.find(concept);
+    if (it != concepts_.end()) return *it->second;
+
+    if (!parent_)
+        reflectError("<%s> doesn't have the concept <%s>", id_, concept);
+
+    return parent_->concept(concept);
+}
+
+
+bool
+Type::
 isPointer() const
 {
     return is("pointer");
