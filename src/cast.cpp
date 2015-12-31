@@ -15,12 +15,17 @@ namespace {
 
 Value lref(Value &value, const Argument& target)
 {
-    if (target.isConst() || !value.isConst()) {
-        if (target.type()->isParentOf(value.type()))
+    if (target.type()->isParentOf(value.type())) {
+        if (target.isConst()) return value;
+        if (!value.isConst() && value.refType() == RefType::LValue)
             return value;
     }
 
-    if (target.isConst()) {
+    // While this is allowed in C++, we can't return a reference to a value that
+    // we're constructing here because that would lead to a dangling reference.
+    //
+    // No idea how to solve this issue unfortunately so it's disabled for now.
+    if (false && target.isConst()) {
         if (value.type()->hasConverter(target.type()))
             return value.convert<Value>(target.type());
     }

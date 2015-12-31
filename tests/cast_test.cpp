@@ -165,27 +165,51 @@ BOOST_AUTO_TEST_CASE(test_clref)
 /* rref                                                                       */
 /******************************************************************************/
 
+// Note that we allow lref to rref casts because Value can only represent lref
+// and rrefs and not copy which get classified as lrefs. This is a quality of
+// life thing for the interface.
 BOOST_AUTO_TEST_CASE(test_rref)
 {
-    int iVal = 10;
     BOOST_CHECK_EQUAL(cast<int&&>(rref(int(10))), 10);
-    CHECK_ERROR(cast<int&&>(lref(iVal)));
-    CHECK_ERROR(cast<int&&>(clref(iVal)));
+    {
+        int val = 20;
+        BOOST_CHECK(!isCastable<int&&>(lref(val)));
+        BOOST_CHECK_EQUAL(cast<int&&>(lref(val)), 20);
+    }
+    {
+        int val = 30;
+        BOOST_CHECK(!isCastable<int&&>(clref(val)));
+        BOOST_CHECK_EQUAL(cast<int&&>(clref(val)), 30);
+    }
 
-    Object objVal(40);
     BOOST_CHECK_EQUAL(cast<Object&&>(rref(Object(40))), Object(40));
-    CHECK_ERROR(cast<Object&&>(lref(objVal)));
-    CHECK_ERROR(cast<Object&&>(clref(objVal)));
+    {
+        Object val(50);
+        BOOST_CHECK(!isCastable<Object&&>(lref(val)));
+        BOOST_CHECK_EQUAL(cast<Object&&>(lref(val)), Object(50));
+    }
+    {
+        Object val(60);
+        BOOST_CHECK(!isCastable<Object&&>(clref(val)));
+        BOOST_CHECK_EQUAL(cast<Object&&>(clref(val)), Object(60));
+    }
 
     NotCopiable ncVal;
     cast<NotCopiable&&>(rref(NotCopiable()));
-    CHECK_ERROR(cast<NotCopiable&&>(lref(ncVal)));
-    CHECK_ERROR(cast<NotCopiable&&>(clref(ncVal)));
+    cast<NotCopiable&&>(lref(ncVal));
+    cast<NotCopiable&&>(clref(ncVal));
 
-    Child childVal(70);
     BOOST_CHECK_EQUAL(cast<Parent&&>(rref(Child(70))), Parent(70));
-    CHECK_ERROR(cast<Parent&&>(lref(childVal)));
-    CHECK_ERROR(cast<Parent&&>(clref(childVal)));
+    {
+        Child val(70);
+        BOOST_CHECK(!isCastable<Parent&&>(lref(val)));
+        BOOST_CHECK_EQUAL(cast<Parent&&>(lref(val)), Parent(70));
+    }
+    {
+        Child val(80);
+        BOOST_CHECK(!isCastable<Parent&&>(clref(val)));
+        BOOST_CHECK_EQUAL(cast<Parent&&>(clref(val)), Parent(80));
+    }
 
     Convertible convVal(90);
     BOOST_CHECK_EQUAL(cast<int&&>(rref(Convertible(90))), 90);
