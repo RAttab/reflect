@@ -41,7 +41,7 @@ std::ostream& operator<<(std::ostream& stream, Match match)
 /******************************************************************************/
 
 Argument::
-Argument() : type_(reflect::type<void>()) {}
+Argument() : type_(reflect::type<void>()), isConst_(false) {}
 
 Argument::
 Argument(const Type* type, RefType refType, bool isConst) :
