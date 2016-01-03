@@ -116,7 +116,7 @@ struct Value
 
     // operator= for the contained value.
     template<typename Arg>
-    void assign(Arg&& arg) const;
+    void assign(Arg&& arg);
 
     template<typename Ret>
     Ret convert(const Type* target) const;

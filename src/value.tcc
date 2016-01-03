@@ -134,9 +134,9 @@ field(const std::string& field) const
 template<typename Arg>
 void
 Value::
-assign(Arg&& arg) const
+assign(Arg&& arg)
 {
-    call<void>("operator=", std::forward<Arg>(arg));
+    reflect::assign(this->type(), *this, std::forward<Arg>(arg));
 }
 
 

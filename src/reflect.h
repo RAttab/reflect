@@ -57,6 +57,7 @@ struct Overloads;
 #include "overloads.h"
 #include "type.h"
 #include "scope.h"
+#include "concepts/plumbing.h"
 
 #include "traits.tcc"
 #include "argument.tcc"

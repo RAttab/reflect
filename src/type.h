@@ -80,7 +80,9 @@ struct Type : public Traits
 
     template<typename... Args>
     Value construct(Args&&... args) const;
-    Value alloc() const;
+
+    template<typename... Args>
+    Value alloc(Args&&... args) const;
 
     template<typename Ret, typename... Args>
     Ret call(const std::string& fn, Args&&... args) const;

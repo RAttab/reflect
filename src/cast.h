@@ -34,7 +34,15 @@ struct TargetRef
 /* CAST                                                                       */
 /******************************************************************************/
 
+bool isCastable(const Argument& value, const Argument& target);
 bool isCastable(const Value& value, const Argument& target);
+
+template<typename T>
+bool isCastable(const Argument& target)
+{
+    return isCastable(Argument::make<T>(), target);
+}
+
 Value cast(Value& value, const Argument& target);
 
 template<typename T>

@@ -15,6 +15,7 @@ project(reflect)
 enable_testing()
 
 add_definitions("-Wall -Wextra -Werror -pedantic -g -O3")
+add_definitions("-ftemplate-depth-100")
 
 # We use the offsetof macro on non-pod types to get the offset of fields. May
 # not be portable beyond gcc.

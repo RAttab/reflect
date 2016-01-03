@@ -51,7 +51,15 @@ Value
 Type::
 construct(Args&&... args) const
 {
-    return call<Value>(id(), std::forward<Args>(args)...);
+    return reflect::construct<Value>(this, std::forward<Args>(args)...);
+}
+
+template<typename... Args>
+Value
+Type::
+alloc(Args&&... args) const
+{
+    return reflect::alloc<Value>(this, std::forward<Args>(args)...);
 }
 
 template<typename Ret, typename... Args>

@@ -78,10 +78,16 @@ Value copy(Value& value, const Argument& target)
 // Short version, a bit of a clusterfuck. Will need to think up a better
 // solution.
 
+bool isCastable(const Argument& value, const Argument& target)
+{
+    return value.isConvertibleTo(target) != Match::None;
+}
+
 bool isCastable(const Value& value, const Argument& target)
 {
-    return value.argument().isConvertibleTo(target) != Match::None;
+    return isCastable(value, target);
 }
+
 
 Value cast(Value& value, const Argument& target)
 {

@@ -90,16 +90,15 @@ struct CopyAssignable : public Concept
 {
     static const std::string id() { return "copy_assignable"; }
 
-    virtual Value assignCopy(Value& lhs, const Value& rhs) const = 0;
+    virtual void assignCopy(Value& lhs, const Value& rhs) const = 0;
 };
 
 template<typename T>
 struct CopyAssignableT : public CopyAssignable
 {
-    virtual Value assignCopy(Value& lhs, const Value& rhs) const
+    virtual void assignCopy(Value& lhs, const Value& rhs) const
     {
         lhs.as<T>() = rhs.get<T>();
-        return lhs;
     }
 };
 
@@ -151,16 +150,15 @@ struct MoveAssignable : public Concept
 {
     static const std::string id() { return "move_assignable"; }
 
-    virtual Value assignMove(Value& lhs, Value& rhs) const = 0;
+    virtual void assignMove(Value& lhs, Value& rhs) const = 0;
 };
 
 template<typename T>
 struct MoveAssignableT : public MoveAssignable
 {
-    virtual Value assignMove(Value& lhs, Value& rhs) const
+    virtual void assignMove(Value& lhs, Value& rhs) const
     {
         lhs.as<T>() = std::move(rhs.as<T>());
-        return lhs;
     }
 };
 
@@ -180,14 +178,14 @@ template<typename Ret, typename Arg>
 Ret construct(const Type* type, Arg&& arg)
 {
     static const Argument moveTarget(type, RefType::RValue, false);
-    if (Argument::make<Arg>().isConvertibleTo(moveTarget)) {
+    if (isCastable<Arg>(moveTarget)) {
         Value vArg = cast(arg, moveTarget);
         Value ret = type->concept<MoveConstructible>().constructMove(vArg);
         return retCast<Ret>(ret);
     }
     
     static const Argument copyTarget(type, RefType::LValue, true);
-    if (Argument::make<Arg>().isConvertibleTo(copyTarget)) {
+    if (isCastable<Arg>(copyTarget)) {
         Value vArg = cast(arg, copyTarget);
         Value ret = type->concept<CopyConstructible>().constructCopy(vArg);
         return retCast<Ret>(ret);
@@ -217,14 +215,14 @@ template<typename Ret, typename Arg>
 Ret alloc(const Type* type, Arg&& arg)
 {
     static const Argument moveTarget(type, RefType::RValue, false);
-    if (Argument::make<Arg>().isConvertibleTo(moveTarget) != Match::None) {
+    if (isCastable<Arg>(moveTarget)) {
         Value vArg = cast(arg, moveTarget);
         Value ret = type->concept<MoveAllocable>().allocMove(vArg);
         return retCast<Ret>(ret);
     }
     
     static const Argument copyTarget(type, RefType::LValue, true);
-    if (Argument::make<Arg>().isConvertibleTo(copyTarget) != Match::None) {
+    if (isCastable<Arg>(copyTarget)) {
         Value vArg = cast(arg, copyTarget);
         Value ret = type->concept<CopyAllocable>().allocCopy(vArg);
         return retCast<Ret>(ret);
@@ -244,24 +242,24 @@ Ret alloc(const Type* type, Args&&... args)
 /* ASSIGN                                                                     */
 /******************************************************************************/
 
-template<typename Ret, typename Arg>
-Ret assign(const Type* type, Value& object, Arg&& arg)
+template<typename Arg>
+void assign(const Type* type, Value& object, Arg&& arg)
 {
     static const Argument moveTarget(type, RefType::LValue, true);
-    if (Argument::make<Arg>().isConvertibleTo(moveTarget) != Match::None) {
+    if (isCastable<Arg>(moveTarget)) {
         Value vArg = cast(arg, moveTarget);
-        Value ret = type->concept<MoveAssignable>().assignMove(object, vArg);
-        return retCast<Ret>(ret);
+        type->concept<MoveAssignable>().assignMove(object, vArg);
+        return;
     }
     
     static const Argument copyTarget(type, RefType::LValue, true);
-    if (Argument::make<Arg>().isConvertibleTo(copyTarget) != Match::None) {
+    if (isCastable<Arg>(copyTarget)) {
         Value vArg = cast(arg, copyTarget);
-        Value ret = type->concept<CopyAssignable>().assignCopy(object, vArg);
-        return retCast<Ret>(ret);
+        type->concept<CopyAssignable>().assignCopy(object, vArg);
+        return;
     }
 
-    return type->call<Ret>("operator=", std::forward<Arg>(arg));
+    type->call<void>("operator=", std::forward<Arg>(arg));
 }
 
 } // namespace reflect

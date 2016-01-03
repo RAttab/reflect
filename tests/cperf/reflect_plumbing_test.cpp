@@ -53,6 +53,8 @@ reflectThing(Thing)
 reflectThing10()
 reflectThing10()
 reflectThing10()
+reflectThing10()
+reflectThing10()
 
 int main(int, char**)
 {
