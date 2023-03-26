@@ -2,6 +2,13 @@
 
 Yet another reflection system for C++.
 
+> **ABANDONED EXPERIMENTAL REPOSITORY**
+>
+> Since this repository keeps getting forked, I want to make sure that nobody
+> actually uses it. I'm aware of at least one reference to temporary variable
+> bug in the parameter casting templates which is deeply rooted and near
+> impossible to fix without doing major changes.
+
 
 ## Why? ##
 
